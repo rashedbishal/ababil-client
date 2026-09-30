@@ -1,0 +1,174 @@
+<?php
+
+namespace App\Actions\Orders;
+
+use App\Enums\IncompleteOrderConversionStatus;
+use App\Enums\OrderStatus;
+use App\Exceptions\OrderPlacementException;
+use App\Models\IncompleteOrder;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\OrderStatusHistory;
+use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\Setting;
+use App\Models\ShippingArea;
+use App\Support\Decimal;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+/**
+ * Centralized, backend-trusted order creation.
+ *
+ * Every price used to build the order is re-derived from the database
+ * inside this action - nothing submitted by the client is ever trusted for
+ * money. Stock is decremented with a locked, conditional update so
+ * concurrent orders for the same item can never oversell it.
+ */
+class PlaceOrderAction
+{
+    /**
+     * @param  array{
+     *     product_id: int,
+     *     variant_id: int|null,
+     *     quantity: int,
+     *     customer_name: string,
+     *     customer_phone: string,
+     *     delivery_address: string,
+     *     shipping_area_id: int,
+     *     customer_note: string|null,
+     *     session_token: string|null,
+     * }  $data
+     */
+    public function execute(array $data, ?string $ip, ?string $userAgent): Order
+    {
+        return DB::transaction(function () use ($data, $ip, $userAgent): Order {
+            $product = Product::query()->lockForUpdate()->find($data['product_id']);
+
+            if (! $product || ! $product->is_active) {
+                throw new OrderPlacementException('This product is no longer available.');
+            }
+
+            $variant = null;
+
+            if ($data['variant_id'] !== null) {
+                $variant = ProductVariant::query()->lockForUpdate()->find($data['variant_id']);
+
+                if (! $variant || $variant->product_id !== $product->id || ! $variant->is_active) {
+                    throw new OrderPlacementException('The selected size is no longer available.');
+                }
+            } elseif ($product->hasVariants()) {
+                throw new OrderPlacementException('Please select a size.');
+            }
+
+            $quantity = $data['quantity'];
+
+            $this->reserveStock($product, $variant, $quantity);
+
+            $shippingArea = ShippingArea::query()->where('is_active', true)->find($data['shipping_area_id']);
+
+            if (! $shippingArea) {
+                throw new OrderPlacementException('The selected shipping area is no longer available.');
+            }
+
+            $unitPrice = $variant?->currentPrice() ?? $product->currentPrice();
+            $subtotal = bcmul($unitPrice, (string) $quantity, 2);
+            $shippingCharge = Decimal::of($shippingArea->charge);
+            $discount = '0.00';
+            $grandTotal = bcsub(bcadd($subtotal, $shippingCharge, 2), $discount, 2);
+
+            $order = Order::query()->create([
+                'order_number' => $this->generateOrderNumber(),
+                'customer_name' => $data['customer_name'],
+                'customer_phone' => $data['customer_phone'],
+                'delivery_address' => $data['delivery_address'],
+                'shipping_area_id' => $shippingArea->id,
+                'shipping_area_name' => $shippingArea->name,
+                'subtotal' => $subtotal,
+                'shipping_charge' => $shippingCharge,
+                'discount' => $discount,
+                'grand_total' => $grandTotal,
+                'status' => OrderStatus::Pending,
+                'customer_ip' => $ip,
+                'user_agent' => $userAgent,
+                'customer_note' => $data['customer_note'] ?? null,
+            ]);
+
+            OrderItem::query()->create([
+                'order_id' => $order->id,
+                'product_id' => $product->id,
+                'variant_id' => $variant?->id,
+                'product_name' => $product->name,
+                'sku' => $variant !== null ? $variant->sku : $product->sku,
+                'size_name' => $variant?->size?->name,
+                'unit_price' => $unitPrice,
+                'quantity' => $quantity,
+                'line_total' => $subtotal,
+            ]);
+
+            OrderStatusHistory::query()->create([
+                'order_id' => $order->id,
+                'from_status' => null,
+                'to_status' => OrderStatus::Pending,
+                'note' => 'Order placed by customer.',
+            ]);
+
+            if (! empty($data['session_token'])) {
+                IncompleteOrder::query()
+                    ->where('session_token', $data['session_token'])
+                    ->update([
+                        'conversion_status' => IncompleteOrderConversionStatus::Converted,
+                        'order_id' => $order->id,
+                    ]);
+            }
+
+            return $order;
+        });
+    }
+
+    /**
+     * Atomically decrement stock so two concurrent orders can never oversell
+     * the same product/variant. The `lockForUpdate` reads above serialize
+     * access per row, and the conditional `stock >=` update is a second,
+     * belt-and-braces guard against overselling.
+     */
+    private function reserveStock(Product $product, ?ProductVariant $variant, int $quantity): void
+    {
+        if ($variant !== null) {
+            $updated = ProductVariant::query()
+                ->where('id', $variant->id)
+                ->where('stock', '>=', $quantity)
+                ->decrement('stock', $quantity);
+
+            if ($updated === 0) {
+                throw new OrderPlacementException('Not enough stock available for the selected size.');
+            }
+
+            return;
+        }
+
+        if (! $product->track_stock) {
+            return;
+        }
+
+        $updated = Product::query()
+            ->where('id', $product->id)
+            ->where('stock', '>=', $quantity)
+            ->decrement('stock', $quantity);
+
+        if ($updated === 0) {
+            throw new OrderPlacementException('Not enough stock available for this product.');
+        }
+    }
+
+    private function generateOrderNumber(): string
+    {
+        $prefix = Setting::get('order_prefix', 'ORD');
+
+        do {
+            $candidate = sprintf('%s-%s-%s', $prefix, now()->format('ymd'), strtoupper(Str::random(6)));
+        } while (Order::query()->where('order_number', $candidate)->exists());
+
+        return $candidate;
+    }
+}

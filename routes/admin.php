@@ -1,0 +1,42 @@
+<?php
+
+use App\Http\Controllers\Admin\BlockedIpController;
+use App\Http\Controllers\Admin\CourierController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\IncompleteOrderController;
+use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ShippingAreaController;
+use App\Http\Controllers\Admin\SizeController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function (): void {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('products', ProductController::class)->except(['show']);
+    Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
+
+    Route::post('products/{product}/variants', [ProductVariantController::class, 'store'])->name('products.variants.store');
+    Route::patch('products/{product}/variants/{variant}', [ProductVariantController::class, 'update'])->name('products.variants.update');
+    Route::delete('products/{product}/variants/{variant}', [ProductVariantController::class, 'destroy'])->name('products.variants.destroy');
+
+    Route::resource('sizes', SizeController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('orders', OrderController::class)->only(['index', 'show', 'update']);
+
+    Route::get('incomplete-orders', [IncompleteOrderController::class, 'index'])->name('incomplete-orders.index');
+
+    Route::resource('blocked-ips', BlockedIpController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('shipping-areas', ShippingAreaController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
+
+    Route::resource('media', MediaController::class)->parameters(['media' => 'media'])->only(['index', 'store', 'destroy']);
+
+    Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
+    Route::patch('settings', [SettingController::class, 'update'])->name('settings.update');
+});

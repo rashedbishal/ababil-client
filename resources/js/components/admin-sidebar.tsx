@@ -1,0 +1,155 @@
+import { Link } from '@inertiajs/react';
+import {
+    AlertTriangle,
+    Images,
+    LayoutGrid,
+    ListOrdered,
+    Package,
+    Rows3,
+    Settings as SettingsIcon,
+    ShoppingCart,
+    Truck,
+    Undo2,
+} from 'lucide-react';
+import AppLogo from '@/components/app-logo';
+import { NavUser } from '@/components/nav-user';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
+import { useCurrentUrl } from '@/hooks/use-current-url';
+import { dashboard as customerDashboard } from '@/routes';
+import blockedIps from '@/routes/admin/blocked-ips';
+import courier from '@/routes/admin/courier';
+import { dashboard } from '@/routes/admin';
+import incompleteOrders from '@/routes/admin/incomplete-orders';
+import media from '@/routes/admin/media';
+import orders from '@/routes/admin/orders';
+import products from '@/routes/admin/products';
+import settings from '@/routes/admin/settings';
+import shippingAreas from '@/routes/admin/shipping-areas';
+import sizes from '@/routes/admin/sizes';
+import type { NavItem } from '@/types';
+
+const groups: { label: string; items: NavItem[] }[] = [
+    {
+        label: 'Overview',
+        items: [{ title: 'Dashboard', href: dashboard(), icon: LayoutGrid }],
+    },
+    {
+        label: 'Catalog',
+        items: [
+            { title: 'Products', href: products.index(), icon: Package },
+            { title: 'Sizes', href: sizes.index(), icon: Rows3 },
+        ],
+    },
+    {
+        label: 'Orders',
+        items: [
+            { title: 'Orders', href: orders.index(), icon: ShoppingCart },
+            {
+                title: 'Incomplete Orders',
+                href: incompleteOrders.index(),
+                icon: ListOrdered,
+            },
+        ],
+    },
+    {
+        label: 'Operations',
+        items: [
+            { title: 'Shipping', href: shippingAreas.index(), icon: Truck },
+            {
+                title: 'Courier Integration',
+                href: courier.index(),
+                icon: Undo2,
+            },
+        ],
+    },
+    {
+        label: 'Content',
+        items: [{ title: 'Media', href: media.index(), icon: Images }],
+    },
+    {
+        label: 'Security',
+        items: [
+            {
+                title: 'Blocked IPs',
+                href: blockedIps.index(),
+                icon: AlertTriangle,
+            },
+        ],
+    },
+    {
+        label: 'Configuration',
+        items: [
+            { title: 'Settings', href: settings.edit(), icon: SettingsIcon },
+        ],
+    },
+];
+
+export function AdminSidebar() {
+    const { isCurrentUrl } = useCurrentUrl();
+
+    return (
+        <Sidebar collapsible="icon" variant="inset">
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton size="lg" asChild>
+                            <Link href={dashboard()} prefetch>
+                                <AppLogo />
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+
+            <SidebarContent>
+                {groups.map((group) => (
+                    <SidebarGroup key={group.label} className="px-2 py-0">
+                        <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+                        <SidebarMenu>
+                            {group.items.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isCurrentUrl(item.href)}
+                                        tooltip={{ children: item.title }}
+                                    >
+                                        <Link href={item.href} prefetch>
+                                            {item.icon && <item.icon />}
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroup>
+                ))}
+            </SidebarContent>
+
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            tooltip={{ children: 'Back to site' }}
+                        >
+                            <Link href={customerDashboard()}>
+                                <span>Back to app</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+                <NavUser />
+            </SidebarFooter>
+        </Sidebar>
+    );
+}
