@@ -1,4 +1,6 @@
 import { Droplets, Flame, Hand, Leaf, Sparkles, Timer } from 'lucide-react';
+import Reveal, { RevealGroup, RevealItem } from './motion/reveal';
+import TiltCard from './motion/tilt-card';
 
 const usps = [
     {
@@ -35,30 +37,38 @@ const usps = [
 
 export default function UspSection() {
     return (
-        <section className="bg-neutral-900/60 py-14 sm:py-20">
-            <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <h2 className="text-center font-bengali text-2xl font-bold text-white sm:text-3xl">
-                    কেন আবাবিল বেছে নেবেন
-                </h2>
+        <section className="relative overflow-hidden bg-amber-100/60 py-14 sm:py-20">
+            <div
+                aria-hidden
+                className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgb(217,161,65,0.15),transparent_45%)]"
+            />
+            <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+                <Reveal>
+                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                        কেন আবাবিল বেছে নেবেন
+                    </h2>
+                </Reveal>
 
-                <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <RevealGroup className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {usps.map(({ title, description, icon: Icon }) => (
-                        <div
-                            key={title}
-                            className="rounded-xl border border-white/10 bg-neutral-950/60 p-6"
-                        >
-                            <span className="flex size-11 items-center justify-center rounded-full bg-amber-500/15 text-amber-400">
-                                <Icon className="size-5" />
-                            </span>
-                            <h3 className="mt-4 font-bengali text-lg font-semibold text-white">
-                                {title}
-                            </h3>
-                            <p className="mt-1.5 font-bengali text-sm text-neutral-400">
-                                {description}
-                            </p>
-                        </div>
+                        <RevealItem key={title}>
+                            <TiltCard
+                                strength={6}
+                                className="relative rounded-xl border border-amber-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-xl hover:shadow-amber-900/10"
+                            >
+                                <span className="flex size-11 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                                    <Icon className="size-5" />
+                                </span>
+                                <h3 className="mt-4 font-bengali text-lg font-semibold text-stone-900">
+                                    {title}
+                                </h3>
+                                <p className="mt-1.5 font-bengali text-sm text-stone-600">
+                                    {description}
+                                </p>
+                            </TiltCard>
+                        </RevealItem>
                     ))}
-                </div>
+                </RevealGroup>
             </div>
         </section>
     );

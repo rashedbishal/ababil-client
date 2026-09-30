@@ -6,8 +6,11 @@ import FloatingActions from '@/components/landing/floating-actions';
 import GuaranteeSection from '@/components/landing/guarantee-section';
 import HeroSection from '@/components/landing/hero-section';
 import IngredientsSection from '@/components/landing/ingredients-section';
+import MarqueeStrip from '@/components/landing/marquee-strip';
+import NationwideSection from '@/components/landing/nationwide-section';
 import ProblemSection from '@/components/landing/problem-section';
 import SafetySection from '@/components/landing/safety-section';
+import ScrollProgress from '@/components/landing/scroll-progress';
 import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
 import TestimonialsSection from '@/components/landing/testimonials-section';
@@ -142,8 +145,8 @@ export default function Welcome({
         return (
             <>
                 <Head title="Store" />
-                <div className="flex min-h-screen items-center justify-center bg-neutral-950 p-6 text-center">
-                    <p className="font-bengali text-neutral-400">
+                <div className="flex min-h-screen items-center justify-center bg-amber-50 p-6 text-center">
+                    <p className="font-bengali text-stone-500">
                         এই মুহূর্তে কোনো পণ্য পাওয়া যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।
                     </p>
                 </div>
@@ -162,7 +165,8 @@ export default function Welcome({
                 )}
             </Head>
 
-            <div className="dark min-h-screen bg-neutral-950 font-sans text-neutral-100">
+            <div className="min-h-screen bg-amber-50 font-sans text-stone-900">
+                <ScrollProgress />
                 <SiteHeader phone={contact.phone} />
 
                 <main>
@@ -170,9 +174,11 @@ export default function Welcome({
                         regularPrice={product.regular_price}
                         salePrice={product.sale_price}
                     />
+                    <MarqueeStrip />
                     <ProblemSection />
                     <UspSection />
                     <IngredientsSection />
+                    <NationwideSection />
                     <UsageGuideSection />
                     <SafetySection />
                     <TrustSection />

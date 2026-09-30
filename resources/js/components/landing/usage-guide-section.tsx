@@ -1,3 +1,5 @@
+import Reveal, { RevealGroup, RevealItem } from './motion/reveal';
+
 const steps = [
     {
         step: '০১',
@@ -23,27 +25,29 @@ const steps = [
 
 export default function UsageGuideSection() {
     return (
-        <section className="bg-neutral-900/60 py-14 sm:py-20">
+        <section className="bg-gradient-to-b from-white to-amber-50 py-14 sm:py-20">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <h2 className="text-center font-bengali text-2xl font-bold text-white sm:text-3xl">
-                    ব্যবহারের নিয়ম
-                </h2>
+                <Reveal>
+                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                        ব্যবহারের নিয়ম
+                    </h2>
+                </Reveal>
 
-                <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <RevealGroup className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     {steps.map(({ step, title, description }) => (
-                        <div key={step} className="relative">
-                            <span className="font-bengali text-5xl font-bold text-amber-500/20">
+                        <RevealItem key={step} className="relative">
+                            <span className="font-bengali text-5xl font-bold text-amber-300">
                                 {step}
                             </span>
-                            <h3 className="-mt-3 font-bengali text-lg font-semibold text-white">
+                            <h3 className="-mt-3 font-bengali text-lg font-semibold text-stone-900">
                                 {title}
                             </h3>
-                            <p className="mt-1.5 font-bengali text-sm text-neutral-400">
+                            <p className="mt-1.5 font-bengali text-sm text-stone-600">
                                 {description}
                             </p>
-                        </div>
+                        </RevealItem>
                     ))}
-                </div>
+                </RevealGroup>
             </div>
         </section>
     );

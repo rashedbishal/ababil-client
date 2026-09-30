@@ -4,6 +4,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import Reveal, { RevealGroup, RevealItem } from './motion/reveal';
 
 const faqs = [
     {
@@ -30,30 +31,31 @@ const faqs = [
 
 export default function FaqSection() {
     return (
-        <section className="bg-neutral-950 py-14 sm:py-20">
+        <section className="bg-white py-14 sm:py-20">
             <div className="mx-auto max-w-3xl px-4 sm:px-6">
-                <h2 className="text-center font-bengali text-2xl font-bold text-white sm:text-3xl">
-                    সাধারণ জিজ্ঞাসা
-                </h2>
+                <Reveal>
+                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                        সাধারণ জিজ্ঞাসা
+                    </h2>
+                </Reveal>
 
-                <div className="mt-8 space-y-3">
+                <RevealGroup className="mt-8 space-y-3">
                     {faqs.map(({ question, answer }) => (
-                        <Collapsible
-                            key={question}
-                            className="group rounded-xl border border-white/10 bg-white/5 px-5 py-1"
-                        >
-                            <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
-                                <span className="font-bengali text-sm font-medium text-white sm:text-base">
-                                    {question}
-                                </span>
-                                <ChevronDown className="size-4 shrink-0 text-amber-400 transition-transform group-data-[state=open]:rotate-180" />
-                            </CollapsibleTrigger>
-                            <CollapsibleContent className="pb-4 font-bengali text-sm text-neutral-400">
-                                {answer}
-                            </CollapsibleContent>
-                        </Collapsible>
+                        <RevealItem key={question}>
+                            <Collapsible className="group rounded-xl border border-amber-200 bg-amber-50/50 px-5 py-1 transition-colors hover:border-amber-300">
+                                <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
+                                    <span className="font-bengali text-sm font-medium text-stone-900 sm:text-base">
+                                        {question}
+                                    </span>
+                                    <ChevronDown className="size-4 shrink-0 text-amber-600 transition-transform group-data-[state=open]:rotate-180" />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="pb-4 font-bengali text-sm text-stone-600">
+                                    {answer}
+                                </CollapsibleContent>
+                            </Collapsible>
+                        </RevealItem>
                     ))}
-                </div>
+                </RevealGroup>
             </div>
         </section>
     );

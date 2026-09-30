@@ -1,4 +1,6 @@
 import { Star } from 'lucide-react';
+import Reveal, { RevealGroup, RevealItem } from './motion/reveal';
+import TiltCard from './motion/tilt-card';
 
 /**
  * Placeholder sample quotes — swap for real customer reviews once
@@ -25,45 +27,49 @@ const testimonials = [
 
 export default function TestimonialsSection() {
     return (
-        <section className="bg-neutral-950 py-14 sm:py-20">
+        <section className="bg-gradient-to-b from-amber-50 to-white py-14 sm:py-20">
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <h2 className="text-center font-bengali text-2xl font-bold text-white sm:text-3xl">
-                    গ্রাহকদের অভিজ্ঞতা
-                </h2>
+                <Reveal>
+                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                        গ্রাহকদের অভিজ্ঞতা
+                    </h2>
+                </Reveal>
 
-                <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <RevealGroup className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {testimonials.map(({ name, location, quote }) => (
-                        <div
-                            key={name}
-                            className="rounded-xl border border-white/10 bg-white/5 p-6"
-                        >
-                            <div className="flex gap-0.5 text-amber-400">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className="size-4 fill-current"
-                                    />
-                                ))}
-                            </div>
-                            <p className="mt-4 font-bengali text-sm text-neutral-300">
-                                “{quote}”
-                            </p>
-                            <div className="mt-5 flex items-center gap-3">
-                                <span className="flex size-9 items-center justify-center rounded-full bg-amber-500/15 font-bengali text-sm font-semibold text-amber-400">
-                                    {name.charAt(0)}
-                                </span>
-                                <div className="font-bengali text-sm">
-                                    <p className="font-medium text-white">
-                                        {name}
-                                    </p>
-                                    <p className="text-neutral-500">
-                                        {location}
-                                    </p>
+                        <RevealItem key={name}>
+                            <TiltCard
+                                strength={5}
+                                className="relative rounded-xl border border-amber-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-xl hover:shadow-amber-900/10"
+                            >
+                                <div className="flex gap-0.5 text-amber-500">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            className="size-4 fill-current"
+                                        />
+                                    ))}
                                 </div>
-                            </div>
-                        </div>
+                                <p className="mt-4 font-bengali text-sm text-stone-700">
+                                    “{quote}”
+                                </p>
+                                <div className="mt-5 flex items-center gap-3">
+                                    <span className="flex size-9 items-center justify-center rounded-full bg-amber-100 font-bengali text-sm font-semibold text-amber-700">
+                                        {name.charAt(0)}
+                                    </span>
+                                    <div className="font-bengali text-sm">
+                                        <p className="font-medium text-stone-900">
+                                            {name}
+                                        </p>
+                                        <p className="text-stone-500">
+                                            {location}
+                                        </p>
+                                    </div>
+                                </div>
+                            </TiltCard>
+                        </RevealItem>
                     ))}
-                </div>
+                </RevealGroup>
             </div>
         </section>
     );
