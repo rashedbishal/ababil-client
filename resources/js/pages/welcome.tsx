@@ -1,5 +1,5 @@
 import { Head, useForm, useHttp } from '@inertiajs/react';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import CheckoutSection from '@/components/landing/checkout-section';
 import FaqSection from '@/components/landing/faq-section';
 import FloatingActions from '@/components/landing/floating-actions';
@@ -20,6 +20,7 @@ import UspSection from '@/components/landing/usp-section';
 import { useCheckoutSession } from '@/hooks/use-checkout-session';
 import incompleteOrders from '@/routes/incomplete-orders';
 import orders from '@/routes/orders';
+import siteVisits from '@/routes/site-visits';
 
 type Product = {
     id: number;
@@ -29,6 +30,7 @@ type Product = {
     regular_price: string;
     sale_price: string | null;
     sku: string;
+    free_delivery: boolean;
     in_stock: boolean;
     featured_image_url: string | null;
     gallery_urls: string[];
@@ -57,10 +59,12 @@ export default function Welcome({
     product,
     shippingAreas,
     contact,
+    formToken,
 }: {
     product: Product | null;
     shippingAreas: ShippingArea[];
     contact: Contact;
+    formToken: string;
 }) {
     const form = useForm({
         product_id: product?.id ?? 0,
@@ -72,6 +76,9 @@ export default function Welcome({
         shipping_area_id: shippingAreas[0]?.id ?? null,
         customer_note: '',
         session_token: '',
+        form_token: formToken,
+        // Honeypot: real visitors never see or fill this field.
+        website: '',
     });
 
     const sessionToken = useCheckoutSession();
@@ -86,6 +93,12 @@ export default function Welcome({
         shipping_area_id: shippingAreas[0]?.id ?? null,
     });
     const trackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const visitTracker = useHttp({ session_token: sessionToken });
+
+    useEffect(() => {
+        void visitTracker.post(siteVisits.store().url);
+    }, []);
 
     function track(partial: Partial<typeof tracker.data>) {
         tracker.setData((data) => ({ ...data, ...partial }));
@@ -110,9 +123,12 @@ export default function Welcome({
     const selectedShippingArea = shippingAreas.find(
         (a) => a.id === form.data.shipping_area_id,
     );
-    const shippingCharge = selectedShippingArea
-        ? Number(selectedShippingArea.charge)
-        : 0;
+    const shippingCharge = product?.free_delivery
+        ? 0
+        : (selectedShippingArea ? Number(selectedShippingArea.charge) : 0);
+    const displayShippingAreas = product?.free_delivery
+        ? shippingAreas.map((area) => ({ ...area, charge: '0.00' }))
+        : shippingAreas;
     const subtotal = unitPrice * form.data.quantity;
     const grandTotal = subtotal + shippingCharge;
 
@@ -203,7 +219,7 @@ export default function Welcome({
                         onDeliveryAddressChange={(value) =>
                             updateAndTrack({ delivery_address: value })
                         }
-                        shippingAreas={shippingAreas}
+                        shippingAreas={displayShippingAreas}
                         shippingAreaId={form.data.shipping_area_id}
                         onShippingAreaChange={(value) =>
                             updateAndTrack({ shipping_area_id: value })
@@ -211,6 +227,10 @@ export default function Welcome({
                         customerNote={form.data.customer_note}
                         onCustomerNoteChange={(value) =>
                             form.setData('customer_note', value)
+                        }
+                        honeypotValue={form.data.website}
+                        onHoneypotChange={(value) =>
+                            form.setData('website', value)
                         }
                         subtotal={subtotal}
                         shippingCharge={shippingCharge}

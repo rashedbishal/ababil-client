@@ -19,6 +19,7 @@ function validOrderPayload(Product $product, ShippingArea $shippingArea, array $
         'delivery_address' => '123 Example Road, Dhaka',
         'shipping_area_id' => $shippingArea->id,
         'customer_note' => null,
+        'form_token' => encrypt(now()->subSeconds(10)->timestamp),
     ], $overrides);
 }
 
@@ -120,6 +121,17 @@ test('the backend calculates the shipping charge from the database, not the requ
     expect((string) $order->shipping_charge)->toBe('45.00');
 });
 
+test('a free-delivery product waives the shipping charge regardless of the selected area', function () {
+    $product = Product::factory()->create(['regular_price' => 300, 'sale_price' => null, 'track_stock' => true, 'stock' => 10, 'free_delivery' => true]);
+    $shippingArea = ShippingArea::factory()->create(['charge' => 120]);
+
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, ['quantity' => 2]));
+
+    $order = Order::first();
+    expect((string) $order->shipping_charge)->toBe('0.00')
+        ->and((string) $order->grand_total)->toBe('600.00');
+});
+
 test('frontend-submitted totals cannot manipulate the order grand total', function () {
     $product = Product::factory()->create(['regular_price' => 200, 'sale_price' => null, 'track_stock' => true, 'stock' => 10]);
     $shippingArea = ShippingArea::factory()->create(['charge' => 20]);
@@ -170,4 +182,95 @@ test('placing an order requires the core customer fields', function () {
     ]);
 
     expect(Order::count())->toBe(0);
+});
+
+test('a filled-in honeypot field silently rejects the order', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'website' => 'https://spammer.example',
+    ]));
+
+    expect(Order::count())->toBe(0);
+});
+
+test('a submission arriving faster than the minimum time on page is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'form_token' => encrypt(now()->timestamp),
+    ]));
+
+    $response->assertSessionHasErrors('order');
+    expect(Order::count())->toBe(0);
+});
+
+test('a stale form token is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'form_token' => encrypt(now()->subHours(7)->timestamp),
+    ]));
+
+    $response->assertSessionHasErrors('order');
+    expect(Order::count())->toBe(0);
+});
+
+test('a tampered form token is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'form_token' => 'not-a-real-token',
+    ]));
+
+    $response->assertSessionHasErrors('order');
+    expect(Order::count())->toBe(0);
+});
+
+test('a phone number that does not match the Bangladeshi mobile format is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_phone' => '12345',
+    ]));
+
+    $response->assertSessionHasErrors('customer_phone');
+    expect(Order::count())->toBe(0);
+});
+
+test('a phone number is blocked from placing more than the daily order cap', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 100]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    config(['orders.max_orders_per_phone_per_day' => 2]);
+
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea));
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea));
+
+    expect(Order::count())->toBe(2);
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea));
+
+    $response->assertSessionHasErrors('order');
+    expect(Order::count())->toBe(2);
+});
+
+test('a near-duplicate order from the same phone is flagged for admin review instead of blocked', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 100]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea));
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'form_token' => encrypt(now()->subSeconds(10)->timestamp),
+    ]));
+
+    expect(Order::count())->toBe(2);
+
+    $latest = Order::query()->latest()->first();
+    expect($latest->admin_note)->toContain('Possible duplicate');
 });

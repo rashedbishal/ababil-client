@@ -42,6 +42,11 @@ class LandingController extends Controller
                 'whatsapp' => Setting::get('whatsapp_number'),
                 'facebookUrl' => Setting::get('facebook_page_url'),
             ],
+            // Signed page-render timestamp. PlaceOrderRequest rejects a
+            // checkout submitted implausibly soon after this, since a real
+            // shopper needs time to read the page and fill the form - a
+            // script submitting instantly doesn't.
+            'formToken' => encrypt(now()->timestamp),
         ]);
     }
 
@@ -58,6 +63,7 @@ class LandingController extends Controller
             'regular_price' => (string) $product->regular_price,
             'sale_price' => $product->sale_price !== null ? (string) $product->sale_price : null,
             'sku' => $product->sku,
+            'free_delivery' => $product->free_delivery,
             'in_stock' => ! $product->track_stock || $product->stock > 0 || $product->hasVariants(),
             'featured_image_url' => $product->featuredImage?->url(),
             'gallery_urls' => $product->images->map(fn (ProductImage $image) => $image->media->url())->values(),

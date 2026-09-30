@@ -43,6 +43,8 @@ class PlaceOrderAction
     public function execute(array $data, ?string $ip, ?string $userAgent): Order
     {
         return DB::transaction(function () use ($data, $ip, $userAgent): Order {
+            $this->guardAgainstOrderVelocity($data['customer_phone']);
+
             $product = Product::query()->lockForUpdate()->find($data['product_id']);
 
             if (! $product || ! $product->is_active) {
@@ -73,9 +75,10 @@ class PlaceOrderAction
 
             $unitPrice = $variant?->currentPrice() ?? $product->currentPrice();
             $subtotal = bcmul($unitPrice, (string) $quantity, 2);
-            $shippingCharge = Decimal::of($shippingArea->charge);
+            $shippingCharge = $product->free_delivery ? '0.00' : Decimal::of($shippingArea->charge);
             $discount = '0.00';
             $grandTotal = bcsub(bcadd($subtotal, $shippingCharge, 2), $discount, 2);
+            $duplicateNote = $this->detectDuplicateOrder($data['customer_phone'], $product->id);
 
             $order = Order::query()->create([
                 'order_number' => $this->generateOrderNumber(),
@@ -92,6 +95,7 @@ class PlaceOrderAction
                 'customer_ip' => $ip,
                 'user_agent' => $userAgent,
                 'customer_note' => $data['customer_note'] ?? null,
+                'admin_note' => $duplicateNote,
             ]);
 
             OrderItem::query()->create([
@@ -160,6 +164,54 @@ class PlaceOrderAction
         if ($updated === 0) {
             throw new OrderPlacementException('Not enough stock available for this product.');
         }
+    }
+
+    /**
+     * Hard cap on orders per phone number in a rolling 24 hours. The
+     * storefront has no login, so a phone number is the only meaningful
+     * per-customer identity available to rate-limit against.
+     */
+    private function guardAgainstOrderVelocity(string $phone): void
+    {
+        $recentCount = Order::query()
+            ->where('customer_phone', $phone)
+            ->where('created_at', '>=', now()->subDay())
+            ->count();
+
+        if ($recentCount >= (int) config('orders.max_orders_per_phone_per_day', 5)) {
+            throw new OrderPlacementException(
+                "You've placed several orders recently. Please contact us if you need to order again today.",
+            );
+        }
+    }
+
+    /**
+     * A second order from the same phone for the same product within a
+     * short window is a common spam/duplicate-submission pattern, but
+     * could also be a genuine reorder - it's flagged on the order for
+     * admin review rather than blocked outright.
+     */
+    private function detectDuplicateOrder(string $phone, int $productId): ?string
+    {
+        $windowMinutes = (int) config('orders.duplicate_order_window_minutes', 15);
+
+        $duplicate = Order::query()
+            ->where('customer_phone', $phone)
+            ->where('created_at', '>=', now()->subMinutes($windowMinutes))
+            ->whereHas('items', fn ($query) => $query->where('product_id', $productId))
+            ->latest()
+            ->first();
+
+        if (! $duplicate) {
+            return null;
+        }
+
+        return sprintf(
+            'Possible duplicate: %s placed order %s for the same product %s.',
+            $phone,
+            $duplicate->order_number,
+            $duplicate->created_at->diffForHumans(),
+        );
     }
 
     private function generateOrderNumber(): string

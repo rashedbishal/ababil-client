@@ -2,11 +2,20 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class PlaceOrderRequest extends FormRequest
 {
+    /**
+     * Generic, non-revealing message for both bot signals below - it never
+     * hints at *why* the submission was rejected, so it teaches an
+     * automated script nothing useful to adjust for.
+     */
+    private const BOT_REJECTION_MESSAGE = "We couldn't process your order. Please refresh the page and try again.";
+
     public function authorize(): bool
     {
         return true;
@@ -28,12 +37,56 @@ class PlaceOrderRequest extends FormRequest
             'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:50'],
             'customer_name' => ['required', 'string', 'max:255'],
-            'customer_phone' => ['required', 'string', 'max:20', 'regex:/^[0-9+\-\s]{7,20}$/'],
+            // Matches the Bangladeshi mobile format the frontend's own
+            // input pattern already enforces - the backend must not be
+            // looser than what the form claims to require.
+            'customer_phone' => ['required', 'string', 'regex:/^01[3-9][0-9]{8}$/'],
             'delivery_address' => ['required', 'string', 'max:1000'],
             'shipping_area_id' => ['required', 'integer', 'exists:shipping_areas,id'],
             'customer_note' => ['nullable', 'string', 'max:1000'],
             'session_token' => ['nullable', 'string', 'max:100'],
+            'form_token' => ['required', 'string'],
+            // Honeypot: real visitors never see or fill this field. Bots
+            // that blindly autofill every input trip it.
+            'website' => ['prohibited'],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            if (! $this->filled('form_token')) {
+                return;
+            }
+
+            $issuedAt = $this->decodeFormToken($this->string('form_token')->toString());
+
+            if ($issuedAt === null) {
+                $validator->errors()->add('order', self::BOT_REJECTION_MESSAGE);
+
+                return;
+            }
+
+            $elapsedSeconds = (int) now()->timestamp - $issuedAt;
+
+            $tooFast = $elapsedSeconds < config('orders.min_seconds_before_submit', 3);
+            $tooStale = $elapsedSeconds > config('orders.max_form_token_age_hours', 6) * 3600;
+
+            if ($tooFast || $tooStale) {
+                $validator->errors()->add('order', self::BOT_REJECTION_MESSAGE);
+            }
+        });
+    }
+
+    private function decodeFormToken(string $token): ?int
+    {
+        try {
+            $issuedAt = decrypt($token);
+        } catch (DecryptException) {
+            return null;
+        }
+
+        return is_numeric($issuedAt) ? (int) $issuedAt : null;
     }
 
     /**

@@ -36,6 +36,8 @@ export default function CheckoutSection({
     onShippingAreaChange,
     customerNote,
     onCustomerNoteChange,
+    honeypotValue,
+    onHoneypotChange,
     subtotal,
     shippingCharge,
     grandTotal,
@@ -57,6 +59,8 @@ export default function CheckoutSection({
     onShippingAreaChange: (value: number) => void;
     customerNote: string;
     onCustomerNoteChange: (value: string) => void;
+    honeypotValue: string;
+    onHoneypotChange: (value: string) => void;
     subtotal: number;
     shippingCharge: number;
     grandTotal: number;
@@ -84,6 +88,25 @@ export default function CheckoutSection({
                         onSubmit={onSubmit}
                         className="mt-8 space-y-5 rounded-2xl border border-amber-200 bg-white p-6 font-bengali shadow-xl shadow-amber-900/5 sm:p-8"
                     >
+                        {/* Honeypot: hidden off-screen from real visitors and
+                            unreachable by keyboard/screen readers. Bots that
+                            blindly autofill every field trip it. */}
+                        <div
+                            className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+                            aria-hidden="true"
+                        >
+                            <input
+                                type="text"
+                                name="website"
+                                value={honeypotValue}
+                                onChange={(e) =>
+                                    onHoneypotChange(e.target.value)
+                                }
+                                tabIndex={-1}
+                                autoComplete="off"
+                            />
+                        </div>
+
                         <div className="grid gap-2">
                             <Label
                                 htmlFor="quantity"
