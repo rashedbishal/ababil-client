@@ -9,6 +9,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Pathao Courier Merchant API integration.
@@ -211,12 +212,45 @@ class PathaoCourierService implements CourierServiceInterface
         try {
             $response->throw();
         } catch (RequestException) {
-            throw new CourierException($errorMessage.' ('.$response->status().')');
+            Log::warning('Pathao API request failed', [
+                'status' => $response->status(),
+                'body' => $response->json() ?? $response->body(),
+            ]);
+
+            throw new CourierException($errorMessage.' '.$this->describeError($response));
         }
 
         $body = $response->json();
 
         return $body['data'] ?? $body ?? [];
+    }
+
+    /**
+     * Turns Pathao's error response into a readable, safe-for-admins reason,
+     * e.g. "store_id: Wrong Store selected". Falls back to Pathao's top-level
+     * message, then the raw HTTP status, if the shape is unexpected.
+     */
+    private function describeError(Response $response): string
+    {
+        $body = $response->json();
+
+        if (is_array($body) && isset($body['errors']) && is_array($body['errors'])) {
+            $reasons = [];
+
+            foreach ($body['errors'] as $field => $messages) {
+                $reasons[] = $field.': '.implode(', ', (array) $messages);
+            }
+
+            if ($reasons !== []) {
+                return '('.implode('; ', $reasons).')';
+            }
+        }
+
+        if (is_array($body) && isset($body['message']) && is_string($body['message'])) {
+            return '('.$body['message'].')';
+        }
+
+        return '(HTTP '.$response->status().')';
     }
 
     /**

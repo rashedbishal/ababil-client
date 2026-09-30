@@ -174,6 +174,35 @@ test('it throws when store_id is not configured', function () {
     (new PathaoCourierService)->createParcel(sampleParcel());
 })->throws(CourierException::class);
 
+test('it surfaces Pathao\'s field-level validation errors instead of a generic message', function () {
+    pathaoConfig();
+
+    CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'token',
+        'expires_at' => now()->addDay(),
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/orders' => Http::response([
+            'message' => 'Please fix the given errors',
+            'type' => 'error',
+            'code' => 422,
+            'errors' => ['store_id' => ['Wrong Store selected']],
+        ], 422),
+    ]);
+
+    try {
+        (new PathaoCourierService)->createParcel(sampleParcel());
+    } catch (CourierException $exception) {
+        expect($exception->getMessage())->toContain('store_id: Wrong Store selected');
+
+        return;
+    }
+
+    $this->fail('Expected a CourierException to be thrown.');
+});
+
 test('cancelParcel is not supported since Pathao does not document a cancel endpoint', function () {
     pathaoConfig();
 
