@@ -34,6 +34,7 @@ export default function ProductCreate({ media }: { media: MediaOption[] }) {
                                 featured_image_id: null,
                                 track_stock: true,
                                 stock: 0,
+                                weight: '0.5',
                                 is_active: true,
                                 meta_title: '',
                                 meta_description: '',

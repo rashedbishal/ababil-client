@@ -94,7 +94,20 @@ All monetary columns are `decimal(10,2)`. Every price used to build an order (`a
 
 ## Courier integration architecture
 
-Order fulfilment depends only on `App\Services\Courier\CourierServiceInterface` (`createParcel()`, `getParcelStatus()`, `cancelParcel()`), backed by `NullCourierService` until a real provider is implemented. Provider config lives in `config/courier.php` and reads credentials from the environment only — they are never exposed to the frontend. See the Courier Integration page in the admin CMS for current provider status.
+Order fulfilment depends only on `App\Services\Courier\CourierServiceInterface` (`createParcel()`, `getParcelStatus()`, `cancelParcel()`). `NullCourierService` backs it until a provider is configured. Provider config lives in `config/courier.php` and reads credentials from the environment only — they are never exposed to the frontend. See the Courier Integration page in the admin CMS for current provider status.
+
+**Pathao** is implemented (`App\Services\Courier\PathaoCourierService`) against their documented Merchant API:
+
+- OAuth token (issue + refresh) is persisted in the `courier_tokens` table and renewed automatically.
+- `createParcel()` posts to `/aladdin/api/v1/orders` with the order's items/quantity/weight and COD amount; `getParcelStatus()` reads `/aladdin/api/v1/orders/{id}/info`.
+- Pathao does not document a cancel-order endpoint, so `cancelParcel()` fails clearly instead of guessing one — cancel from the Pathao merchant dashboard.
+- Pathao does not enumerate all possible order statuses (only "Pending" appears in their docs), so status is mapped best-effort to `App\Enums\CourierStatus`, with the raw status text always preserved on `orders.courier_raw_status` for admins.
+- Recipient city/zone/area are intentionally omitted from parcel creation — checkout only collects a free-text address, and Pathao auto-resolves these from it.
+- To activate: create your store in Pathao's own merchant dashboard first (store creation isn't part of this CMS), then set `COURIER_DEFAULT=pathao` and the `PATHAO_*` variables in `.env`.
+
+To add another provider (Steadfast, RedX, ...), implement `CourierServiceInterface` for it and add one line to the `match` in `App\Providers\AppServiceProvider::register()`.
+
+Each product has a `weight` (kg, default 0.5) used to calculate the parcel's total weight for the courier; it's snapshotted onto `order_items` at order time, same as price.
 
 ## Useful Artisan commands
 
@@ -110,5 +123,6 @@ vendor/bin/phpstan analyse              # static analysis
 
 - The customer landing page features a single product; multi-product browsing/search is not built yet (the schema supports it).
 - Product gallery images (`product_images`) have a backing table/model but no dedicated CMS UI yet — only the featured image is manageable today.
-- No real courier provider is integrated (by design — see above).
+- Only Pathao is implemented; other providers need their own `CourierServiceInterface` implementation (see above).
+- Store creation and city/zone/area selection aren't part of the CMS — Pathao auto-resolves the delivery zone from the free-text address.
 - No coupon/discount code system yet (`orders.discount` exists and defaults to 0).

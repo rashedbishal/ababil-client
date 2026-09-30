@@ -92,6 +92,7 @@ class ProductController extends Controller
                 'featured_image_url' => $product->featuredImage?->url(),
                 'track_stock' => $product->track_stock,
                 'stock' => $product->stock,
+                'weight' => (string) $product->weight,
                 'is_active' => $product->is_active,
                 'meta_title' => $product->meta_title,
                 'meta_description' => $product->meta_description,

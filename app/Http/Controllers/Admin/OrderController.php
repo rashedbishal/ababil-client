@@ -70,7 +70,8 @@ class OrderController extends Controller
                 'discount' => (string) $order->discount,
                 'grand_total' => (string) $order->grand_total,
                 'status' => $order->status->value,
-                'courier_status' => $order->courier_status?->value,
+                'courier_status' => $order->courier_status?->label(),
+                'courier_raw_status' => $order->courier_raw_status,
                 'customer_ip' => $order->customer_ip,
                 'user_agent' => $order->user_agent,
                 'customer_note' => $order->customer_note,
@@ -99,6 +100,7 @@ class OrderController extends Controller
                 ]),
             ],
             'statuses' => array_map(fn (OrderStatus $s) => ['value' => $s->value, 'label' => $s->label()], OrderStatus::cases()),
+            'courierConfigured' => config('courier.default') !== 'null',
         ]);
     }
 

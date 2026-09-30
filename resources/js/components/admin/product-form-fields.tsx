@@ -16,6 +16,7 @@ export type ProductFormValues = {
     featured_image_id: number | null;
     track_stock: boolean;
     stock: number;
+    weight: string;
     is_active: boolean;
     meta_title: string | null;
     meta_description: string | null;
@@ -201,6 +202,21 @@ export function ProductFormFields({
                             defaultValue={defaults.stock}
                         />
                         <InputError message={errors.stock} />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="weight">Weight (kg)</Label>
+                        <Input
+                            id="weight"
+                            name="weight"
+                            type="number"
+                            step="0.01"
+                            min="0.05"
+                            defaultValue={defaults.weight}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Used to calculate courier delivery weight.
+                        </p>
+                        <InputError message={errors.weight} />
                     </div>
                 </fieldset>
 

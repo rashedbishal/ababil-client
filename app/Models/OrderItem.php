@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $sku
  * @property string|null $size_name
  * @property string $unit_price
+ * @property string|null $weight
  * @property int $quantity
  * @property string $line_total
  * @property Carbon|null $created_at
@@ -35,6 +36,7 @@ class OrderItem extends Model
         'sku',
         'size_name',
         'unit_price',
+        'weight',
         'quantity',
         'line_total',
     ];
@@ -43,6 +45,7 @@ class OrderItem extends Model
     {
         return [
             'unit_price' => 'decimal:2',
+            'weight' => 'decimal:2',
             'quantity' => 'integer',
             'line_total' => 'decimal:2',
         ];

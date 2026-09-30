@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\Courier\CourierServiceInterface;
 use App\Services\Courier\NullCourierService;
+use App\Services\Courier\PathaoCourierService;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +18,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(CourierServiceInterface::class, match (config('courier.default')) {
-            default => NullCourierService::class,
+        $this->app->bind(CourierServiceInterface::class, fn ($app) => match (config('courier.default')) {
+            'pathao' => $app->make(PathaoCourierService::class),
+            default => $app->make(NullCourierService::class),
         });
     }
 

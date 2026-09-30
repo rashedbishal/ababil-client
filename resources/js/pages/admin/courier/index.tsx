@@ -81,9 +81,22 @@ export default function CourierIndex({
                         .
                     </p>
                     <p>
-                        Every order already has courier fields (provider,
-                        consignment ID, tracking code, courier status) ready to
-                        populate once submission is wired up.
+                        Pathao is implemented against their documented Merchant
+                        API. Submit and refresh a specific order from its order
+                        detail page. Pathao does not document a cancel-order
+                        endpoint, so cancellation isn&apos;t available here -
+                        cancel from the Pathao merchant dashboard instead.
+                    </p>
+                    <p>
+                        Set{' '}
+                        <code className="rounded bg-muted px-1">
+                            COURIER_DEFAULT=pathao
+                        </code>{' '}
+                        along with the{' '}
+                        <code className="rounded bg-muted px-1">PATHAO_*</code>{' '}
+                        variables in
+                        <code className="rounded bg-muted px-1">.env</code> to
+                        activate it.
                     </p>
                 </CardContent>
             </Card>

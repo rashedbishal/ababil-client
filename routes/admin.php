@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\IncompleteOrderController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\OrderCourierController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\SettingController;
@@ -26,6 +27,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('sizes', SizeController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::resource('orders', OrderController::class)->only(['index', 'show', 'update']);
+    Route::post('orders/{order}/courier/submit', [OrderCourierController::class, 'submit'])->name('orders.courier.submit');
+    Route::post('orders/{order}/courier/refresh', [OrderCourierController::class, 'refresh'])->name('orders.courier.refresh');
 
     Route::get('incomplete-orders', [IncompleteOrderController::class, 'index'])->name('incomplete-orders.index');
 

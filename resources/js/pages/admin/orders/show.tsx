@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +49,7 @@ type OrderDetail = {
     grand_total: string;
     status: string;
     courier_status: string | null;
+    courier_raw_status: string | null;
     customer_ip: string | null;
     user_agent: string | null;
     customer_note: string | null;
@@ -65,9 +66,11 @@ type OrderDetail = {
 export default function OrderShow({
     order,
     statuses,
+    courierConfigured,
 }: {
     order: OrderDetail;
     statuses: { value: string; label: string }[];
+    courierConfigured: boolean;
 }) {
     const form = useForm({
         status: order.status,
@@ -77,6 +80,22 @@ export default function OrderShow({
     function submit(e: React.FormEvent) {
         e.preventDefault();
         form.patch(orders.update(order.id).url, { preserveScroll: true });
+    }
+
+    function submitToCourier() {
+        router.post(
+            orders.courier.submit(order.id).url,
+            {},
+            { preserveScroll: true },
+        );
+    }
+
+    function refreshCourierStatus() {
+        router.post(
+            orders.courier.refresh(order.id).url,
+            {},
+            { preserveScroll: true },
+        );
     }
 
     return (
@@ -336,6 +355,12 @@ export default function OrderShow({
                                     Status:
                                 </span>{' '}
                                 {order.courier_status ?? '—'}
+                                {order.courier_raw_status && (
+                                    <span className="text-muted-foreground">
+                                        {' '}
+                                        ({order.courier_raw_status})
+                                    </span>
+                                )}
                             </p>
                             <p>
                                 <span className="text-muted-foreground">
@@ -349,11 +374,36 @@ export default function OrderShow({
                                 </span>{' '}
                                 {order.courier_tracking_code ?? '—'}
                             </p>
-                            <p className="text-xs text-muted-foreground">
-                                Courier submission will be available once a
-                                provider is configured under Courier
-                                Integration.
-                            </p>
+
+                            {!courierConfigured && (
+                                <p className="text-xs text-muted-foreground">
+                                    No courier provider is configured yet. Set
+                                    one up under Courier Integration.
+                                </p>
+                            )}
+
+                            {courierConfigured &&
+                                order.courier_consignment_id === null && (
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={submitToCourier}
+                                    >
+                                        Submit to courier
+                                    </Button>
+                                )}
+
+                            {courierConfigured &&
+                                order.courier_consignment_id !== null && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={refreshCourierStatus}
+                                    >
+                                        Refresh status
+                                    </Button>
+                                )}
                         </CardContent>
                     </Card>
                 </div>

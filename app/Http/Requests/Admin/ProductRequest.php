@@ -33,6 +33,7 @@ class ProductRequest extends FormRequest
             'featured_image_id' => ['nullable', 'integer', 'exists:media,id'],
             'track_stock' => ['boolean'],
             'stock' => ['required_if:track_stock,true', 'integer', 'min:0'],
+            'weight' => ['required', 'numeric', 'min:0.05', 'max:1000'],
             'is_active' => ['boolean'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],

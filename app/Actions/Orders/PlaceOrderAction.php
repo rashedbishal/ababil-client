@@ -102,6 +102,7 @@ class PlaceOrderAction
                 'sku' => $variant !== null ? $variant->sku : $product->sku,
                 'size_name' => $variant?->size?->name,
                 'unit_price' => $unitPrice,
+                'weight' => $product->weight,
                 'quantity' => $quantity,
                 'line_total' => $subtotal,
             ]);

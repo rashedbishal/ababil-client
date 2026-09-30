@@ -2,7 +2,7 @@
 
 namespace App\Services\Courier;
 
-use RuntimeException;
+use App\Exceptions\CourierException;
 
 /**
  * Default courier implementation used while no real provider is configured.
@@ -15,16 +15,16 @@ class NullCourierService implements CourierServiceInterface
 {
     public function createParcel(ParcelData $parcel): ParcelStatus
     {
-        throw new RuntimeException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
+        throw new CourierException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
     }
 
     public function getParcelStatus(string $consignmentId): ParcelStatus
     {
-        throw new RuntimeException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
+        throw new CourierException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
     }
 
     public function cancelParcel(string $consignmentId): bool
     {
-        throw new RuntimeException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
+        throw new CourierException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
     }
 }

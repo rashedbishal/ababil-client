@@ -36,6 +36,10 @@ return [
             'username' => env('PATHAO_USERNAME'),
             'password' => env('PATHAO_PASSWORD'),
             'store_id' => env('PATHAO_STORE_ID'),
+            // 48 = Normal Delivery, 12 = On Demand Delivery (per Pathao's API).
+            'delivery_type' => env('PATHAO_DELIVERY_TYPE', 48),
+            // 1 = Document, 2 = Parcel (per Pathao's API).
+            'item_type' => env('PATHAO_ITEM_TYPE', 2),
         ],
 
         'steadfast' => [

@@ -27,6 +27,7 @@ type ProductDetail = {
     featured_image_url: string | null;
     track_stock: boolean;
     stock: number;
+    weight: string;
     is_active: boolean;
     meta_title: string | null;
     meta_description: string | null;

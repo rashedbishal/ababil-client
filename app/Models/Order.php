@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property string $grand_total
  * @property OrderStatus $status
  * @property CourierStatus|null $courier_status
+ * @property string|null $courier_raw_status
  * @property string|null $customer_ip
  * @property string|null $user_agent
  * @property string|null $customer_note
@@ -58,6 +59,7 @@ class Order extends Model
         'grand_total',
         'status',
         'courier_status',
+        'courier_raw_status',
         'customer_ip',
         'user_agent',
         'customer_note',

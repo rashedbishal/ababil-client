@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $featured_image_id
  * @property bool $track_stock
  * @property int $stock
+ * @property string $weight
  * @property bool $is_active
  * @property string|null $meta_title
  * @property string|null $meta_description
@@ -47,6 +48,7 @@ class Product extends Model
         'featured_image_id',
         'track_stock',
         'stock',
+        'weight',
         'is_active',
         'meta_title',
         'meta_description',
@@ -60,6 +62,7 @@ class Product extends Model
             'sale_price' => 'decimal:2',
             'track_stock' => 'boolean',
             'stock' => 'integer',
+            'weight' => 'decimal:2',
             'is_active' => 'boolean',
             'sort_order' => 'integer',
         ];
