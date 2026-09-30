@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
+use App\Models\Setting;
 use App\Models\ShippingArea;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,6 +37,11 @@ class LandingController extends Controller
                 ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->get(['id', 'name', 'charge']),
+            'contact' => [
+                'phone' => Setting::get('site_phone'),
+                'whatsapp' => Setting::get('whatsapp_number'),
+                'facebookUrl' => Setting::get('facebook_page_url'),
+            ],
         ]);
     }
 

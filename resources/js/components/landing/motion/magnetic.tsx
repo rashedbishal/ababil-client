@@ -1,0 +1,45 @@
+import { motion, useSpring } from 'motion/react';
+import { type ReactNode, useRef } from 'react';
+
+/** Subtly pulls its content toward the cursor on hover — a magnetic CTA. */
+export default function Magnetic({
+    children,
+    className,
+    strength = 0.35,
+}: {
+    children: ReactNode;
+    className?: string;
+    strength?: number;
+}) {
+    const ref = useRef<HTMLDivElement>(null);
+    const x = useSpring(0, { stiffness: 200, damping: 15, mass: 0.4 });
+    const y = useSpring(0, { stiffness: 200, damping: 15, mass: 0.4 });
+
+    function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+        const rect = ref.current?.getBoundingClientRect();
+
+        if (!rect) {
+            return;
+        }
+
+        x.set((e.clientX - rect.left - rect.width / 2) * strength);
+        y.set((e.clientY - rect.top - rect.height / 2) * strength);
+    }
+
+    function handleMouseLeave() {
+        x.set(0);
+        y.set(0);
+    }
+
+    return (
+        <motion.div
+            ref={ref}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            style={{ x, y }}
+            className={className}
+        >
+            {children}
+        </motion.div>
+    );
+}

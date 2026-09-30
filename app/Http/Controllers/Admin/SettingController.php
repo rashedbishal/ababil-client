@@ -19,6 +19,8 @@ class SettingController extends Controller
         'order_prefix',
         'facebook_pixel_id',
         'google_analytics_id',
+        'whatsapp_number',
+        'facebook_page_url',
     ];
 
     public function edit(): Response

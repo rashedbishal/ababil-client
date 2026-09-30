@@ -25,6 +25,8 @@ class SettingRequest extends FormRequest
             'order_prefix' => ['nullable', 'string', 'max:10', 'alpha_dash'],
             'facebook_pixel_id' => ['nullable', 'string', 'max:100'],
             'google_analytics_id' => ['nullable', 'string', 'max:100'],
+            'whatsapp_number' => ['nullable', 'string', 'max:20'],
+            'facebook_page_url' => ['nullable', 'url', 'max:255'],
         ];
     }
 }
