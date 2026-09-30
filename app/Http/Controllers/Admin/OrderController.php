@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\OrderUpdateRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
@@ -100,7 +101,7 @@ class OrderController extends Controller
                 ]),
             ],
             'statuses' => array_map(fn (OrderStatus $s) => ['value' => $s->value, 'label' => $s->label()], OrderStatus::cases()),
-            'courierConfigured' => config('courier.default') !== 'null',
+            'courierConfigured' => Setting::get('courier_default_provider') !== null,
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace App\Services\Courier;
 
 use App\Enums\CourierStatus;
 use App\Exceptions\CourierException;
+use App\Models\CourierProvider;
 use App\Models\CourierToken;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -27,12 +28,17 @@ class PathaoCourierService implements CourierServiceInterface
 {
     private const PROVIDER = 'pathao';
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    private ?array $config = null;
+
     public function createParcel(ParcelData $parcel): ParcelStatus
     {
-        $storeId = config('courier.providers.pathao.store_id');
+        $storeId = $this->config()['store_id'] ?? null;
 
         if (empty($storeId)) {
-            throw new CourierException('Pathao store_id is not configured. Set PATHAO_STORE_ID in .env.');
+            throw new CourierException('No Pathao store is selected. Choose one on the Courier Integration page.');
         }
 
         $response = $this->client()->post('/aladdin/api/v1/orders', [
@@ -41,8 +47,8 @@ class PathaoCourierService implements CourierServiceInterface
             'recipient_name' => $parcel->recipientName,
             'recipient_phone' => $parcel->recipientPhone,
             'recipient_address' => $parcel->deliveryAddress,
-            'delivery_type' => (int) config('courier.providers.pathao.delivery_type', 48),
-            'item_type' => (int) config('courier.providers.pathao.item_type', 2),
+            'delivery_type' => (int) ($this->config()['delivery_type'] ?? 48),
+            'item_type' => (int) ($this->config()['item_type'] ?? 2),
             'item_quantity' => $parcel->itemQuantity,
             'item_weight' => number_format($parcel->itemWeightKg, 1, '.', ''),
             'item_description' => $parcel->itemDescription,
@@ -57,6 +63,34 @@ class PathaoCourierService implements CourierServiceInterface
             trackingCode: null,
             rawStatus: $data['order_status'] ?? null,
         );
+    }
+
+    /**
+     * The merchant's stores, for the admin store-selection UI.
+     *
+     * @return array<int, array{id: int, name: string, address: string}>
+     */
+    public function listStores(): array
+    {
+        $response = $this->client()->get('/aladdin/api/v1/stores');
+
+        $data = $this->data($response, 'Failed to fetch Pathao stores.');
+
+        $stores = [];
+
+        foreach ((array) ($data['data'] ?? []) as $store) {
+            if (! is_array($store) || ! isset($store['store_id'], $store['store_name'])) {
+                continue;
+            }
+
+            $stores[] = [
+                'id' => (int) $store['store_id'],
+                'name' => (string) $store['store_name'],
+                'address' => (string) ($store['store_address'] ?? ''),
+            ];
+        }
+
+        return $stores;
     }
 
     public function getParcelStatus(string $consignmentId): ParcelStatus
@@ -83,14 +117,24 @@ class PathaoCourierService implements CourierServiceInterface
     }
 
     /**
+     * This provider's saved credentials, loaded once per instance.
+     *
+     * @return array<string, mixed>
+     */
+    private function config(): array
+    {
+        return $this->config ??= CourierProvider::credentialsFor(self::PROVIDER);
+    }
+
+    /**
      * A configured Http client, authenticated with a valid access token.
      */
     private function client(): PendingRequest
     {
-        $baseUrl = config('courier.providers.pathao.base_url');
+        $baseUrl = $this->config()['base_url'] ?? null;
 
         if (empty($baseUrl)) {
-            throw new CourierException('Pathao base_url is not configured. Set PATHAO_BASE_URL in .env.');
+            throw new CourierException('Pathao base_url is not configured on the Courier Integration page.');
         }
 
         return Http::baseUrl(rtrim((string) $baseUrl, '/'))
@@ -123,11 +167,11 @@ class PathaoCourierService implements CourierServiceInterface
 
     private function issueToken(): string
     {
-        $config = config('courier.providers.pathao');
+        $config = $this->config();
 
         foreach (['client_id', 'client_secret', 'username', 'password'] as $key) {
             if (empty($config[$key])) {
-                throw new CourierException("Pathao {$key} is not configured. Set PATHAO_".strtoupper($key).' in .env.');
+                throw new CourierException("Pathao {$key} is not configured on the Courier Integration page.");
             }
         }
 
@@ -147,7 +191,7 @@ class PathaoCourierService implements CourierServiceInterface
 
     private function refreshToken(string $refreshToken): string
     {
-        $config = config('courier.providers.pathao');
+        $config = $this->config();
 
         $response = Http::baseUrl(rtrim((string) $config['base_url'], '/'))
             ->acceptJson()

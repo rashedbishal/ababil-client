@@ -7,6 +7,7 @@ use App\Enums\OrderStatus;
 use App\Exceptions\CourierException;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Services\Courier\CourierServiceInterface;
 use App\Services\Courier\ParcelData;
 use Illuminate\Http\RedirectResponse;
@@ -32,7 +33,7 @@ class OrderCourierController extends Controller
         }
 
         $order->update([
-            'courier_provider' => config('courier.default'),
+            'courier_provider' => Setting::get('courier_default_provider'),
             'courier_consignment_id' => $parcel->consignmentId,
             'courier_tracking_code' => $parcel->trackingCode,
             'courier_status' => $parcel->status,

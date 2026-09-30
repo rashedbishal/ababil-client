@@ -37,6 +37,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('shipping-areas', ShippingAreaController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
+    Route::put('courier/default', [CourierController::class, 'setDefault'])->name('courier.default');
+    Route::put('courier/pathao/store', [CourierController::class, 'selectPathaoStore'])->name('courier.pathao.store');
+    Route::post('courier/pathao/stores', [CourierController::class, 'fetchPathaoStores'])->name('courier.pathao.stores');
+    Route::put('courier/{provider}', [CourierController::class, 'update'])
+        ->whereIn('provider', ['pathao', 'steadfast', 'redx'])
+        ->name('courier.update');
 
     Route::resource('media', MediaController::class)->parameters(['media' => 'media'])->only(['index', 'store', 'destroy']);
 

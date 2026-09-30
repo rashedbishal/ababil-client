@@ -1,0 +1,134 @@
+import { router, useForm } from '@inertiajs/react';
+import InputError from '@/components/input-error';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import courier from '@/routes/admin/courier';
+
+export type ProviderField = {
+    key: string;
+    label: string;
+    secret: boolean;
+    value: string | null;
+    configured: boolean;
+};
+
+export type Provider = {
+    name: string;
+    label: string;
+    is_default: boolean;
+    fields: ProviderField[];
+    store: { id: number; name: string | null } | null;
+};
+
+export function CourierProviderCard({
+    provider,
+    children,
+}: {
+    provider: Provider;
+    children?: React.ReactNode;
+}) {
+    const initial: Record<string, string> = {};
+    provider.fields.forEach((field) => {
+        initial[field.key] = field.value ?? '';
+    });
+
+    const form = useForm(initial);
+
+    function submit(e: React.FormEvent) {
+        e.preventDefault();
+        form.put(courier.update({ provider: provider.name }).url, {
+            preserveScroll: true,
+        });
+    }
+
+    function makeDefault() {
+        router.put(
+            courier.default().url,
+            { provider: provider.name },
+            { preserveScroll: true },
+        );
+    }
+
+    function clearDefault() {
+        router.put(
+            courier.default().url,
+            { provider: null },
+            { preserveScroll: true },
+        );
+    }
+
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>{provider.label}</CardTitle>
+                <div className="flex items-center gap-2">
+                    {provider.is_default ? (
+                        <>
+                            <Badge>Default</Badge>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearDefault}
+                            >
+                                Unset
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={makeDefault}
+                        >
+                            Set as default
+                        </Button>
+                    )}
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+                    {provider.fields.map((field) => (
+                        <div key={field.key} className="grid gap-2">
+                            <Label htmlFor={`${provider.name}-${field.key}`}>
+                                {field.label}
+                                {field.secret && field.configured && (
+                                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                                        (set)
+                                    </span>
+                                )}
+                            </Label>
+                            <Input
+                                id={`${provider.name}-${field.key}`}
+                                type={field.secret ? 'password' : 'text'}
+                                value={form.data[field.key] ?? ''}
+                                onChange={(e) =>
+                                    form.setData(field.key, e.target.value)
+                                }
+                                placeholder={
+                                    field.secret
+                                        ? field.configured
+                                            ? '••••••••'
+                                            : 'Not set'
+                                        : undefined
+                                }
+                                autoComplete="off"
+                            />
+                            <InputError message={form.errors[field.key]} />
+                        </div>
+                    ))}
+                    <div className="sm:col-span-2">
+                        <Button type="submit" disabled={form.processing}>
+                            Save credentials
+                        </Button>
+                    </div>
+                </form>
+
+                {children}
+            </CardContent>
+        </Card>
+    );
+}

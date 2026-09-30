@@ -94,7 +94,9 @@ All monetary columns are `decimal(10,2)`. Every price used to build an order (`a
 
 ## Courier integration architecture
 
-Order fulfilment depends only on `App\Services\Courier\CourierServiceInterface` (`createParcel()`, `getParcelStatus()`, `cancelParcel()`). `NullCourierService` backs it until a provider is configured. Provider config lives in `config/courier.php` and reads credentials from the environment only — they are never exposed to the frontend. See the Courier Integration page in the admin CMS for current provider status.
+Order fulfilment depends only on `App\Services\Courier\CourierServiceInterface` (`createParcel()`, `getParcelStatus()`, `cancelParcel()`). `NullCourierService` backs it until a provider is configured.
+
+**Configuration lives in the database, not `.env`.** Provider credentials (`courier_providers` table, `credentials` column encrypted at rest) and the active/default provider (`Setting::get('courier_default_provider')`) are both set from the admin **Courier Integration** page. Secret fields are never sent back to the browser once saved — the form shows a blank input, and leaving it blank on save keeps the existing value. `config/courier.php` only holds the *shape* of each provider's fields (labels, which are secret) for that page — no values.
 
 **Pathao** is implemented (`App\Services\Courier\PathaoCourierService`) against their documented Merchant API:
 
@@ -103,9 +105,10 @@ Order fulfilment depends only on `App\Services\Courier\CourierServiceInterface` 
 - Pathao does not document a cancel-order endpoint, so `cancelParcel()` fails clearly instead of guessing one — cancel from the Pathao merchant dashboard.
 - Pathao does not enumerate all possible order statuses (only "Pending" appears in their docs), so status is mapped best-effort to `App\Enums\CourierStatus`, with the raw status text always preserved on `orders.courier_raw_status` for admins.
 - Recipient city/zone/area are intentionally omitted from parcel creation — checkout only collects a free-text address, and Pathao auto-resolves these from it.
-- To activate: create your store in Pathao's own merchant dashboard first (store creation isn't part of this CMS), then set `COURIER_DEFAULT=pathao` and the `PATHAO_*` variables in `.env`.
+- **Store selection**: the Courier Integration page has a "Fetch my stores from Pathao" button that calls Pathao's `/stores` endpoint live (using whatever credentials are currently saved) and lets the admin pick from a dropdown — no manually typed store IDs. Note: Pathao's sandbox login (`test@pathao.com`) is a pool shared by every developer testing against it, so that dropdown will show hundreds of other people's test stores in sandbox mode; with real production credentials it'll only show the merchant's own.
+- To activate: create your store in Pathao's own merchant dashboard first (store creation isn't part of this CMS, only *selecting* an existing one is), enter credentials on the Courier Integration page, pick a store, then set Pathao as the default provider.
 
-To add another provider (Steadfast, RedX, ...), implement `CourierServiceInterface` for it and add one line to the `match` in `App\Providers\AppServiceProvider::register()`.
+To add another provider (Steadfast, RedX, ...), implement `CourierServiceInterface` for it, add one line to the `match` in `App\Providers\AppServiceProvider::register()`, and add its field definitions to `config/courier.php` (credential storage and the admin form already work generically for any provider listed there).
 
 Each product has a `weight` (kg, default 0.5) used to calculate the parcel's total weight for the courier; it's snapshotted onto `order_items` at order time, same as price.
 

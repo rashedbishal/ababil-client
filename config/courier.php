@@ -4,53 +4,48 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Courier Provider
+    | Provider Field Definitions
     |--------------------------------------------------------------------------
     |
-    | Name of the provider config below to bind CourierServiceInterface to.
-    | Leave as "null" until a real provider implementation is added - the
-    | app will keep working, courier actions will just be unavailable.
-    |
-    */
-
-    'default' => env('COURIER_DEFAULT', 'null'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Provider Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Credentials are read from the environment only - never hard-code them
-    | and never expose them to the frontend. Each provider block is a
-    | placeholder for when a real integration is built against that
-    | provider's actual API documentation.
+    | This only describes the *shape* of each provider's credentials for the
+    | admin Courier Integration page - actual values live in the database
+    | (courier_providers table, encrypted at rest), set from that page.
+    | 'secret' fields are never sent back to the browser once saved; the
+    | form shows a blank input and only overwrites the stored value when the
+    | admin actually types something.
     |
     */
 
     'providers' => [
 
         'pathao' => [
-            'base_url' => env('PATHAO_BASE_URL'),
-            'client_id' => env('PATHAO_CLIENT_ID'),
-            'client_secret' => env('PATHAO_CLIENT_SECRET'),
-            'username' => env('PATHAO_USERNAME'),
-            'password' => env('PATHAO_PASSWORD'),
-            'store_id' => env('PATHAO_STORE_ID'),
-            // 48 = Normal Delivery, 12 = On Demand Delivery (per Pathao's API).
-            'delivery_type' => env('PATHAO_DELIVERY_TYPE', 48),
-            // 1 = Document, 2 = Parcel (per Pathao's API).
-            'item_type' => env('PATHAO_ITEM_TYPE', 2),
+            'label' => 'Pathao',
+            'fields' => [
+                'base_url' => ['label' => 'Base URL', 'secret' => false, 'default' => 'https://courier-api-sandbox.pathao.com'],
+                'client_id' => ['label' => 'Client ID', 'secret' => true],
+                'client_secret' => ['label' => 'Client Secret', 'secret' => true],
+                'username' => ['label' => 'Username (email)', 'secret' => true],
+                'password' => ['label' => 'Password', 'secret' => true],
+                'delivery_type' => ['label' => 'Delivery Type', 'secret' => false, 'default' => '48'],
+                'item_type' => ['label' => 'Item Type', 'secret' => false, 'default' => '2'],
+            ],
         ],
 
         'steadfast' => [
-            'base_url' => env('STEADFAST_BASE_URL'),
-            'api_key' => env('STEADFAST_API_KEY'),
-            'secret_key' => env('STEADFAST_SECRET_KEY'),
+            'label' => 'Steadfast',
+            'fields' => [
+                'base_url' => ['label' => 'Base URL', 'secret' => false],
+                'api_key' => ['label' => 'API Key', 'secret' => true],
+                'secret_key' => ['label' => 'Secret Key', 'secret' => true],
+            ],
         ],
 
         'redx' => [
-            'base_url' => env('REDX_BASE_URL'),
-            'api_token' => env('REDX_API_TOKEN'),
+            'label' => 'RedX',
+            'fields' => [
+                'base_url' => ['label' => 'Base URL', 'secret' => false],
+                'api_token' => ['label' => 'API Token', 'secret' => true],
+            ],
         ],
 
     ],

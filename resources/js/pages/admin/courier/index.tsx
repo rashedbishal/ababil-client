@@ -1,17 +1,18 @@
 import { Head } from '@inertiajs/react';
 import Heading from '@/components/heading';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    CourierProviderCard,
+    type Provider,
+} from '@/components/admin/courier-provider-card';
+import { PathaoStoreSelector } from '@/components/admin/pathao-store-selector';
 import { dashboard } from '@/routes/admin';
 import courier from '@/routes/admin/courier';
-
-type Provider = { name: string; configured: boolean };
 
 export default function CourierIndex({
     defaultProvider,
     providers,
 }: {
-    defaultProvider: string;
+    defaultProvider: string | null;
     providers: Provider[];
 }) {
     return (
@@ -20,86 +21,39 @@ export default function CourierIndex({
 
             <Heading
                 title="Courier Integration"
-                description="Provider credentials are configured via environment variables only - never here or in the frontend."
+                description="Configure courier providers and choose which one is active. Credentials are stored encrypted and never shown once saved."
             />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Active provider</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Badge variant="outline">{defaultProvider}</Badge>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                        Set{' '}
-                        <code className="rounded bg-muted px-1">
-                            COURIER_DEFAULT
-                        </code>{' '}
-                        in your environment to switch providers once a real
-                        integration has been implemented against that
-                        provider&apos;s API.
-                    </p>
-                </CardContent>
-            </Card>
+            {!defaultProvider && (
+                <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                    No provider is set as default, so orders can&apos;t be
+                    submitted to a courier yet.
+                </p>
+            )}
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-6">
                 {providers.map((provider) => (
-                    <Card key={provider.name}>
-                        <CardHeader>
-                            <CardTitle className="capitalize">
-                                {provider.name}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {provider.configured ? (
-                                <Badge>Credentials set</Badge>
-                            ) : (
-                                <Badge variant="secondary">
-                                    Not configured
-                                </Badge>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <CourierProviderCard
+                        key={provider.name}
+                        provider={provider}
+                    >
+                        {provider.name === 'pathao' && (
+                            <PathaoStoreSelector store={provider.store} />
+                        )}
+                    </CourierProviderCard>
                 ))}
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>How this works</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                    <p>
-                        Orders depend on{' '}
-                        <code className="rounded bg-muted px-1">
-                            CourierServiceInterface
-                        </code>{' '}
-                        rather than a specific provider. Once real API docs and
-                        credentials are available for a provider, implement that
-                        interface for it and bind it in
-                        <code className="rounded bg-muted px-1">
-                            config/courier.php
-                        </code>
-                        .
-                    </p>
-                    <p>
-                        Pathao is implemented against their documented Merchant
-                        API. Submit and refresh a specific order from its order
-                        detail page. Pathao does not document a cancel-order
-                        endpoint, so cancellation isn&apos;t available here -
-                        cancel from the Pathao merchant dashboard instead.
-                    </p>
-                    <p>
-                        Set{' '}
-                        <code className="rounded bg-muted px-1">
-                            COURIER_DEFAULT=pathao
-                        </code>{' '}
-                        along with the{' '}
-                        <code className="rounded bg-muted px-1">PATHAO_*</code>{' '}
-                        variables in
-                        <code className="rounded bg-muted px-1">.env</code> to
-                        activate it.
-                    </p>
-                </CardContent>
-            </Card>
+            <div className="rounded-lg border p-4 text-sm text-muted-foreground">
+                <p>
+                    Pathao is implemented against their documented Merchant API.
+                    Pathao does not document a cancel-order endpoint, so
+                    cancellation isn&apos;t available here - cancel from the
+                    Pathao merchant dashboard instead. Steadfast and RedX are
+                    placeholders: their credentials can be saved here, but no
+                    integration has been implemented for them yet.
+                </p>
+            </div>
         </>
     );
 }

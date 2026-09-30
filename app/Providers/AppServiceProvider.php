@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Setting;
 use App\Services\Courier\CourierServiceInterface;
 use App\Services\Courier\NullCourierService;
 use App\Services\Courier\PathaoCourierService;
@@ -18,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(CourierServiceInterface::class, fn ($app) => match (config('courier.default')) {
+        $this->app->bind(CourierServiceInterface::class, fn ($app) => match (Setting::get('courier_default_provider')) {
             'pathao' => $app->make(PathaoCourierService::class),
             default => $app->make(NullCourierService::class),
         });

@@ -2,6 +2,7 @@
 
 use App\Enums\CourierStatus;
 use App\Exceptions\CourierException;
+use App\Models\CourierProvider;
 use App\Models\CourierToken;
 use App\Services\Courier\ParcelData;
 use App\Services\Courier\PathaoCourierService;
@@ -9,16 +10,19 @@ use Illuminate\Support\Facades\Http;
 
 function pathaoConfig(array $overrides = []): void
 {
-    config()->set('courier.providers.pathao', array_merge([
-        'base_url' => 'https://courier-api-sandbox.pathao.com',
-        'client_id' => 'test-client-id',
-        'client_secret' => 'test-client-secret',
-        'username' => 'test@pathao.com',
-        'password' => 'lovePathao',
-        'store_id' => 123,
-        'delivery_type' => 48,
-        'item_type' => 2,
-    ], $overrides));
+    CourierProvider::query()->updateOrCreate(
+        ['name' => 'pathao'],
+        ['credentials' => array_merge([
+            'base_url' => 'https://courier-api-sandbox.pathao.com',
+            'client_id' => 'test-client-id',
+            'client_secret' => 'test-client-secret',
+            'username' => 'test@pathao.com',
+            'password' => 'lovePathao',
+            'store_id' => '123',
+            'delivery_type' => '48',
+            'item_type' => '2',
+        ], $overrides)],
+    );
 }
 
 function sampleParcel(): ParcelData

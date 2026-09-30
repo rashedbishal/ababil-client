@@ -1,8 +1,10 @@
 <?php
 
 use App\Enums\OrderStatus;
+use App\Models\CourierProvider;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
@@ -15,16 +17,19 @@ function actingAsAdmin(): User
 }
 
 beforeEach(function () {
-    config()->set('courier.default', 'pathao');
-    config()->set('courier.providers.pathao', [
-        'base_url' => 'https://courier-api-sandbox.pathao.com',
-        'client_id' => 'test-client-id',
-        'client_secret' => 'test-client-secret',
-        'username' => 'test@pathao.com',
-        'password' => 'lovePathao',
-        'store_id' => 123,
-        'delivery_type' => 48,
-        'item_type' => 2,
+    Setting::set('courier_default_provider', 'pathao');
+    CourierProvider::query()->create([
+        'name' => 'pathao',
+        'credentials' => [
+            'base_url' => 'https://courier-api-sandbox.pathao.com',
+            'client_id' => 'test-client-id',
+            'client_secret' => 'test-client-secret',
+            'username' => 'test@pathao.com',
+            'password' => 'lovePathao',
+            'store_id' => '123',
+            'delivery_type' => '48',
+            'item_type' => '2',
+        ],
     ]);
 });
 
@@ -70,7 +75,7 @@ test('an admin cannot submit the same order to the courier twice', function () {
 test('submitting to the courier fails gracefully when no provider is configured', function () {
     actingAsAdmin();
 
-    config()->set('courier.default', 'null');
+    Setting::set('courier_default_provider', null);
 
     $order = Order::factory()->create();
 
