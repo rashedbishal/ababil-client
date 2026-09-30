@@ -64,7 +64,11 @@ const groups: { label: string; items: NavItem[] }[] = [
     {
         label: 'Operations',
         items: [
-            { title: 'Shipping', href: shippingAreas.index(), icon: Truck },
+            {
+                title: 'Shipping Charges',
+                href: shippingAreas.index(),
+                icon: Truck,
+            },
             {
                 title: 'Courier Integration',
                 href: courier.index(),
