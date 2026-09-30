@@ -1,7 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Table,
     TableBody,
@@ -16,13 +19,24 @@ import orders from '@/routes/admin/orders';
 type Stats = {
     total_orders: number;
     todays_orders: number;
+    todays_visitors: number;
+    total_products: number;
     pending_orders: number;
     confirmed_orders: number;
     processing_orders: number;
+    awaiting_courier_orders: number;
     delivered_orders: number;
     cancelled_orders: number;
     incomplete_orders: number;
     total_revenue: string;
+};
+
+type Range = {
+    from: string;
+    to: string;
+    order_count: number;
+    order_total: string;
+    amount_received: string;
 };
 
 type RecentOrder = {
@@ -36,21 +50,32 @@ type RecentOrder = {
 
 export default function AdminDashboard({
     stats,
+    range,
     recentOrders,
 }: {
     stats: Stats;
+    range: Range;
     recentOrders: RecentOrder[];
 }) {
     const cards: { label: string; value: string | number }[] = [
         { label: 'Total Orders', value: stats.total_orders },
         { label: "Today's Orders", value: stats.todays_orders },
+        { label: "Today's Visitors", value: stats.todays_visitors },
+        { label: 'Total Products', value: stats.total_products },
         { label: 'Pending', value: stats.pending_orders },
         { label: 'Confirmed', value: stats.confirmed_orders },
         { label: 'Processing', value: stats.processing_orders },
-        { label: 'Delivered', value: stats.delivered_orders },
-        { label: 'Cancelled', value: stats.cancelled_orders },
+        { label: 'Awaiting Courier', value: stats.awaiting_courier_orders },
+        { label: 'Total Delivered', value: stats.delivered_orders },
+        { label: 'Total Cancelled', value: stats.cancelled_orders },
         { label: 'Incomplete Checkouts', value: stats.incomplete_orders },
         { label: 'Total Revenue', value: `৳ ${stats.total_revenue}` },
+    ];
+
+    const rangeCards: { label: string; value: string | number }[] = [
+        { label: 'Orders in range', value: range.order_count },
+        { label: 'Total order value', value: `৳ ${range.order_total}` },
+        { label: 'Amount received', value: `৳ ${range.amount_received}` },
     ];
 
     return (
@@ -76,6 +101,56 @@ export default function AdminDashboard({
                     </Card>
                 ))}
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Sales report</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <form
+                        method="get"
+                        className="flex flex-wrap items-end gap-3"
+                    >
+                        <div className="grid gap-2">
+                            <Label htmlFor="from">From</Label>
+                            <Input
+                                id="from"
+                                type="date"
+                                name="from"
+                                defaultValue={range.from}
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="to">To</Label>
+                            <Input
+                                id="to"
+                                type="date"
+                                name="to"
+                                defaultValue={range.to}
+                            />
+                        </div>
+                        <Button type="submit" variant="secondary">
+                            Apply
+                        </Button>
+                    </form>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        {rangeCards.map((card) => (
+                            <div
+                                key={card.label}
+                                className="rounded-lg border p-4"
+                            >
+                                <p className="text-sm text-muted-foreground">
+                                    {card.label}
+                                </p>
+                                <p className="text-2xl font-semibold">
+                                    {card.value}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
 
             <Card>
                 <CardHeader>
