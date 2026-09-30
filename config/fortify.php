@@ -162,9 +162,6 @@ return [
     'features' => [
         Features::resetPasswords(),
         Features::emailVerification(),
-        Features::passkeys([
-            'confirmPassword' => true,
-        ]),
     ],
 
 ];
