@@ -24,7 +24,11 @@ class CourierController extends Controller
      */
     public function index(): Response
     {
-        $defaultProvider = Setting::get('courier_default_provider');
+        // While Steadfast and RedX are both disabled, Pathao - the only
+        // provider with a real integration - is pinned as the permanent
+        // default and can't be unset or swapped out from this page.
+        $pathaoForced = $this->pathaoIsForced();
+        $defaultProvider = $pathaoForced ? 'pathao' : Setting::get('courier_default_provider');
         $providers = [];
 
         foreach ($this->providerDefinitions() as $name => $definition) {
@@ -45,6 +49,7 @@ class CourierController extends Controller
             $providers[] = [
                 'name' => $name,
                 'label' => $definition['label'],
+                'enabled' => $this->isProviderEnabled($name),
                 'is_default' => $name === $defaultProvider,
                 'fields' => $fields,
                 'store' => $name === 'pathao' && isset($credentials['store_id']) ? [
@@ -56,20 +61,44 @@ class CourierController extends Controller
 
         return Inertia::render('admin/courier/index', [
             'defaultProvider' => $defaultProvider,
+            'canChangeDefault' => ! $pathaoForced,
             'providers' => $providers,
         ]);
     }
 
     /**
-     * @return array<string, array{label: string, fields: array<string, array{label: string, secret: bool, default?: string}>}>
+     * @return array<string, array{label: string, fields: array<string, array{label: string, secret: bool, default?: string}>, enabled?: bool}>
      */
     private function providerDefinitions(): array
     {
         return config('courier.providers');
     }
 
+    /**
+     * Pathao has no 'enabled' flag - it's the only provider with a real
+     * CourierServiceInterface implementation, so it's always available.
+     */
+    private function isProviderEnabled(string $provider): bool
+    {
+        return (bool) (config("courier.providers.{$provider}.enabled") ?? true);
+    }
+
+    /**
+     * True while neither Steadfast nor RedX is enabled - the only scenario
+     * where Pathao is the sole usable provider and must stay pinned as
+     * default.
+     */
+    private function pathaoIsForced(): bool
+    {
+        return ! $this->isProviderEnabled('steadfast') && ! $this->isProviderEnabled('redx');
+    }
+
     public function update(CourierCredentialsRequest $request, string $provider): RedirectResponse
     {
+        if (! $this->isProviderEnabled($provider)) {
+            abort(403, 'This courier provider is disabled.');
+        }
+
         CourierProvider::mergeCredentials($provider, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Credentials saved.']);
@@ -79,8 +108,18 @@ class CourierController extends Controller
 
     public function setDefault(Request $request): RedirectResponse
     {
+        if ($this->pathaoIsForced()) {
+            abort(403, 'Pathao is the only enabled courier provider and must stay the default.');
+        }
+
+        $enabledProviders = array_keys(array_filter(
+            $this->providerDefinitions(),
+            fn (array $definition, string $name): bool => $this->isProviderEnabled($name),
+            ARRAY_FILTER_USE_BOTH,
+        ));
+
         $data = $request->validate([
-            'provider' => ['nullable', Rule::in(array_keys($this->providerDefinitions()))],
+            'provider' => ['nullable', Rule::in($enabledProviders)],
         ]);
 
         Setting::set('courier_default_provider', $data['provider'] ?? null);

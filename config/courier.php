@@ -33,6 +33,10 @@ return [
 
         'steadfast' => [
             'label' => 'Steadfast',
+            // Placeholder provider - no CourierServiceInterface implementation
+            // exists yet. Locked out of the admin UI (credentials read-only,
+            // can't be set as default) until explicitly enabled.
+            'enabled' => (bool) env('ENABLE_STEADFAST', false),
             'fields' => [
                 'base_url' => ['label' => 'Base URL', 'secret' => false],
                 'api_key' => ['label' => 'API Key', 'secret' => true],
@@ -42,6 +46,8 @@ return [
 
         'redx' => [
             'label' => 'RedX',
+            // Placeholder provider - see the 'steadfast' comment above.
+            'enabled' => (bool) env('ENABLE_REDX', false),
             'fields' => [
                 'base_url' => ['label' => 'Base URL', 'secret' => false],
                 'api_token' => ['label' => 'API Token', 'secret' => true],

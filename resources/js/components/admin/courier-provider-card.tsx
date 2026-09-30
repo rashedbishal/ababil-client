@@ -18,6 +18,7 @@ export type ProviderField = {
 export type Provider = {
     name: string;
     label: string;
+    enabled: boolean;
     is_default: boolean;
     fields: ProviderField[];
     store: { id: number; name: string | null } | null;
@@ -25,9 +26,11 @@ export type Provider = {
 
 export function CourierProviderCard({
     provider,
+    canChangeDefault,
     children,
 }: {
     provider: Provider;
+    canChangeDefault: boolean;
     children?: React.ReactNode;
 }) {
     const initial: Record<string, string> = {};
@@ -65,31 +68,46 @@ export function CourierProviderCard({
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{provider.label}</CardTitle>
                 <div className="flex items-center gap-2">
+                    {!provider.enabled && (
+                        <Badge variant="outline">Disabled</Badge>
+                    )}
                     {provider.is_default ? (
                         <>
                             <Badge>Default</Badge>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={clearDefault}
-                            >
-                                Unset
-                            </Button>
+                            {canChangeDefault && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={clearDefault}
+                                >
+                                    Unset
+                                </Button>
+                            )}
                         </>
                     ) : (
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={makeDefault}
-                        >
-                            Set as default
-                        </Button>
+                        provider.enabled &&
+                        canChangeDefault && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={makeDefault}
+                            >
+                                Set as default
+                            </Button>
+                        )
                     )}
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
+                {!provider.enabled && (
+                    <p className="text-sm text-muted-foreground">
+                        This provider is disabled. Set ENABLE_
+                        {provider.name.toUpperCase()}=true in the environment
+                        to configure and use it.
+                    </p>
+                )}
                 <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
                     {provider.fields.map((field) => (
                         <div key={field.key} className="grid gap-2">
@@ -108,6 +126,7 @@ export function CourierProviderCard({
                                 onChange={(e) =>
                                     form.setData(field.key, e.target.value)
                                 }
+                                disabled={!provider.enabled}
                                 placeholder={
                                     field.secret
                                         ? field.configured
@@ -121,7 +140,10 @@ export function CourierProviderCard({
                         </div>
                     ))}
                     <div className="sm:col-span-2">
-                        <Button type="submit" disabled={form.processing}>
+                        <Button
+                            type="submit"
+                            disabled={form.processing || !provider.enabled}
+                        >
                             Save credentials
                         </Button>
                     </div>

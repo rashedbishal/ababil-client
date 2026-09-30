@@ -10,9 +10,11 @@ import courier from '@/routes/admin/courier';
 
 export default function CourierIndex({
     defaultProvider,
+    canChangeDefault,
     providers,
 }: {
     defaultProvider: string | null;
+    canChangeDefault: boolean;
     providers: Provider[];
 }) {
     return (
@@ -31,11 +33,19 @@ export default function CourierIndex({
                 </p>
             )}
 
+            {!canChangeDefault && (
+                <p className="rounded-lg border p-3 text-sm text-muted-foreground">
+                    Pathao is pinned as the default courier provider while
+                    Steadfast and RedX are disabled.
+                </p>
+            )}
+
             <div className="space-y-6">
                 {providers.map((provider) => (
                     <CourierProviderCard
                         key={provider.name}
                         provider={provider}
+                        canChangeDefault={canChangeDefault}
                     >
                         {provider.name === 'pathao' && (
                             <PathaoStoreSelector store={provider.store} />

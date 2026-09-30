@@ -67,22 +67,93 @@ test('saved secret values are never sent back to the browser', function () {
     $response->assertDontSee('super-secret-value');
 });
 
-test('an admin can set and unset the default courier provider', function () {
+test('an admin can set and unset the default courier provider once an alternate is enabled', function () {
+    config(['courier.providers.steadfast.enabled' => true]);
     actingAsCourierAdmin();
 
-    $this->put(route('admin.courier.default'), ['provider' => 'pathao']);
-    expect(Setting::get('courier_default_provider'))->toBe('pathao');
+    $this->put(route('admin.courier.default'), ['provider' => 'steadfast']);
+    expect(Setting::get('courier_default_provider'))->toBe('steadfast');
 
     $this->put(route('admin.courier.default'), ['provider' => null]);
     expect(Setting::get('courier_default_provider'))->toBeNull();
 });
 
 test('setting an unknown provider as default fails validation', function () {
+    config(['courier.providers.steadfast.enabled' => true]);
     actingAsCourierAdmin();
 
     $response = $this->put(route('admin.courier.default'), ['provider' => 'not-a-real-provider']);
 
     $response->assertSessionHasErrors('provider');
+});
+
+test('the default provider cannot be changed while steadfast and redx are both disabled', function () {
+    actingAsCourierAdmin();
+
+    $response = $this->put(route('admin.courier.default'), ['provider' => 'pathao']);
+
+    $response->assertForbidden();
+    expect(Setting::get('courier_default_provider'))->toBe('pathao');
+});
+
+test('the default provider cannot be set to a disabled provider even when another alternate is enabled', function () {
+    config(['courier.providers.steadfast.enabled' => true]);
+    actingAsCourierAdmin();
+
+    $response = $this->put(route('admin.courier.default'), ['provider' => 'redx']);
+
+    $response->assertSessionHasErrors('provider');
+});
+
+test('credentials cannot be saved for a disabled provider', function () {
+    actingAsCourierAdmin();
+
+    $response = $this->put(route('admin.courier.update', 'steadfast'), ['api_key' => 'x']);
+
+    $response->assertForbidden();
+    expect(CourierProvider::credentialsFor('steadfast'))->toBe([]);
+});
+
+test('credentials can be saved for an enabled alternate provider', function () {
+    config(['courier.providers.steadfast.enabled' => true]);
+    actingAsCourierAdmin();
+
+    $response = $this->put(route('admin.courier.update', 'steadfast'), [
+        'base_url' => 'https://example.test',
+        'api_key' => 'my-key',
+        'secret_key' => 'my-secret',
+    ]);
+
+    $response->assertRedirect();
+    expect(CourierProvider::credentialsFor('steadfast')['api_key'])->toBe('my-key');
+});
+
+test('the courier index pins pathao as default and reports the alternates as disabled', function () {
+    actingAsCourierAdmin();
+
+    $response = $this->get(route('admin.courier.index'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('defaultProvider', 'pathao')
+        ->where('canChangeDefault', false)
+        ->where('providers.0.name', 'pathao')
+        ->where('providers.0.enabled', true)
+        ->where('providers.0.is_default', true)
+        ->where('providers.1.name', 'steadfast')
+        ->where('providers.1.enabled', false)
+        ->where('providers.2.name', 'redx')
+        ->where('providers.2.enabled', false));
+});
+
+test('the courier index allows changing the default once an alternate is enabled', function () {
+    config(['courier.providers.steadfast.enabled' => true]);
+    actingAsCourierAdmin();
+
+    $response = $this->get(route('admin.courier.index'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('canChangeDefault', true)
+        ->where('providers.1.enabled', true));
 });
 
 test('a non-admin cannot manage courier providers', function () {
