@@ -16,6 +16,8 @@ type Settings = {
     order_prefix: string | null;
     facebook_pixel_id: string | null;
     google_analytics_id: string | null;
+    whatsapp_number: string | null;
+    facebook_page_url: string | null;
 };
 
 const fields: { name: keyof Settings; label: string; type?: string }[] = [
@@ -24,6 +26,8 @@ const fields: { name: keyof Settings; label: string; type?: string }[] = [
     { name: 'site_email', label: 'Email', type: 'email' },
     { name: 'currency', label: 'Currency (e.g. BDT)' },
     { name: 'order_prefix', label: 'Order number prefix' },
+    { name: 'whatsapp_number', label: 'WhatsApp number (with country code)' },
+    { name: 'facebook_page_url', label: 'Facebook Page URL' },
     { name: 'facebook_pixel_id', label: 'Facebook Pixel ID' },
     { name: 'google_analytics_id', label: 'Google Analytics ID' },
 ];

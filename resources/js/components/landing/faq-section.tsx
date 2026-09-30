@@ -1,0 +1,60 @@
+import { ChevronDown } from 'lucide-react';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+
+const faqs = [
+    {
+        question: 'কতদিন ব্যবহারে ফলাফল পাওয়া যাবে?',
+        answer: 'নিয়মিত দিনে ২-৩ বার ব্যবহারে বেশিরভাগ ক্ষেত্রে কয়েক দিনের মধ্যেই আরাম অনুভব করা যায়। ব্যথার ধরন ও তীব্রতার উপর ফলাফল নির্ভর করে।',
+    },
+    {
+        question: 'ডেলিভারি পেতে কত সময় লাগে?',
+        answer: 'ঢাকার ভেতরে সাধারণত ১-২ কার্যদিবস এবং ঢাকার বাইরে ২-৪ কার্যদিবসের মধ্যে ডেলিভারি সম্পন্ন হয়।',
+    },
+    {
+        question: 'পেমেন্ট পদ্ধতি কী কী?',
+        answer: 'বর্তমানে শুধুমাত্র Cash on Delivery (COD) সুবিধা চালু আছে — পণ্য হাতে পেয়ে মূল্য পরিশোধ করতে পারবেন।',
+    },
+    {
+        question: 'গর্ভবতী বা স্তন্যদানকারী মায়েরা কি ব্যবহার করতে পারবেন?',
+        answer: 'ব্যবহারের আগে অবশ্যই চিকিৎসকের পরামর্শ নেওয়ার পরামর্শ দেওয়া হচ্ছে। বিস্তারিত সতর্কতা উপরের "ব্যবহারের সতর্কতা" অংশে দেওয়া আছে।',
+    },
+    {
+        question: 'পণ্য পছন্দ না হলে ফেরত দেওয়া যাবে কি?',
+        answer: 'হ্যাঁ, ডেলিভারির ৩ দিনের মধ্যে যোগাযোগ করলে আমাদের Money-Back গ্যারান্টি নীতি অনুযায়ী ব্যবস্থা নেওয়া হবে।',
+    },
+];
+
+export default function FaqSection() {
+    return (
+        <section className="bg-neutral-950 py-14 sm:py-20">
+            <div className="mx-auto max-w-3xl px-4 sm:px-6">
+                <h2 className="text-center font-bengali text-2xl font-bold text-white sm:text-3xl">
+                    সাধারণ জিজ্ঞাসা
+                </h2>
+
+                <div className="mt-8 space-y-3">
+                    {faqs.map(({ question, answer }) => (
+                        <Collapsible
+                            key={question}
+                            className="group rounded-xl border border-white/10 bg-white/5 px-5 py-1"
+                        >
+                            <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
+                                <span className="font-bengali text-sm font-medium text-white sm:text-base">
+                                    {question}
+                                </span>
+                                <ChevronDown className="size-4 shrink-0 text-amber-400 transition-transform group-data-[state=open]:rotate-180" />
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="pb-4 font-bengali text-sm text-neutral-400">
+                                {answer}
+                            </CollapsibleContent>
+                        </Collapsible>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
