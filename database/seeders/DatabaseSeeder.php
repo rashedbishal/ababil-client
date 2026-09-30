@@ -25,11 +25,6 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true,
         ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
         $this->seedSettings();
 
         $sizes = collect(['S', 'M', 'L', 'XL', 'XXL'])

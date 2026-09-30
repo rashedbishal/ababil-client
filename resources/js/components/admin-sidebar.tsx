@@ -25,7 +25,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import { dashboard as customerDashboard } from '@/routes';
+import { home } from '@/routes';
 import blockedIps from '@/routes/admin/blocked-ips';
 import courier from '@/routes/admin/courier';
 import { dashboard } from '@/routes/admin';
@@ -140,10 +140,10 @@ export function AdminSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             asChild
-                            tooltip={{ children: 'Back to site' }}
+                            tooltip={{ children: 'View the public storefront' }}
                         >
-                            <Link href={customerDashboard()}>
-                                <span>Back to app</span>
+                            <Link href={home()}>
+                                <span>View storefront</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -19,9 +19,7 @@ Route::middleware(['blocked-ip'])->group(function (): void {
         ->name('incomplete-orders.store');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
-});
+Route::redirect('dashboard', '/admin')->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';
