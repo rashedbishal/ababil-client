@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\OrderStatus;
+use App\Enums\OrderStatusSyncMode;
 use App\Models\Order;
 use App\Models\ShippingArea;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -38,6 +39,7 @@ class OrderFactory extends Factory
             'grand_total' => $grandTotal,
             'status' => OrderStatus::Pending,
             'courier_status' => null,
+            'status_sync_mode' => OrderStatusSyncMode::Automated,
             'customer_ip' => fake()->ipv4(),
             'user_agent' => fake()->userAgent(),
         ];

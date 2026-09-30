@@ -86,6 +86,35 @@ test('submitting to the courier fails gracefully when no provider is configured'
     expect($order->fresh()->courier_consignment_id)->toBeNull();
 });
 
+test('a cancelled order cannot be submitted to the courier', function () {
+    actingAsAdmin();
+
+    $order = Order::factory()
+        ->has(OrderItem::factory()->count(1), 'items')
+        ->create(['status' => OrderStatus::Cancelled]);
+
+    $response = $this->post(route('admin.orders.courier.submit', $order));
+
+    $response->assertRedirect();
+    Http::assertNothingSent();
+    expect($order->fresh()->courier_consignment_id)->toBeNull();
+});
+
+test('a cancelled order cannot have its courier status refreshed', function () {
+    actingAsAdmin();
+
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Cancelled,
+        'courier_consignment_id' => 'CONSIGN-1',
+        'courier_provider' => 'pathao',
+    ]);
+
+    $response = $this->post(route('admin.orders.courier.refresh', $order));
+
+    $response->assertRedirect();
+    Http::assertNothingSent();
+});
+
 test('a non-admin cannot submit an order to the courier', function () {
     $user = User::factory()->create(['is_admin' => false]);
     $order = Order::factory()->create();

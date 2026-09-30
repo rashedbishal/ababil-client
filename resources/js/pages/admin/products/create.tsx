@@ -9,7 +9,13 @@ import { Button } from '@/components/ui/button';
 import { dashboard } from '@/routes/admin';
 import products from '@/routes/admin/products';
 
-export default function ProductCreate({ media }: { media: MediaOption[] }) {
+export default function ProductCreate({
+    media,
+    canSetVisibility,
+}: {
+    media: MediaOption[];
+    canSetVisibility: boolean;
+}) {
     return (
         <>
             <Head title="Add Product" />
@@ -35,6 +41,7 @@ export default function ProductCreate({ media }: { media: MediaOption[] }) {
                                 track_stock: true,
                                 stock: 0,
                                 weight: '0.5',
+                                free_delivery: false,
                                 is_active: true,
                                 meta_title: '',
                                 meta_description: '',
@@ -42,6 +49,7 @@ export default function ProductCreate({ media }: { media: MediaOption[] }) {
                             }}
                             media={media}
                             errors={errors}
+                            canSetVisibility={canSetVisibility}
                         />
 
                         <Button disabled={processing}>Create product</Button>

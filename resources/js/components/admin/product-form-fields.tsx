@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import InputError from '@/components/input-error';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,6 +19,7 @@ export type ProductFormValues = {
     track_stock: boolean;
     stock: number;
     weight: string;
+    free_delivery: boolean;
     is_active: boolean;
     meta_title: string | null;
     meta_description: string | null;
@@ -27,11 +30,15 @@ export function ProductFormFields({
     defaults,
     media,
     errors,
+    canSetVisibility,
 }: {
     defaults: ProductFormValues;
     media: MediaOption[];
     errors: Partial<Record<string, string>>;
+    canSetVisibility: boolean;
 }) {
+    const [freeDelivery, setFreeDelivery] = useState(defaults.free_delivery);
+
     return (
         <div className="grid gap-6 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
@@ -153,12 +160,25 @@ export function ProductFormFields({
                         <select
                             id="is_active"
                             name="is_active"
-                            defaultValue={defaults.is_active ? '1' : '0'}
-                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
+                            defaultValue={
+                                canSetVisibility
+                                    ? defaults.is_active
+                                        ? '1'
+                                        : '0'
+                                    : '1'
+                            }
+                            disabled={!canSetVisibility}
+                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <option value="1">Active</option>
                             <option value="0">Inactive</option>
                         </select>
+                        {!canSetVisibility && (
+                            <p className="text-xs text-muted-foreground">
+                                This is the only product in your catalog, so
+                                it must stay active.
+                            </p>
+                        )}
                         <InputError message={errors.is_active} />
                     </div>
                     <div className="grid gap-2">
@@ -218,6 +238,33 @@ export function ProductFormFields({
                         </p>
                         <InputError message={errors.weight} />
                     </div>
+                </fieldset>
+
+                <fieldset className="grid gap-4 rounded-lg border p-4">
+                    <legend className="px-1 text-sm font-medium">
+                        Delivery
+                    </legend>
+                    <div className="flex items-center space-x-3">
+                        <input
+                            type="hidden"
+                            name="free_delivery"
+                            value={freeDelivery ? '1' : '0'}
+                        />
+                        <Checkbox
+                            id="free_delivery"
+                            checked={freeDelivery}
+                            onCheckedChange={(checked) =>
+                                setFreeDelivery(checked === true)
+                            }
+                        />
+                        <Label htmlFor="free_delivery">Free delivery</Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        When checked, the delivery/shipping charge is waived
+                        for this product - customers pay ৳0.00 for shipping
+                        regardless of the selected area.
+                    </p>
+                    <InputError message={errors.free_delivery} />
                 </fieldset>
 
                 <fieldset className="grid gap-4 rounded-lg border p-4">

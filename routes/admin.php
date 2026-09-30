@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('products', ProductController::class)->except(['show']);
+    Route::resource('products', ProductController::class)
+        ->except(['show'])
+        ->middlewareFor(['create', 'store'], 'product-creation-unlocked');
     Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
 
     Route::post('products/{product}/variants', [ProductVariantController::class, 'store'])->name('products.variants.store');
@@ -27,6 +29,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('sizes', SizeController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::resource('orders', OrderController::class)->only(['index', 'show', 'update']);
+    Route::patch('orders/{order}/status-sync-mode', [OrderController::class, 'updateStatusSyncMode'])->name('orders.status-sync-mode');
     Route::post('orders/{order}/courier/submit', [OrderCourierController::class, 'submit'])->name('orders.courier.submit');
     Route::post('orders/{order}/courier/refresh', [OrderCourierController::class, 'refresh'])->name('orders.courier.refresh');
 

@@ -32,9 +32,11 @@ type ProductRow = {
 export default function ProductsIndex({
     products: paginated,
     filters,
+    canCreateProducts,
 }: {
     products: Paginated<ProductRow>;
     filters: { search?: string; status?: string };
+    canCreateProducts: boolean;
 }) {
     function archive(id: number) {
         if (confirm('Archive this product?')) {
@@ -52,9 +54,11 @@ export default function ProductsIndex({
 
             <div className="flex items-center justify-between">
                 <Heading title="Products" description="Manage your catalog." />
-                <Button asChild>
-                    <Link href={products.create()}>Add product</Link>
-                </Button>
+                {canCreateProducts && (
+                    <Button asChild>
+                        <Link href={products.create()}>Add product</Link>
+                    </Button>
+                )}
             </div>
 
             <form method="get" className="flex flex-wrap gap-2">

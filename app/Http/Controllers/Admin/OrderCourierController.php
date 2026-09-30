@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Orders\UpdateOrderStatusAction;
 use App\Enums\OrderStatus;
+use App\Enums\OrderStatusSyncMode;
 use App\Exceptions\CourierException;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
@@ -18,6 +19,12 @@ class OrderCourierController extends Controller
 {
     public function submit(Request $request, Order $order, CourierServiceInterface $courier): RedirectResponse
     {
+        if ($order->status === OrderStatus::Cancelled) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'This order is cancelled and cannot be sent to the courier.']);
+
+            return back();
+        }
+
         if ($order->courier_consignment_id !== null) {
             Inertia::flash('toast', ['type' => 'error', 'message' => 'This order was already submitted to the courier.']);
 
@@ -40,7 +47,8 @@ class OrderCourierController extends Controller
             'courier_raw_status' => $parcel->rawStatus,
         ]);
 
-        if ($order->status === OrderStatus::Pending || $order->status === OrderStatus::Confirmed) {
+        if ($order->status_sync_mode === OrderStatusSyncMode::Automated
+            && ($order->status === OrderStatus::Pending || $order->status === OrderStatus::Confirmed)) {
             app(UpdateOrderStatusAction::class)->execute(
                 $order,
                 OrderStatus::CourierSubmitted,
@@ -54,8 +62,14 @@ class OrderCourierController extends Controller
         return back();
     }
 
-    public function refresh(Order $order, CourierServiceInterface $courier): RedirectResponse
+    public function refresh(Request $request, Order $order, CourierServiceInterface $courier): RedirectResponse
     {
+        if ($order->status === OrderStatus::Cancelled) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'This order is cancelled.']);
+
+            return back();
+        }
+
         if ($order->courier_consignment_id === null) {
             Inertia::flash('toast', ['type' => 'error', 'message' => 'This order has not been submitted to a courier yet.']);
 
@@ -75,6 +89,19 @@ class OrderCourierController extends Controller
             'courier_raw_status' => $parcel->rawStatus,
             'courier_tracking_code' => $parcel->trackingCode ?? $order->courier_tracking_code,
         ]);
+
+        if ($order->status_sync_mode === OrderStatusSyncMode::Automated) {
+            $implied = $parcel->status->toOrderStatus();
+
+            if ($implied !== null && $implied !== $order->status) {
+                app(UpdateOrderStatusAction::class)->execute(
+                    $order,
+                    $implied,
+                    $request->user(),
+                    'Synced from courier status: '.$parcel->status->label(),
+                );
+            }
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Courier status refreshed.']);
 

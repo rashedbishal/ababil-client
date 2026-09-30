@@ -28,6 +28,7 @@ type ProductDetail = {
     track_stock: boolean;
     stock: number;
     weight: string;
+    free_delivery: boolean;
     is_active: boolean;
     meta_title: string | null;
     meta_description: string | null;
@@ -39,10 +40,12 @@ export default function ProductEdit({
     product,
     media,
     sizes,
+    canSetVisibility,
 }: {
     product: ProductDetail;
     media: MediaOption[];
     sizes: { id: number; name: string }[];
+    canSetVisibility: boolean;
 }) {
     return (
         <>
@@ -63,6 +66,7 @@ export default function ProductEdit({
                             defaults={product}
                             media={media}
                             errors={errors}
+                            canSetVisibility={canSetVisibility}
                         />
                         <Button disabled={processing}>Save changes</Button>
                     </>

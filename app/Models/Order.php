@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CourierStatus;
 use App\Enums\OrderStatus;
+use App\Enums\OrderStatusSyncMode;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property OrderStatus $status
  * @property CourierStatus|null $courier_status
  * @property string|null $courier_raw_status
+ * @property OrderStatusSyncMode $status_sync_mode
  * @property string|null $customer_ip
  * @property string|null $user_agent
  * @property string|null $customer_note
@@ -60,6 +62,7 @@ class Order extends Model
         'status',
         'courier_status',
         'courier_raw_status',
+        'status_sync_mode',
         'customer_ip',
         'user_agent',
         'customer_note',
@@ -82,6 +85,7 @@ class Order extends Model
             'grand_total' => 'decimal:2',
             'status' => OrderStatus::class,
             'courier_status' => CourierStatus::class,
+            'status_sync_mode' => OrderStatusSyncMode::class,
             'confirmed_at' => 'datetime',
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',

@@ -65,7 +65,7 @@ test('it issues a new access token and creates a parcel', function () {
     $result = (new PathaoCourierService)->createParcel(sampleParcel());
 
     expect($result->consignmentId)->toBe('CONSIGN-1')
-        ->and($result->status)->toBe(CourierStatus::Submitted)
+        ->and($result->status)->toBe(CourierStatus::Pending)
         ->and($result->rawStatus)->toBe('Pending');
 
     Http::assertSent(fn ($request) => $request->url() === 'https://courier-api-sandbox.pathao.com/aladdin/api/v1/issue-token'
@@ -158,12 +158,24 @@ test('it maps a known courier status and preserves the raw text', function (stri
     expect($result->status)->toBe($expected)
         ->and($result->rawStatus)->toBe($rawStatus);
 })->with([
-    'delivered' => ['Delivered', CourierStatus::Delivered],
-    'pending' => ['Pending', CourierStatus::Submitted],
-    'picked up' => ['Picked_Up', CourierStatus::PickedUp],
-    'in transit' => ['In_Transit', CourierStatus::InTransit],
-    'cancelled' => ['Cancelled', CourierStatus::Cancelled],
-    'unrecognized status falls back to Submitted' => ['Some_New_Status_Pathao_Might_Add', CourierStatus::Submitted],
+    'pending' => ['Pending', CourierStatus::Pending],
+    'at sorting' => ['At Sorting', CourierStatus::AtSorting],
+    'assigned for delivery' => ['Assigned for Delivery', CourierStatus::AssignedForDelivery],
+    'at delivery hub' => ['At Delivery Hub', CourierStatus::AtDeliveryHub],
+    'in transit' => ['In Transit', CourierStatus::InTransit],
+    'on hold' => ['On Hold', CourierStatus::OnHold],
+    'return requested' => ['Return Requested', CourierStatus::ReturnRequested],
+    'reattempt requested' => ['Reattempt Requested', CourierStatus::ReattemptRequested],
+    'delivery' => ['Delivery', CourierStatus::Delivery],
+    'partial delivery' => ['Partial Delivery', CourierStatus::PartialDelivery],
+    'exchange' => ['Exchange', CourierStatus::Exchange],
+    'returned' => ['Returned', CourierStatus::Returned],
+    'paid return' => ['Paid Return', CourierStatus::PaidReturn],
+    'returned to inventory' => ['Returned to Inventory', CourierStatus::ReturnedToInventory],
+    'assigned for return' => ['Assigned for Return', CourierStatus::AssignedForReturn],
+    'first mile hub' => ['First Mile Hub', CourierStatus::FirstMileHub],
+    'return to merchant' => ['Return to Merchant', CourierStatus::ReturnToMerchant],
+    'unrecognized status falls back to Unknown' => ['Some_New_Status_Pathao_Might_Add', CourierStatus::Unknown],
 ]);
 
 test('it throws when store_id is not configured', function () {

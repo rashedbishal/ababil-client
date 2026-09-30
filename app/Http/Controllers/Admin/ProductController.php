@@ -55,6 +55,7 @@ class ProductController extends Controller
                 'featured_image_url' => $product->featuredImage?->url(),
             ]),
             'filters' => $request->only(['search', 'status']),
+            'canCreateProducts' => (bool) config('catalog.product_lock'),
         ]);
     }
 
@@ -62,12 +63,22 @@ class ProductController extends Controller
     {
         return Inertia::render('admin/products/create', [
             'media' => $this->mediaOptions(),
+            // A brand-new product only gets a visibility choice if it won't
+            // be the sole product in the catalog - the storefront needs at
+            // least one active product to show.
+            'canSetVisibility' => Product::query()->count() > 0,
         ]);
     }
 
     public function store(ProductRequest $request): RedirectResponse
     {
-        $product = Product::query()->create($request->validated());
+        $data = $request->validated();
+
+        if (Product::query()->count() === 0) {
+            $data['is_active'] = true;
+        }
+
+        $product = Product::query()->create($data);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Product created.']);
 
@@ -93,6 +104,7 @@ class ProductController extends Controller
                 'track_stock' => $product->track_stock,
                 'stock' => $product->stock,
                 'weight' => (string) $product->weight,
+                'free_delivery' => $product->free_delivery,
                 'is_active' => $product->is_active,
                 'meta_title' => $product->meta_title,
                 'meta_description' => $product->meta_description,
@@ -109,12 +121,21 @@ class ProductController extends Controller
             ],
             'media' => $this->mediaOptions(),
             'sizes' => Size::query()->where('is_active', true)->orderBy('sort_order')->get(['id', 'name']),
+            // If this is the only product in the whole catalog, it must stay
+            // active - there'd otherwise be nothing for the storefront to show.
+            'canSetVisibility' => Product::query()->count() > 1,
         ]);
     }
 
     public function update(ProductRequest $request, Product $product): RedirectResponse
     {
-        $product->update($request->validated());
+        $data = $request->validated();
+
+        if (Product::query()->count() === 1) {
+            $data['is_active'] = true;
+        }
+
+        $product->update($data);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Product updated.']);
 

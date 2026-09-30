@@ -24,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property bool $track_stock
  * @property int $stock
  * @property string $weight
+ * @property bool $free_delivery
  * @property bool $is_active
  * @property string|null $meta_title
  * @property string|null $meta_description
@@ -49,6 +50,7 @@ class Product extends Model
         'track_stock',
         'stock',
         'weight',
+        'free_delivery',
         'is_active',
         'meta_title',
         'meta_description',
@@ -63,6 +65,7 @@ class Product extends Model
             'track_stock' => 'boolean',
             'stock' => 'integer',
             'weight' => 'decimal:2',
+            'free_delivery' => 'boolean',
             'is_active' => 'boolean',
             'sort_order' => 'integer',
         ];

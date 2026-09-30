@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\BlockDisallowedIps;
+use App\Http\Middleware\EnsureProductCreationIsUnlocked;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
             'blocked-ip' => BlockDisallowedIps::class,
+            'product-creation-unlocked' => EnsureProductCreationIsUnlocked::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Orders\SetOrderStatusSyncModeAction;
 use App\Actions\Orders\UpdateOrderStatusAction;
 use App\Enums\OrderStatus;
+use App\Enums\OrderStatusSyncMode;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\OrderStatusSyncModeRequest;
 use App\Http\Requests\Admin\OrderUpdateRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -73,6 +76,7 @@ class OrderController extends Controller
                 'status' => $order->status->value,
                 'courier_status' => $order->courier_status?->label(),
                 'courier_raw_status' => $order->courier_raw_status,
+                'status_sync_mode' => $order->status_sync_mode->value,
                 'customer_ip' => $order->customer_ip,
                 'user_agent' => $order->user_agent,
                 'customer_note' => $order->customer_note,
@@ -119,6 +123,15 @@ class OrderController extends Controller
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Order updated.']);
+
+        return back();
+    }
+
+    public function updateStatusSyncMode(OrderStatusSyncModeRequest $request, Order $order, SetOrderStatusSyncModeAction $action): RedirectResponse
+    {
+        $action->execute($order, OrderStatusSyncMode::from($request->validated('status_sync_mode')), $request->user());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Status sync mode updated.']);
 
         return back();
     }

@@ -303,19 +303,48 @@ class PathaoCourierService implements CourierServiceInterface
      * the full status list, so this is deliberately lenient - the raw
      * status text is always preserved for admins alongside this.
      */
+    /**
+     * Maps Pathao's raw order_status/order_status_slug text to our CourierStatus
+     * enum. Matching is normalized (lowercased, non-alphanumeric collapsed to
+     * underscores) so "At Sorting", "at_sorting", and "At_Sorting_Hub" all match
+     * the same case. Anything Pathao adds that we don't recognize yet falls back
+     * to Unknown and is logged, rather than silently guessing.
+     */
     private function mapStatus(?string $rawStatus): CourierStatus
     {
-        $status = strtolower((string) $rawStatus);
+        $normalized = trim((string) preg_replace('/[^a-z0-9]+/', '_', strtolower((string) $rawStatus)), '_');
 
-        return match (true) {
-            $status === '' => CourierStatus::Submitted,
-            str_contains($status, 'cancel') => CourierStatus::Cancelled,
-            str_contains($status, 'return') => CourierStatus::Returned,
-            str_contains($status, 'deliver') => CourierStatus::Delivered,
-            str_contains($status, 'transit') || str_contains($status, 'hub') => CourierStatus::InTransit,
-            str_contains($status, 'pick') => CourierStatus::PickedUp,
-            str_contains($status, 'fail') || str_contains($status, 'hold') => CourierStatus::Failed,
-            default => CourierStatus::Submitted,
+        $status = match ($normalized) {
+            '' => CourierStatus::Unknown,
+            'pending' => CourierStatus::Pending,
+            'at_sorting', 'at_sorting_hub' => CourierStatus::AtSorting,
+            'first_mile_hub' => CourierStatus::FirstMileHub,
+            'assigned_for_delivery' => CourierStatus::AssignedForDelivery,
+            'at_delivery_hub' => CourierStatus::AtDeliveryHub,
+            'in_transit' => CourierStatus::InTransit,
+            'on_hold' => CourierStatus::OnHold,
+            'reattempt_requested' => CourierStatus::ReattemptRequested,
+            'delivery' => CourierStatus::Delivery,
+            'partial_delivery' => CourierStatus::PartialDelivery,
+            'exchange' => CourierStatus::Exchange,
+            'return_requested' => CourierStatus::ReturnRequested,
+            'return_at_sorting' => CourierStatus::ReturnAtSorting,
+            'return_in_transit' => CourierStatus::ReturnInTransit,
+            'assigned_for_return' => CourierStatus::AssignedForReturn,
+            'return_to_merchant' => CourierStatus::ReturnToMerchant,
+            'returned' => CourierStatus::Returned,
+            'paid_return' => CourierStatus::PaidReturn,
+            'returned_to_inventory', 'return_to_inventory' => CourierStatus::ReturnedToInventory,
+            'reprocess_pending' => CourierStatus::ReprocessPending,
+            'reprocessed' => CourierStatus::Reprocessed,
+            'at_inventory' => CourierStatus::AtInventory,
+            default => CourierStatus::Unknown,
         };
+
+        if ($status === CourierStatus::Unknown && $normalized !== '') {
+            Log::warning('Unrecognized Pathao order status', ['raw' => $rawStatus]);
+        }
+
+        return $status;
     }
 }

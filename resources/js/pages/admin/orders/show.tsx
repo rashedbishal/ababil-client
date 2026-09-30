@@ -1,4 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react';
+import { useEffect } from 'react';
 import InputError from '@/components/input-error';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { dashboard } from '@/routes/admin';
 import orders from '@/routes/admin/orders';
 
@@ -50,6 +52,7 @@ type OrderDetail = {
     status: string;
     courier_status: string | null;
     courier_raw_status: string | null;
+    status_sync_mode: 'automated' | 'manual';
     customer_ip: string | null;
     user_agent: string | null;
     customer_note: string | null;
@@ -77,6 +80,10 @@ export default function OrderShow({
         admin_note: order.admin_note ?? '',
     });
 
+    useEffect(() => {
+        form.setData('status', order.status);
+    }, [order.status]);
+
     function submit(e: React.FormEvent) {
         e.preventDefault();
         form.patch(orders.update(order.id).url, { preserveScroll: true });
@@ -97,6 +104,20 @@ export default function OrderShow({
             { preserveScroll: true },
         );
     }
+
+    function updateStatusSyncMode(mode: 'automated' | 'manual') {
+        if (!mode || mode === order.status_sync_mode) {
+            return;
+        }
+
+        router.patch(
+            orders.statusSyncMode(order.id).url,
+            { status_sync_mode: mode },
+            { preserveScroll: true },
+        );
+    }
+
+    const isAutomated = order.status_sync_mode === 'automated';
 
     return (
         <>
@@ -285,19 +306,49 @@ export default function OrderShow({
                             <CardTitle>Update order</CardTitle>
                         </CardHeader>
                         <CardContent>
+                            <div className="mb-4 space-y-2">
+                                <Label>Status sync</Label>
+                                <ToggleGroup
+                                    type="single"
+                                    variant="outline"
+                                    value={order.status_sync_mode}
+                                    onValueChange={updateStatusSyncMode}
+                                    className="w-full"
+                                >
+                                    <ToggleGroupItem
+                                        value="automated"
+                                        className="flex-1"
+                                    >
+                                        Automated
+                                    </ToggleGroupItem>
+                                    <ToggleGroupItem
+                                        value="manual"
+                                        className="flex-1"
+                                    >
+                                        Manual
+                                    </ToggleGroupItem>
+                                </ToggleGroup>
+                                <p className="text-xs text-muted-foreground">
+                                    {isAutomated
+                                        ? 'Status is synced automatically from the courier. Switch to manual to edit it by hand.'
+                                        : 'Status is fully manual. Switch to automated to sync it from the courier again.'}
+                                </p>
+                            </div>
+
                             <form onSubmit={submit} className="space-y-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="status">Status</Label>
                                     <select
                                         id="status"
                                         value={form.data.status}
+                                        disabled={isAutomated}
                                         onChange={(e) =>
                                             form.setData(
                                                 'status',
                                                 e.target.value,
                                             )
                                         }
-                                        className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
+                                        className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                         {statuses.map((status) => (
                                             <option
@@ -339,73 +390,76 @@ export default function OrderShow({
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Courier</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <p>
-                                <span className="text-muted-foreground">
-                                    Provider:
-                                </span>{' '}
-                                {order.courier_provider ?? '—'}
-                            </p>
-                            <p>
-                                <span className="text-muted-foreground">
-                                    Status:
-                                </span>{' '}
-                                {order.courier_status ?? '—'}
-                                {order.courier_raw_status && (
+                    {order.status !== 'cancelled' && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Courier</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2 text-sm">
+                                <p>
                                     <span className="text-muted-foreground">
-                                        {' '}
-                                        ({order.courier_raw_status})
-                                    </span>
-                                )}
-                            </p>
-                            <p>
-                                <span className="text-muted-foreground">
-                                    Consignment:
-                                </span>{' '}
-                                {order.courier_consignment_id ?? '—'}
-                            </p>
-                            <p>
-                                <span className="text-muted-foreground">
-                                    Tracking:
-                                </span>{' '}
-                                {order.courier_tracking_code ?? '—'}
-                            </p>
-
-                            {!courierConfigured && (
-                                <p className="text-xs text-muted-foreground">
-                                    No courier provider is configured yet. Set
-                                    one up under Courier Integration.
+                                        Provider:
+                                    </span>{' '}
+                                    {order.courier_provider ?? '—'}
                                 </p>
-                            )}
+                                <p>
+                                    <span className="text-muted-foreground">
+                                        Status:
+                                    </span>{' '}
+                                    {order.courier_status ?? '—'}
+                                    {order.courier_raw_status && (
+                                        <span className="text-muted-foreground">
+                                            {' '}
+                                            ({order.courier_raw_status})
+                                        </span>
+                                    )}
+                                </p>
+                                <p>
+                                    <span className="text-muted-foreground">
+                                        Consignment:
+                                    </span>{' '}
+                                    {order.courier_consignment_id ?? '—'}
+                                </p>
+                                <p>
+                                    <span className="text-muted-foreground">
+                                        Tracking:
+                                    </span>{' '}
+                                    {order.courier_tracking_code ?? '—'}
+                                </p>
 
-                            {courierConfigured &&
-                                order.courier_consignment_id === null && (
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        onClick={submitToCourier}
-                                    >
-                                        Submit to courier
-                                    </Button>
+                                {!courierConfigured && (
+                                    <p className="text-xs text-muted-foreground">
+                                        No courier provider is configured
+                                        yet. Set one up under Courier
+                                        Integration.
+                                    </p>
                                 )}
 
-                            {courierConfigured &&
-                                order.courier_consignment_id !== null && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={refreshCourierStatus}
-                                    >
-                                        Refresh status
-                                    </Button>
-                                )}
-                        </CardContent>
-                    </Card>
+                                {courierConfigured &&
+                                    order.courier_consignment_id === null && (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            onClick={submitToCourier}
+                                        >
+                                            Submit to courier
+                                        </Button>
+                                    )}
+
+                                {courierConfigured &&
+                                    order.courier_consignment_id !== null && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={refreshCourierStatus}
+                                        >
+                                            Refresh status
+                                        </Button>
+                                    )}
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
             </div>
         </>
