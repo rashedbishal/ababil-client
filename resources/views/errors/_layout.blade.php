@@ -6,6 +6,13 @@
         <title>{{ $code }} — {{ config('app.name', 'Ababil') }}</title>
         <link rel="icon" href="/favicon.ico" sizes="any">
         <style>
+            @font-face {
+                font-family: 'Kalpurush';
+                src: url('/fonts/kalpurush.ttf') format('truetype');
+                font-weight: 400 700;
+                font-display: swap;
+            }
+
             :root {
                 color-scheme: light;
             }
@@ -21,7 +28,7 @@
                 align-items: center;
                 justify-content: center;
                 padding: 24px;
-                font-family: 'Hind Siliguri', 'Segoe UI', system-ui, sans-serif;
+                font-family: 'Kalpurush', 'Hind Siliguri', 'Segoe UI', system-ui, sans-serif;
                 background: radial-gradient(circle at 50% 0%, #fde68a 0%, #fbbf24 45%, #f59e0b 100%);
                 color: #1c1917;
             }
