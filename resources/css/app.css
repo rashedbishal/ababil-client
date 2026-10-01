@@ -184,15 +184,15 @@
 
 .animate-shimmer {
     background-size: 200% auto;
-    animation: shimmer 8s linear infinite;
+    animation: shimmer 19s linear infinite;
 }
 
 .animate-float-slow {
-    animation: float-slow 9s ease-in-out infinite;
+    animation: float-slow 20s ease-in-out infinite;
 }
 
 .animate-pulse-ring {
-    animation: pulse-ring 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: pulse-ring 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes border-spin {
@@ -202,7 +202,7 @@
 }
 
 .animate-border-spin {
-    animation: border-spin 5s linear infinite;
+    animation: border-spin 12s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

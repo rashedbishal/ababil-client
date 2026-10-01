@@ -80,7 +80,7 @@ export default function ProblemSection() {
                                     margin: '0px 0px -120px 0px',
                                 }}
                                 transition={{
-                                    duration: 1.1,
+                                    duration: 2.6,
                                     ease: [0.16, 1, 0.3, 1],
                                 }}
                                 className={`group relative flex flex-col items-center gap-8 sm:gap-10 lg:flex-row ${
@@ -90,18 +90,18 @@ export default function ProblemSection() {
                                 <div className="relative w-full max-w-lg shrink-0 lg:w-[31rem]">
                                     <div
                                         aria-hidden
-                                        className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-amber-300/50 to-transparent opacity-80 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+                                        className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-amber-300/50 to-transparent opacity-80 blur-2xl transition-opacity duration-1000 group-hover:opacity-100"
                                     />
                                     <TiltCard
                                         strength={7}
-                                        className="relative aspect-[4/5] overflow-hidden rounded-[2.25rem] border border-amber-200/80 bg-stone-950 shadow-2xl shadow-amber-900/20 transition-shadow duration-500 group-hover:shadow-amber-500/30"
+                                        className="relative aspect-[4/5] overflow-hidden rounded-[2.25rem] border border-amber-200/80 bg-stone-950 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30"
                                     >
                                         <motion.img
                                             src={image}
                                             alt={label}
                                             whileHover={{ scale: 1.08 }}
                                             transition={{
-                                                duration: 0.8,
+                                                duration: 1.7,
                                                 ease: [0.16, 1, 0.3, 1],
                                             }}
                                             className="absolute inset-0 size-full object-cover"

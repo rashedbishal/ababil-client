@@ -99,7 +99,7 @@ export default function NationwideSection() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true, margin: '-100px' }}
-                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                        transition={{ duration: 2.7, ease: [0.16, 1, 0.3, 1] }}
                         className="relative mx-auto max-w-md lg:max-w-2xl"
                     >
                         <div

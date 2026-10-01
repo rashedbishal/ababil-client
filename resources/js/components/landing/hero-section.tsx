@@ -20,8 +20,8 @@ export default function HeroSection({
     salePrice: string | null;
 }) {
     const imageRef = useRef<HTMLDivElement>(null);
-    const rotateX = useSpring(0, { stiffness: 200, damping: 20 });
-    const rotateY = useSpring(0, { stiffness: 200, damping: 20 });
+    const rotateX = useSpring(0, { stiffness: 95, damping: 24 });
+    const rotateY = useSpring(0, { stiffness: 95, damping: 24 });
 
     function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
         const rect = imageRef.current?.getBoundingClientRect();
@@ -128,7 +128,7 @@ export default function HeroSection({
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: 2.0, ease: [0.16, 1, 0.3, 1] }}
                     className="order-1 flex justify-center lg:order-2"
                 >
                     <div

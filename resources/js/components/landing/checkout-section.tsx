@@ -292,7 +292,7 @@ export default function CheckoutSection({
                                 type="submit"
                                 size="lg"
                                 disabled={processing}
-                                className="w-full bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 bg-[length:200%_auto] text-base font-semibold text-stone-950 transition-[background-position] duration-500 hover:bg-right"
+                                className="w-full bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 bg-[length:200%_auto] text-base font-semibold text-stone-950 transition-[background-position] duration-1000 hover:bg-right"
                             >
                                 {processing ? 'অর্ডার হচ্ছে...' : 'অর্ডার কনফার্ম করুন'}
                             </Button>

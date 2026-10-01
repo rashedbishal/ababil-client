@@ -33,7 +33,7 @@ export default function TrustSection() {
                         >
                             <motion.div
                                 whileHover={{ rotate: 8, scale: 1.05 }}
-                                transition={{ duration: 0.6 }}
+                                transition={{ duration: 1.5 }}
                                 style={{ clipPath: SEAL_CLIP }}
                                 className="flex size-28 items-center justify-center bg-gradient-to-br from-amber-300 via-yellow-500 to-amber-600 shadow-lg shadow-amber-900/30"
                             >

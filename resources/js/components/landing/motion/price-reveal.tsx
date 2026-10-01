@@ -20,7 +20,7 @@ export default function PriceReveal({
     const ref = useRef<HTMLSpanElement>(null);
     const inView = useInView(ref, { once: true, margin: '-40px' });
     const motionValue = useMotionValue(from);
-    const spring = useSpring(motionValue, { stiffness: 55, damping: 16 });
+    const spring = useSpring(motionValue, { stiffness: 24, damping: 20 });
     const [display, setDisplay] = useState(Math.round(from));
     const [settled, setSettled] = useState(from === to);
 
@@ -45,7 +45,7 @@ export default function PriceReveal({
 
         // The spring settles in well under this window — treat it as
         // "arrived" rather than chasing an exact completion event.
-        const timeout = setTimeout(() => setSettled(true), 1400);
+        const timeout = setTimeout(() => setSettled(true), 3000);
 
         return () => clearTimeout(timeout);
     }, [inView, settled]);
@@ -64,11 +64,11 @@ export default function PriceReveal({
                     initial={{ x: '-130%', opacity: 0 }}
                     animate={{ x: ['-130%', '230%'], opacity: [0, 1, 1, 0] }}
                     transition={{
-                        duration: 1.3,
+                        duration: 2.7,
                         times: [0, 0.2, 0.8, 1],
                         delay: 0.3,
                         repeat: Infinity,
-                        repeatDelay: 2.6,
+                        repeatDelay: 4.8,
                         ease: [0.16, 1, 0.3, 1],
                     }}
                     className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/80 to-transparent mix-blend-overlay"

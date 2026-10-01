@@ -76,7 +76,7 @@ export default function UspSection() {
                                 margin: '0px 0px -100px 0px',
                             }}
                             transition={{
-                                duration: 1.1,
+                                duration: 2.6,
                                 ease: [0.16, 1, 0.3, 1],
                             }}
                             className={`group relative flex flex-col items-center text-center ${
@@ -88,23 +88,23 @@ export default function UspSection() {
                             <div className="relative">
                                 <div
                                     aria-hidden
-                                    className="absolute -inset-7 rounded-full bg-gradient-to-br from-amber-400/40 via-yellow-300/20 to-transparent opacity-80 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+                                    className="absolute -inset-7 rounded-full bg-gradient-to-br from-amber-400/40 via-yellow-300/20 to-transparent opacity-80 blur-2xl transition-opacity duration-1000 group-hover:opacity-100"
                                 />
                                 <div
                                     aria-hidden
-                                    className="animate-border-spin absolute -inset-2 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(251,191,36,0.95)_10%,transparent_26%,transparent_100%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                    className="animate-border-spin absolute -inset-2 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(251,191,36,0.95)_10%,transparent_26%,transparent_100%)] opacity-0 transition-opacity duration-1000 group-hover:opacity-100"
                                 />
                                 <TiltCard
                                     strength={8}
                                     glare={false}
-                                    className="relative flex size-44 items-center justify-center rounded-full border-4 border-amber-200 bg-white p-2 shadow-2xl shadow-amber-900/20 transition-shadow duration-500 group-hover:shadow-amber-500/30 sm:size-56"
+                                    className="relative flex size-44 items-center justify-center rounded-full border-4 border-amber-200 bg-white p-2 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30 sm:size-56"
                                 >
                                     <motion.img
                                         src={image}
                                         alt=""
                                         whileHover={{ scale: 1.08 }}
                                         transition={{
-                                            duration: 0.7,
+                                            duration: 1.6,
                                             ease: [0.16, 1, 0.3, 1],
                                         }}
                                         className="size-full rounded-full object-cover"

@@ -59,7 +59,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
             <motion.div
                 initial={{ opacity: 0, y: -48 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 2.0, ease: [0.16, 1, 0.3, 1] }}
                 style={{ scale }}
                 className="relative mx-auto max-w-5xl rounded-full p-px"
             >
@@ -86,8 +86,8 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                             whileHover={{ rotate: -10, scale: 1.1 }}
                             transition={{
                                 type: 'spring',
-                                stiffness: 300,
-                                damping: 15,
+                                stiffness: 150,
+                                damping: 20,
                             }}
                             className="size-8 sm:size-9"
                         />
@@ -111,8 +111,8 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                             layoutId="nav-active-pill"
                                             transition={{
                                                 type: 'spring',
-                                                stiffness: 380,
-                                                damping: 32,
+                                                stiffness: 180,
+                                                damping: 28,
                                             }}
                                             className="absolute inset-0 rounded-full bg-amber-400/10 ring-1 ring-amber-400/30"
                                         />
@@ -137,7 +137,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                 <motion.span
                                     animate={{ scale: [1, 1.15, 1] }}
                                     transition={{
-                                        duration: 2.2,
+                                        duration: 4.5,
                                         repeat: Infinity,
                                         ease: 'easeInOut',
                                     }}
@@ -152,7 +152,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                             <Button
                                 asChild
                                 size="sm"
-                                className="rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 bg-[length:200%_auto] font-bengali font-semibold text-stone-950 transition-[background-position] duration-500 hover:bg-right"
+                                className="rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 bg-[length:200%_auto] font-bengali font-semibold text-stone-950 transition-[background-position] duration-1000 hover:bg-right"
                             >
                                 <a href="#order">অর্ডার করুন</a>
                             </Button>
