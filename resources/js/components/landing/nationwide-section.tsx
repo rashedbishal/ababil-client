@@ -81,6 +81,10 @@ export default function NationwideSection() {
         <section className="relative overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 py-20 sm:py-28">
             <div
                 aria-hidden
+                className="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(255,250,220,0.35),transparent_45%),radial-gradient(circle_at_85%_85%,rgba(120,72,0,0.14),transparent_50%),radial-gradient(circle_at_50%_100%,rgba(255,255,255,0.18),transparent_55%)]"
+            />
+            <div
+                aria-hidden
                 className="absolute inset-0 bg-[repeating-radial-gradient(circle_at_50%_0%,transparent_0,transparent_60px,rgb(120,72,0,0.05)_61px)]"
             />
 
