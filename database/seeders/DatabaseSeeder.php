@@ -26,6 +26,9 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'is_admin' => true,
+            // The seeded admin is the one and only mother admin - other
+            // admins are created afterwards through the admin management UI.
+            'is_mother_admin' => true,
         ]);
 
         $this->seedSettings();

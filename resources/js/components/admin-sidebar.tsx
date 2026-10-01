@@ -10,8 +10,8 @@ import {
     ShoppingCart,
     Truck,
     Undo2,
+    UserCog,
 } from 'lucide-react';
-import AppLogo from '@/components/app-logo';
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
@@ -26,7 +26,9 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import ababilLogo from '../../images/landing/ababil-logo.webp';
 import { home } from '@/routes';
+import admins from '@/routes/admin/admins';
 import blockedIps from '@/routes/admin/blocked-ips';
 import courier from '@/routes/admin/courier';
 import { dashboard } from '@/routes/admin';
@@ -111,6 +113,11 @@ function buildGroups(
                     href: blockedIps.index(),
                     icon: AlertTriangle,
                 },
+                {
+                    title: 'Admin Management',
+                    href: admins.index(),
+                    icon: UserCog,
+                },
             ],
         },
         {
@@ -128,7 +135,7 @@ function buildGroups(
 
 export function AdminSidebar() {
     const { isCurrentUrl } = useCurrentUrl();
-    const { pendingOrdersCount, sizeManagementEnabled } = usePage().props;
+    const { pendingOrdersCount, sizeManagementEnabled, name } = usePage().props;
     const groups = buildGroups(pendingOrdersCount, sizeManagementEnabled);
 
     return (
@@ -138,7 +145,18 @@ export function AdminSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link href={dashboard()}>
-                                <AppLogo />
+                                <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md">
+                                    <img
+                                        src={ababilLogo}
+                                        alt={name}
+                                        className="size-full object-cover"
+                                    />
+                                </div>
+                                <div className="ml-1 grid flex-1 text-left text-sm">
+                                    <span className="mb-0.5 truncate leading-tight font-semibold">
+                                        {name}
+                                    </span>
+                                </div>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

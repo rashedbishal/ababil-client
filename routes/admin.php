@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\BlockedIpController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -54,4 +55,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::patch('settings', [SettingController::class, 'update'])->name('settings.update');
+
+    Route::resource('admins', AdminUserController::class)->only(['index', 'store', 'update', 'destroy']);
 });
