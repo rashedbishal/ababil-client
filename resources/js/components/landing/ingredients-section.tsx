@@ -22,7 +22,10 @@ const ingredients = [
 
 export default function IngredientsSection() {
     return (
-        <section className="bg-white py-14 sm:py-20">
+        <section
+            id="ingredients"
+            className="scroll-mt-24 bg-white py-14 sm:py-20"
+        >
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <Reveal>
                     <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">

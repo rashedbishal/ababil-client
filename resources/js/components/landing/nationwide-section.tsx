@@ -24,37 +24,37 @@ const callouts = [
     {
         icon: MapPinned,
         text: '৮ বিভাগ, ৬৪ জেলা জুড়ে ডেলিভারি',
-        pos: 'top-[6%] left-0 lg:left-[2%]',
+        pos: 'top-[2%] left-0 lg:left-[-2%]',
         floatDelay: 0,
     },
     {
         icon: Truck,
         text: 'সারা বাংলাদেশে হোম ডেলিভারি',
-        pos: 'top-[2%] right-0 lg:right-[2%]',
+        pos: 'top-0 right-0 lg:right-[-2%]',
         floatDelay: 0.6,
     },
     {
         icon: Clock,
         text: 'মাত্র ৩-৫ দিনে হাতে পাবেন',
-        pos: 'top-[42%] -left-2 lg:left-[-4%]',
+        pos: 'top-[46%] -left-4 lg:left-[-8%]',
         floatDelay: 1.2,
     },
     {
         icon: BadgeCheck,
         text: 'ক্যাশ অন ডেলিভারি সুবিধা',
-        pos: 'top-[44%] -right-2 lg:right-[-4%]',
+        pos: 'top-[48%] -right-4 lg:right-[-8%]',
         floatDelay: 0.3,
     },
     {
         icon: ShieldCheck,
         text: '৩ দিনের মানি-ব্যাক গ্যারান্টি',
-        pos: 'bottom-[4%] left-0 lg:left-[4%]',
+        pos: 'bottom-[2%] left-0 lg:left-[0%]',
         floatDelay: 0.9,
     },
     {
         icon: PhoneCall,
         text: 'অর্ডার কনফার্মেশন কলে',
-        pos: 'bottom-[2%] right-0 lg:right-[4%]',
+        pos: 'bottom-0 right-0 lg:right-[0%]',
         floatDelay: 1.5,
     },
 ];
@@ -65,12 +65,12 @@ function Pin({ x, y, delay }: { x: number; y: number; delay: number }) {
             className="absolute -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${x}%`, top: `${y}%` }}
         >
-            <span className="relative flex size-3">
+            <span className="relative flex size-3.5">
                 <span
                     className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-amber-500"
                     style={{ animationDelay: `${delay}s` }}
                 />
-                <span className="relative inline-flex size-3 rounded-full bg-stone-900 ring-2 ring-amber-200" />
+                <span className="relative inline-flex size-3.5 rounded-full bg-stone-950 ring-2 ring-amber-200" />
             </span>
         </div>
     );
@@ -78,7 +78,7 @@ function Pin({ x, y, delay }: { x: number; y: number; delay: number }) {
 
 export default function NationwideSection() {
     return (
-        <section className="relative overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 py-16 sm:py-24">
+        <section className="relative overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 py-20 sm:py-28">
             <div
                 aria-hidden
                 className="absolute inset-0 bg-[repeating-radial-gradient(circle_at_50%_0%,transparent_0,transparent_60px,rgb(120,72,0,0.05)_61px)]"
@@ -94,18 +94,22 @@ export default function NationwideSection() {
                     </h2>
                 </Reveal>
 
-                <div className="relative mx-auto mt-6 max-w-sm py-6 lg:max-w-2xl lg:py-10">
+                <div className="relative mx-auto mt-10 max-w-md py-10 sm:py-16 lg:max-w-3xl lg:py-20">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.94 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true, margin: '-100px' }}
-                        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-                        className="relative mx-auto max-w-sm lg:max-w-xl"
+                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="relative mx-auto max-w-md lg:max-w-2xl"
                     >
+                        <div
+                            aria-hidden
+                            className="absolute inset-0 scale-90 rounded-full bg-white/25 blur-3xl"
+                        />
                         <img
                             src={mapImage}
                             alt="সারা বাংলাদেশে আবাবিল হোম ডেলিভারি"
-                            className="relative w-full"
+                            className="relative w-full drop-shadow-[0_35px_45px_rgba(87,53,0,0.35)]"
                         />
                         {pins.map((pin, i) => (
                             <Pin
@@ -122,16 +126,16 @@ export default function NationwideSection() {
                             <Reveal
                                 key={text}
                                 delay={0.2 + i * 0.12}
-                                className={`absolute z-10 hidden max-w-[11rem] lg:block ${pos}`}
+                                className={`absolute z-10 hidden max-w-[13rem] lg:block ${pos}`}
                             >
                                 <div
-                                    className="animate-float-slow flex items-center gap-2 rounded-2xl border border-stone-900/10 bg-white/90 px-3.5 py-2.5 shadow-lg shadow-amber-900/10 backdrop-blur-sm"
+                                    className="animate-float-slow flex items-center gap-3 rounded-2xl border border-amber-300/30 bg-stone-950/90 px-4 py-3.5 shadow-2xl shadow-stone-950/30 backdrop-blur-md"
                                     style={{ animationDelay: `${floatDelay}s` }}
                                 >
-                                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                                        <Icon className="size-4" />
+                                    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 text-stone-950">
+                                        <Icon className="size-5" />
                                     </span>
-                                    <span className="font-bengali text-xs leading-snug font-medium text-stone-800">
+                                    <span className="font-bengali text-sm leading-snug font-medium text-white">
                                         {text}
                                     </span>
                                 </div>
@@ -141,16 +145,16 @@ export default function NationwideSection() {
                 </div>
 
                 <Reveal delay={0.15}>
-                    <div className="mx-auto mt-4 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-3 lg:hidden">
+                    <div className="mx-auto mt-6 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3 lg:hidden">
                         {callouts.map(({ icon: Icon, text }) => (
                             <div
                                 key={text}
-                                className="flex items-center gap-2 rounded-xl border border-stone-900/10 bg-white/70 px-3 py-2.5 backdrop-blur-sm"
+                                className="flex items-center gap-2.5 rounded-2xl border border-amber-300/30 bg-stone-950/90 px-3.5 py-3 shadow-lg backdrop-blur-sm"
                             >
-                                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                                    <Icon className="size-3.5" />
+                                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 text-stone-950">
+                                    <Icon className="size-4" />
                                 </span>
-                                <span className="font-bengali text-[11px] leading-snug font-medium text-stone-800">
+                                <span className="font-bengali text-xs leading-snug font-medium text-white">
                                     {text}
                                 </span>
                             </div>

@@ -1,11 +1,13 @@
+import { motion } from 'motion/react';
 import warmingImg from '../../../images/landing/cards/usp-warming.webp';
 import nonstickyImg from '../../../images/landing/cards/usp-nonsticky.webp';
 import massageImg from '../../../images/landing/cards/usp-massage.webp';
 import skincareImg from '../../../images/landing/cards/usp-skincare.webp';
 import arnicaImg from '../../../images/landing/cards/ing-arnica.webp';
 import vitamineImg from '../../../images/landing/cards/ing-vitamine.webp';
-import Reveal, { RevealGroup, RevealItem } from './motion/reveal';
-import TiltCard from './motion/tilt-card';
+import Reveal from './motion/reveal';
+
+const bnDigits = ['১', '২', '৩', '৪', '৫', '৬'];
 
 const usps = [
     {
@@ -42,44 +44,72 @@ const usps = [
 
 export default function UspSection() {
     return (
-        <section className="relative overflow-hidden bg-amber-100/60 py-14 sm:py-20">
+        <section
+            id="usp"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 to-amber-100/60 py-16 sm:py-24"
+        >
             <div
                 aria-hidden
-                className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgb(217,161,65,0.15),transparent_45%)]"
+                className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(217,161,65,0.15),transparent_50%)]"
             />
-            <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="relative mx-auto max-w-2xl px-4 sm:px-6">
                 <Reveal>
-                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl lg:text-4xl">
                         কেন আবাবিল বেছে নেবেন
                     </h2>
                 </Reveal>
 
-                <RevealGroup className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {usps.map(({ title, description, image }) => (
-                        <RevealItem key={title}>
-                            <TiltCard
-                                strength={5}
-                                className="relative flex items-center gap-4 rounded-2xl border border-amber-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-xl hover:shadow-amber-900/10"
-                            >
-                                <div className="relative size-20 shrink-0 overflow-hidden rounded-full border-2 border-amber-300 shadow-inner">
+                <div className="relative mt-16 space-y-16 sm:mt-24 sm:space-y-24">
+                    <div
+                        aria-hidden
+                        className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-amber-400/60 to-transparent sm:block"
+                    />
+
+                    {usps.map(({ title, description, image }, i) => (
+                        <motion.div
+                            key={title}
+                            initial={{ opacity: 0, y: 70, scale: 0.8 }}
+                            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                            viewport={{
+                                once: true,
+                                margin: '0px 0px -100px 0px',
+                            }}
+                            transition={{
+                                duration: 1,
+                                ease: [0.16, 1, 0.3, 1],
+                            }}
+                            className={`relative flex flex-col items-center text-center ${
+                                i % 2 === 0
+                                    ? 'sm:-translate-x-10'
+                                    : 'sm:translate-x-10'
+                            }`}
+                        >
+                            <div className="relative">
+                                <div
+                                    aria-hidden
+                                    className="absolute -inset-5 rounded-full bg-gradient-to-br from-amber-400/40 via-yellow-300/20 to-transparent blur-2xl"
+                                />
+                                <div className="relative flex size-36 items-center justify-center rounded-full border-4 border-amber-200 bg-white p-1.5 shadow-2xl shadow-amber-900/20 sm:size-44">
                                     <img
                                         src={image}
                                         alt=""
-                                        className="size-full object-cover"
+                                        className="size-full rounded-full object-cover"
                                     />
                                 </div>
-                                <div>
-                                    <h3 className="font-bengali text-base font-semibold text-stone-900">
-                                        {title}
-                                    </h3>
-                                    <p className="mt-1 font-bengali text-sm text-stone-600">
-                                        {description}
-                                    </p>
-                                </div>
-                            </TiltCard>
-                        </RevealItem>
+                                <span className="absolute right-0 bottom-0 flex size-10 items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-lg sm:size-12 sm:text-base">
+                                    {bnDigits[i]}
+                                </span>
+                            </div>
+
+                            <h3 className="mt-7 font-bengali text-xl font-bold text-stone-900 sm:text-2xl">
+                                {title}
+                            </h3>
+                            <p className="mt-2 max-w-xs font-bengali text-sm text-stone-600 sm:text-base">
+                                {description}
+                            </p>
+                        </motion.div>
                     ))}
-                </RevealGroup>
+                </div>
             </div>
         </section>
     );

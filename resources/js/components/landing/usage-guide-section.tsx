@@ -1,9 +1,9 @@
+import { motion } from 'motion/react';
 import cleanseImg from '../../../images/landing/cards/usage-cleanse.webp';
 import dispenseImg from '../../../images/landing/cards/usage-dispense.webp';
 import massageImg from '../../../images/landing/cards/usage-massage.webp';
 import routineImg from '../../../images/landing/cards/usage-routine.webp';
-import Reveal, { RevealGroup, RevealItem } from './motion/reveal';
-import TiltCard from './motion/tilt-card';
+import Reveal from './motion/reveal';
 
 const steps = [
     {
@@ -34,44 +34,85 @@ const steps = [
 
 export default function UsageGuideSection() {
     return (
-        <section className="bg-gradient-to-b from-white to-amber-50 py-14 sm:py-20">
-            <div className="mx-auto max-w-6xl px-4 sm:px-6">
-                <Reveal>
-                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+        <section
+            id="usage"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-white via-amber-50 to-white py-16 sm:py-24"
+        >
+            <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
+                <Reveal className="mx-auto max-w-2xl text-center">
+                    <span className="inline-block rounded-full border border-amber-300/60 bg-amber-100/60 px-4 py-1 font-bengali text-xs font-semibold tracking-wide text-amber-800">
+                        সঠিক ব্যবহার পদ্ধতি
+                    </span>
+                    <h2 className="mt-4 font-bengali text-2xl font-bold text-stone-900 sm:text-3xl lg:text-4xl">
                         ব্যবহারের নিয়ম
                     </h2>
                 </Reveal>
 
-                <RevealGroup className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-                    {steps.map(({ step, title, description, image }) => (
-                        <RevealItem key={step}>
-                            <TiltCard
-                                strength={8}
-                                className="relative overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm transition-shadow hover:shadow-xl hover:shadow-amber-900/10"
+                <div className="relative mt-16 space-y-20 sm:mt-24 sm:space-y-28">
+                    <div
+                        aria-hidden
+                        className="absolute inset-y-0 left-1/2 hidden w-1 -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-200 via-amber-400 to-amber-200 lg:block"
+                    />
+
+                    {steps.map(({ step, title, description, image }, i) => {
+                        const fromLeft = i % 2 === 0;
+
+                        return (
+                            <motion.div
+                                key={step}
+                                initial={{ opacity: 0, x: fromLeft ? -80 : 80 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{
+                                    once: true,
+                                    margin: '0px 0px -100px 0px',
+                                }}
+                                transition={{
+                                    duration: 1.05,
+                                    ease: [0.16, 1, 0.3, 1],
+                                }}
+                                className={`relative flex flex-col items-center gap-8 lg:flex-row ${
+                                    fromLeft ? '' : 'lg:flex-row-reverse'
+                                }`}
                             >
-                                <div className="relative aspect-[4/3] overflow-hidden">
-                                    <img
-                                        src={image}
-                                        alt={title}
-                                        className="size-full object-cover"
+                                <span
+                                    aria-hidden
+                                    className="absolute top-1/2 left-1/2 z-10 hidden size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-amber-50 bg-amber-500 shadow-[0_0_0_6px_rgba(251,191,36,0.25)] lg:block"
+                                />
+
+                                <div className="relative w-full max-w-xs shrink-0 lg:w-72">
+                                    <div
+                                        aria-hidden
+                                        className="absolute -inset-2 rounded-[2.5rem] bg-gradient-to-br from-amber-300/50 to-transparent blur-xl"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/50 to-transparent" />
-                                    <span className="absolute top-3 left-3 flex size-9 items-center justify-center rounded-full bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-lg">
-                                        {step}
-                                    </span>
+                                    <div className="relative aspect-square overflow-hidden rounded-[2.5rem] border border-amber-200 shadow-2xl shadow-amber-900/20">
+                                        <img
+                                            src={image}
+                                            alt={title}
+                                            className="size-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 to-transparent" />
+                                        <span className="absolute top-4 left-4 flex size-12 items-center justify-center rounded-2xl bg-stone-950/90 font-bengali text-lg font-bold text-amber-300 shadow-lg backdrop-blur-sm">
+                                            {step}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="p-4">
-                                    <h3 className="font-bengali text-lg font-semibold text-stone-900">
+
+                                <div
+                                    className={`flex-1 text-center lg:text-left ${
+                                        fromLeft ? '' : 'lg:text-right'
+                                    }`}
+                                >
+                                    <h3 className="font-bengali text-xl font-bold text-stone-900 sm:text-2xl">
                                         {title}
                                     </h3>
-                                    <p className="mt-1 font-bengali text-sm text-stone-600">
+                                    <p className="mx-auto mt-2 max-w-md font-bengali text-sm text-stone-600 sm:text-base lg:mx-0">
                                         {description}
                                     </p>
                                 </div>
-                            </TiltCard>
-                        </RevealItem>
-                    ))}
-                </RevealGroup>
+                            </motion.div>
+                        );
+                    })}
+                </div>
             </div>
         </section>
     );

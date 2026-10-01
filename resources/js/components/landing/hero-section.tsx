@@ -45,7 +45,10 @@ export default function HeroSection({
     const shadowOpacity = useMotionTemplate`drop-shadow(0 30px 40px rgb(120 72 0 / 0.35))`;
 
     return (
-        <section className="relative overflow-hidden bg-gradient-to-br from-amber-200 via-yellow-300 to-amber-400 pt-10 pb-20 sm:pt-16 sm:pb-28">
+        <section
+            id="top"
+            className="relative overflow-hidden bg-gradient-to-br from-amber-200 via-yellow-300 to-amber-400 pt-10 pb-20 sm:pt-16 sm:pb-28"
+        >
             {/* Ambient floating gold orbs */}
             <div
                 aria-hidden
