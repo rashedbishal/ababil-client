@@ -4,18 +4,9 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\SiteVisit;
-use App\Models\User;
-
-function actingAsDashboardAdmin(): User
-{
-    $admin = User::factory()->create(['is_admin' => true]);
-    test()->actingAs($admin);
-
-    return $admin;
-}
 
 test('the dashboard reports total product count', function () {
-    actingAsDashboardAdmin();
+    $this->actingAsAdmin();
     Product::factory()->count(3)->create();
 
     $this->get(route('admin.dashboard'))
@@ -23,7 +14,7 @@ test('the dashboard reports total product count', function () {
 });
 
 test('the dashboard reports orders awaiting courier submission, excluding cancelled and returned orders', function () {
-    actingAsDashboardAdmin();
+    $this->actingAsAdmin();
 
     Order::factory()->create(['status' => OrderStatus::Pending, 'courier_consignment_id' => null]);
     Order::factory()->create(['status' => OrderStatus::Confirmed, 'courier_consignment_id' => null]);
@@ -36,7 +27,7 @@ test('the dashboard reports orders awaiting courier submission, excluding cancel
 });
 
 test('the dashboard reports today\'s unique visitor count', function () {
-    actingAsDashboardAdmin();
+    $this->actingAsAdmin();
 
     SiteVisit::factory()->create(['session_token' => 'visitor-a', 'visited_on' => today()]);
     SiteVisit::factory()->create(['session_token' => 'visitor-b', 'visited_on' => today()]);
@@ -62,7 +53,7 @@ test('the same session visiting on a different day records a second visit', func
 });
 
 test('the date-range report totals orders placed within the selected range', function () {
-    actingAsDashboardAdmin();
+    $this->actingAsAdmin();
 
     Order::factory()->create(['created_at' => today()->subDays(5), 'grand_total' => 100, 'status' => OrderStatus::Delivered]);
     Order::factory()->create(['created_at' => today()->subDays(3), 'grand_total' => 200, 'status' => OrderStatus::Pending]);
@@ -80,7 +71,7 @@ test('the date-range report totals orders placed within the selected range', fun
 });
 
 test('the date-range report defaults to the last 30 days when no range is given', function () {
-    actingAsDashboardAdmin();
+    $this->actingAsAdmin();
 
     Order::factory()->create(['created_at' => today(), 'grand_total' => 50]);
     Order::factory()->create(['created_at' => today()->subDays(40), 'grand_total' => 999]);

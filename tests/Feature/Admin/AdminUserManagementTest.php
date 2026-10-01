@@ -3,16 +3,8 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-function actingAsManagingAdmin(array $overrides = []): User
-{
-    $admin = User::factory()->create(['is_admin' => true, ...$overrides]);
-    test()->actingAs($admin);
-
-    return $admin;
-}
-
 test('an admin sees other admins but not themselves or the mother admin', function () {
-    $viewer = actingAsManagingAdmin();
+    $viewer = $this->actingAsAdmin();
     $otherAdmin = User::factory()->create(['is_admin' => true, 'name' => 'Other Admin']);
     $motherAdmin = User::factory()->create(['is_admin' => true, 'is_mother_admin' => true, 'name' => 'Mother Admin']);
     $nonAdmin = User::factory()->create(['is_admin' => false]);
@@ -30,7 +22,7 @@ test('an admin sees other admins but not themselves or the mother admin', functi
 });
 
 test('the mother admin sees regular admins but never herself', function () {
-    $motherAdmin = actingAsManagingAdmin(['is_mother_admin' => true]);
+    $motherAdmin = $this->actingAsAdmin(['is_mother_admin' => true]);
     $regularAdmin = User::factory()->create(['is_admin' => true]);
 
     $response = $this->get(route('admin.admins.index'));
@@ -41,7 +33,7 @@ test('the mother admin sees regular admins but never herself', function () {
 });
 
 test('an admin can create a new admin account', function () {
-    actingAsManagingAdmin();
+    $this->actingAsAdmin();
 
     $response = $this->post(route('admin.admins.store'), [
         'name' => 'New Admin',
@@ -60,7 +52,7 @@ test('an admin can create a new admin account', function () {
 });
 
 test('an admin can update another admin\'s name and email without touching the password', function () {
-    actingAsManagingAdmin();
+    $this->actingAsAdmin();
     $target = User::factory()->create(['is_admin' => true, 'password' => bcrypt('original-password')]);
     $originalHash = $target->password;
 
@@ -79,8 +71,42 @@ test('an admin can update another admin\'s name and email without touching the p
         ->and($target->password)->toBe($originalHash);
 });
 
+test('submitting is_mother_admin or is_admin on update cannot escalate privileges', function () {
+    $this->actingAsAdmin();
+    $target = User::factory()->create(['is_admin' => true, 'is_mother_admin' => false]);
+
+    $response = $this->put(route('admin.admins.update', $target), [
+        'name' => $target->name,
+        'email' => $target->email,
+        'is_mother_admin' => true,
+        'is_admin' => false,
+    ]);
+
+    $response->assertRedirect();
+    $target->refresh();
+
+    expect($target->is_mother_admin)->toBeFalse()
+        ->and($target->is_admin)->toBeTrue();
+});
+
+test('submitting is_mother_admin on create cannot grant mother-admin status', function () {
+    $this->actingAsAdmin();
+
+    $this->post(route('admin.admins.store'), [
+        'name' => 'New Admin',
+        'email' => 'escalation-attempt@example.com',
+        'password' => 'password123',
+        'password_confirmation' => 'password123',
+        'is_mother_admin' => true,
+    ]);
+
+    $created = User::query()->where('email', 'escalation-attempt@example.com')->first();
+    expect($created)->not->toBeNull()
+        ->and($created->is_mother_admin)->toBeFalse();
+});
+
 test('an admin can change another admin\'s password', function () {
-    actingAsManagingAdmin();
+    $this->actingAsAdmin();
     $target = User::factory()->create(['is_admin' => true]);
 
     $response = $this->put(route('admin.admins.update', $target), [
@@ -96,7 +122,7 @@ test('an admin can change another admin\'s password', function () {
 });
 
 test('an admin can remove another admin account', function () {
-    actingAsManagingAdmin();
+    $this->actingAsAdmin();
     $target = User::factory()->create(['is_admin' => true]);
 
     $response = $this->delete(route('admin.admins.destroy', $target));
@@ -106,7 +132,7 @@ test('an admin can remove another admin account', function () {
 });
 
 test('an admin cannot delete their own account through admin management', function () {
-    $admin = actingAsManagingAdmin();
+    $admin = $this->actingAsAdmin();
 
     $response = $this->delete(route('admin.admins.destroy', $admin));
 
@@ -115,7 +141,7 @@ test('an admin cannot delete their own account through admin management', functi
 });
 
 test('an admin cannot edit their own account through admin management', function () {
-    $admin = actingAsManagingAdmin();
+    $admin = $this->actingAsAdmin();
 
     $response = $this->put(route('admin.admins.update', $admin), [
         'name' => 'Hacked Name',
@@ -127,7 +153,7 @@ test('an admin cannot edit their own account through admin management', function
 });
 
 test('no admin can delete the mother admin', function () {
-    actingAsManagingAdmin();
+    $this->actingAsAdmin();
     $motherAdmin = User::factory()->create(['is_admin' => true, 'is_mother_admin' => true]);
 
     $response = $this->delete(route('admin.admins.destroy', $motherAdmin));
@@ -137,7 +163,7 @@ test('no admin can delete the mother admin', function () {
 });
 
 test('no admin can edit the mother admin', function () {
-    actingAsManagingAdmin();
+    $this->actingAsAdmin();
     $motherAdmin = User::factory()->create(['is_admin' => true, 'is_mother_admin' => true]);
 
     $response = $this->put(route('admin.admins.update', $motherAdmin), [
@@ -150,7 +176,7 @@ test('no admin can edit the mother admin', function () {
 });
 
 test('the mother admin cannot delete her own account either', function () {
-    $motherAdmin = actingAsManagingAdmin(['is_mother_admin' => true]);
+    $motherAdmin = $this->actingAsAdmin(['is_mother_admin' => true]);
 
     $response = $this->delete(route('admin.admins.destroy', $motherAdmin));
 
@@ -159,7 +185,7 @@ test('the mother admin cannot delete her own account either', function () {
 });
 
 test('admin management routes cannot target a non-admin user', function () {
-    actingAsManagingAdmin();
+    $this->actingAsAdmin();
     $nonAdmin = User::factory()->create(['is_admin' => false]);
 
     $this->delete(route('admin.admins.destroy', $nonAdmin))->assertNotFound();

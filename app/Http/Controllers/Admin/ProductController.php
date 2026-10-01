@@ -20,6 +20,12 @@ class ProductController extends Controller
         $products = Product::query()
             ->withCount('variants')
             ->with('featuredImage')
+            // Deliberately a substring search (not prefix-only): admins
+            // reasonably search by a partial product name or a fragment of
+            // a SKU. The catalog here is tiny by design (a single-product
+            // storefront), so the full scan this implies is not worth
+            // trading away that flexibility for - revisit only if the
+            // catalog ever grows large.
             ->when($request->string('search')->trim()->toString(), function ($query, string $search): void {
                 $query->where(function ($query) use ($search): void {
                     $query->where('name', 'like', "%{$search}%")

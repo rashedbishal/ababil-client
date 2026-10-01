@@ -141,7 +141,13 @@ class PathaoCourierService implements CourierServiceInterface
         return Http::baseUrl(rtrim((string) $baseUrl, '/'))
             ->withToken($this->accessToken())
             ->acceptJson()
-            ->asJson();
+            ->asJson()
+            // Pathao's documented API never redirects. Guzzle only strips
+            // Authorization on a cross-origin redirect for 301/302/303 (and
+            // empties the body); a 307/308 preserves the request exactly,
+            // which would resend this bearer token wherever the allowed
+            // host points if it were ever compromised or hijacked.
+            ->withOptions(['allow_redirects' => false]);
     }
 
     /**
@@ -204,6 +210,10 @@ class PathaoCourierService implements CourierServiceInterface
         $response = Http::baseUrl(rtrim((string) $config['base_url'], '/'))
             ->acceptJson()
             ->asJson()
+            // See client()'s comment: a 307/308 redirect preserves the POST
+            // body verbatim, which here contains the Pathao credentials
+            // themselves, not just a bearer token.
+            ->withOptions(['allow_redirects' => false])
             ->post('/aladdin/api/v1/issue-token', [
                 'client_id' => $config['client_id'],
                 'client_secret' => $config['client_secret'],
@@ -222,6 +232,7 @@ class PathaoCourierService implements CourierServiceInterface
         $response = Http::baseUrl(rtrim((string) $config['base_url'], '/'))
             ->acceptJson()
             ->asJson()
+            ->withOptions(['allow_redirects' => false])
             ->post('/aladdin/api/v1/issue-token', [
                 'client_id' => $config['client_id'],
                 'client_secret' => $config['client_secret'],

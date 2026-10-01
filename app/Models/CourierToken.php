@@ -25,9 +25,22 @@ class CourierToken extends Model
         'expires_at',
     ];
 
+    /**
+     * Nothing in the app currently serializes this model (it's only ever
+     * read directly by PathaoCourierService), but hiding these means a
+     * future accidental Inertia::render()/API response including it still
+     * can't leak a live token.
+     */
+    protected $hidden = [
+        'access_token',
+        'refresh_token',
+    ];
+
     protected function casts(): array
     {
         return [
+            'access_token' => 'encrypted',
+            'refresh_token' => 'encrypted',
             'expires_at' => 'datetime',
         ];
     }

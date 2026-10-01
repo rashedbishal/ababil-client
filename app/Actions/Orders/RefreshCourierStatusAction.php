@@ -4,9 +4,11 @@ namespace App\Actions\Orders;
 
 use App\Enums\OrderStatusSyncMode;
 use App\Exceptions\CourierException;
+use App\Exceptions\InvalidOrderStatusTransitionException;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\Courier\CourierServiceInterface;
+use Illuminate\Support\Facades\Log;
 
 class RefreshCourierStatusAction
 {
@@ -32,12 +34,25 @@ class RefreshCourierStatusAction
             $implied = $parcel->status->toOrderStatus();
 
             if ($implied !== null && $implied !== $order->status) {
-                app(UpdateOrderStatusAction::class)->execute(
-                    $order,
-                    $implied,
-                    $changedBy,
-                    'Synced from courier status: '.$parcel->status->label(),
-                );
+                try {
+                    app(UpdateOrderStatusAction::class)->execute(
+                        $order,
+                        $implied,
+                        $changedBy,
+                        'Synced from courier status: '.$parcel->status->label(),
+                    );
+                } catch (InvalidOrderStatusTransitionException $exception) {
+                    // The courier's status would imply a move our own
+                    // pipeline doesn't allow (e.g. a stale/out-of-order
+                    // report while the order already moved further, or past
+                    // a terminal status). courier_status/raw_status above
+                    // are still updated either way; only the order.status
+                    // sync is skipped.
+                    Log::warning('Skipped an order status sync implied by courier status', [
+                        'order_id' => $order->id,
+                        'reason' => $exception->getMessage(),
+                    ]);
+                }
             }
         }
 

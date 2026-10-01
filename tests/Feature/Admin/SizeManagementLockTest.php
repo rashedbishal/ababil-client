@@ -3,19 +3,10 @@
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Size;
-use App\Models\User;
-
-function actingAsSizeLockAdmin(): User
-{
-    $admin = User::factory()->create(['is_admin' => true]);
-    test()->actingAs($admin);
-
-    return $admin;
-}
 
 test('the sizes admin pages 403 while size management is disabled', function () {
     config(['catalog.size_set' => false]);
-    actingAsSizeLockAdmin();
+    $this->actingAsAdmin();
     $size = Size::factory()->create();
 
     $this->get(route('admin.sizes.index'))->assertForbidden();
@@ -29,7 +20,7 @@ test('the sizes admin pages 403 while size management is disabled', function () 
 
 test('the sizes admin pages work once size management is enabled', function () {
     config(['catalog.size_set' => true]);
-    actingAsSizeLockAdmin();
+    $this->actingAsAdmin();
 
     $this->get(route('admin.sizes.index'))->assertOk();
 
@@ -43,10 +34,11 @@ test('the sizes admin pages work once size management is enabled', function () {
 
 test('product variant routes 403 while size management is disabled', function () {
     config(['catalog.size_set' => false]);
-    actingAsSizeLockAdmin();
+    $this->actingAsAdmin();
 
     $product = Product::factory()->create();
     $variant = ProductVariant::factory()->for($product)->create();
+    $originalStock = $variant->stock;
 
     $this->post(route('admin.products.variants.store', $product), [
         'sku' => 'NEW-SKU', 'stock' => 5,
@@ -58,13 +50,13 @@ test('product variant routes 403 while size management is disabled', function ()
 
     $this->delete(route('admin.products.variants.destroy', [$product, $variant]))->assertForbidden();
 
-    expect($variant->fresh()->stock)->not->toBe(99)
+    expect($variant->fresh()->stock)->toBe($originalStock)
         ->and(ProductVariant::query()->where('sku', 'NEW-SKU')->exists())->toBeFalse();
 });
 
 test('product variant routes work once size management is enabled', function () {
     config(['catalog.size_set' => true]);
-    actingAsSizeLockAdmin();
+    $this->actingAsAdmin();
 
     $product = Product::factory()->create();
 
@@ -77,7 +69,7 @@ test('product variant routes work once size management is enabled', function () 
 });
 
 test('the sidebar and product edit page expose whether size management is enabled', function () {
-    actingAsSizeLockAdmin();
+    $this->actingAsAdmin();
     $product = Product::factory()->create();
 
     config(['catalog.size_set' => true]);

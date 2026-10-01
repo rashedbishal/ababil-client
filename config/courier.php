@@ -4,6 +4,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Status Sync Schedule
+    |--------------------------------------------------------------------------
+    |
+    | How often the courier:sync-order-statuses command runs (see
+    | routes/console.php). A standard cron expression - the default is every
+    | 15 minutes.
+    |
+    */
+
+    'status_sync_cron' => env('COURIER_STATUS_SYNC_CRON', '*/15 * * * *'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Provider Field Definitions
     |--------------------------------------------------------------------------
     |
@@ -21,7 +34,19 @@ return [
         'pathao' => [
             'label' => 'Pathao',
             'fields' => [
-                'base_url' => ['label' => 'Base URL', 'secret' => false, 'default' => 'https://courier-api-sandbox.pathao.com'],
+                // Restricted to Pathao's own documented hosts: an admin-
+                // supplied arbitrary base_url would otherwise let Pathao's
+                // client_id/secret/username/password be POSTed to a
+                // non-Pathao server on the next token issuance/refresh.
+                'base_url' => [
+                    'label' => 'Base URL',
+                    'secret' => false,
+                    'default' => 'https://courier-api-sandbox.pathao.com',
+                    'options' => [
+                        ['value' => 'https://courier-api-sandbox.pathao.com', 'label' => 'Sandbox'],
+                        ['value' => 'https://api-hermes.pathao.com', 'label' => 'Production'],
+                    ],
+                ],
                 'client_id' => ['label' => 'Client ID', 'secret' => true],
                 'client_secret' => ['label' => 'Client Secret', 'secret' => true],
                 'username' => ['label' => 'Username (email)', 'secret' => true],

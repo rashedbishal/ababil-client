@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\IncompleteOrderConversionStatus;
 use App\Models\BlockedIp;
+use App\Models\IncompleteOrder;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -161,6 +163,19 @@ test('a blocked ip cannot place an order', function () {
     expect(Order::count())->toBe(0);
 });
 
+test('a blocked ip still blocks when the request arrives as its IPv4-mapped IPv6 form', function () {
+    BlockedIp::factory()->create(['ip_address' => '127.0.0.1', 'is_active' => true]);
+
+    $product = Product::factory()->create();
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->withServerVariables(['REMOTE_ADDR' => '::ffff:127.0.0.1'])
+        ->post(route('orders.store'), validOrderPayload($product, $shippingArea));
+
+    $response->assertForbidden();
+    expect(Order::count())->toBe(0);
+});
+
 test('an expired blocked ip entry no longer blocks orders', function () {
     BlockedIp::factory()->expired()->create(['ip_address' => '127.0.0.1', 'is_active' => true]);
 
@@ -288,4 +303,85 @@ test('a near-duplicate order from the same phone is flagged for admin review ins
 
     $latest = Order::query()->latest()->first();
     expect($latest->admin_note)->toContain('Possible duplicate');
+});
+
+test('a rare order-number collision at insert time is retried instead of returning a server error', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $collided = false;
+
+    // Simulates another request inserting this exact order_number between
+    // generateOrderNumber()'s own existence check and this create() call -
+    // the one window PlaceOrderAction::createOrder()'s retry exists for.
+    Order::creating(function (Order $order) use (&$collided) {
+        if (! $collided) {
+            $collided = true;
+            Order::factory()->create(['order_number' => $order->order_number]);
+        }
+    });
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea));
+
+    $response->assertSessionHasNoErrors();
+    expect(Order::count())->toBe(2)
+        ->and($collided)->toBeTrue();
+
+    $realOrder = Order::query()->where('customer_name', 'Jane Doe')->first();
+    expect($realOrder)->not->toBeNull();
+});
+
+test('completing checkout converts the matching incomplete order for the same session', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+    $incomplete = IncompleteOrder::query()->create([
+        'session_token' => 'session-to-convert',
+        'conversion_status' => IncompleteOrderConversionStatus::Pending,
+    ]);
+
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'session_token' => 'session-to-convert',
+    ]));
+
+    $order = Order::first();
+    expect($order)->not->toBeNull();
+
+    $incomplete->refresh();
+    expect($incomplete->conversion_status)->toBe(IncompleteOrderConversionStatus::Converted)
+        ->and($incomplete->order_id)->toBe($order->id);
+});
+
+test('completing checkout does not convert an incomplete order from a different session', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+    $unrelated = IncompleteOrder::query()->create([
+        'session_token' => 'unrelated-session',
+        'conversion_status' => IncompleteOrderConversionStatus::Pending,
+    ]);
+
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'session_token' => 'session-that-does-not-match-anything',
+    ]));
+
+    $unrelated->refresh();
+    expect($unrelated->conversion_status)->toBe(IncompleteOrderConversionStatus::Pending)
+        ->and($unrelated->order_id)->toBeNull();
+});
+
+test('completing checkout without a session token does not touch any incomplete order', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+    $incomplete = IncompleteOrder::query()->create([
+        'session_token' => 'some-other-session',
+        'conversion_status' => IncompleteOrderConversionStatus::Pending,
+    ]);
+
+    $payload = validOrderPayload($product, $shippingArea);
+    unset($payload['session_token']);
+
+    $this->post(route('orders.store'), $payload);
+
+    expect(Order::count())->toBe(1);
+    $incomplete->refresh();
+    expect($incomplete->conversion_status)->toBe(IncompleteOrderConversionStatus::Pending);
 });

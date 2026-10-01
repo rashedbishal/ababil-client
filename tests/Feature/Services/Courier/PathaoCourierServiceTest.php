@@ -6,6 +6,7 @@ use App\Models\CourierProvider;
 use App\Models\CourierToken;
 use App\Services\Courier\ParcelData;
 use App\Services\Courier\PathaoCourierService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 function pathaoConfig(array $overrides = []): void
@@ -102,6 +103,114 @@ test('it reuses a valid stored access token instead of issuing a new one', funct
 
     Http::assertNotSent(fn ($request) => str_contains($request->url(), 'issue-token'));
     Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer still-valid-token'));
+});
+
+test('a courier token never serializes its access or refresh token', function () {
+    $token = CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'plain-access-token',
+        'refresh_token' => 'plain-refresh-token',
+        'expires_at' => now()->addDay(),
+    ]);
+
+    expect($token->toArray())->not->toHaveKey('access_token')
+        ->and($token->toArray())->not->toHaveKey('refresh_token')
+        ->and($token->toJson())->not->toContain('plain-access-token')
+        ->and($token->toJson())->not->toContain('plain-refresh-token');
+});
+
+test('stored tokens are encrypted at rest but read back transparently through the model', function () {
+    $token = CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'plain-access-token',
+        'refresh_token' => 'plain-refresh-token',
+        'expires_at' => now()->addDay(),
+    ]);
+
+    expect($token->access_token)->toBe('plain-access-token')
+        ->and($token->refresh_token)->toBe('plain-refresh-token')
+        ->and($token->fresh()->access_token)->toBe('plain-access-token');
+
+    $raw = DB::table('courier_tokens')->where('id', $token->id)->first();
+
+    expect($raw->access_token)->not->toBe('plain-access-token')
+        ->and($raw->access_token)->not->toContain('plain-access-token')
+        ->and($raw->refresh_token)->not->toBe('plain-refresh-token')
+        ->and($raw->refresh_token)->not->toContain('plain-refresh-token');
+});
+
+test('a token issued through the live flow is also stored encrypted', function () {
+    pathaoConfig();
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::response([
+            'expires_in' => 432000,
+            'access_token' => 'freshly-issued-token',
+            'refresh_token' => 'freshly-issued-refresh',
+        ]),
+        '*/aladdin/api/v1/orders' => Http::response([
+            'data' => ['consignment_id' => 'CONSIGN-ENC', 'order_status' => 'Pending'],
+        ]),
+    ]);
+
+    (new PathaoCourierService)->createParcel(sampleParcel());
+
+    $raw = DB::table('courier_tokens')->where('provider', 'pathao')->first();
+    expect($raw->access_token)->not->toContain('freshly-issued-token');
+
+    expect(CourierToken::query()->where('provider', 'pathao')->first()->access_token)
+        ->toBe('freshly-issued-token');
+});
+
+test('the password-grant token request does not follow a redirect that could leak credentials to another host', function () {
+    pathaoConfig();
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::response(
+            '',
+            307,
+            ['Location' => 'https://attacker.example/steal'],
+        ),
+        'https://attacker.example/*' => Http::response(['stolen' => true]),
+    ]);
+
+    try {
+        (new PathaoCourierService)->createParcel(sampleParcel());
+    } catch (CourierException) {
+        // Expected: the faked 307 has no token payload, so issuing fails.
+    }
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'attacker.example'));
+});
+
+test('an authenticated courier request does not follow a redirect that could leak the access token to another host', function () {
+    pathaoConfig();
+
+    CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'still-valid-token',
+        'refresh_token' => 'still-valid-refresh',
+        'expires_at' => now()->addDay(),
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/orders' => Http::response(
+            '',
+            307,
+            ['Location' => 'https://attacker.example/steal'],
+        ),
+        'https://attacker.example/*' => Http::response(['stolen' => true]),
+    ]);
+
+    try {
+        (new PathaoCourierService)->createParcel(sampleParcel());
+    } catch (Throwable) {
+        // Expected: the faked 307 has no parcel payload, so creation fails
+        // one way or another - the security property we're testing is that
+        // the redirect itself is never followed, not how the failure shows up.
+    }
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'attacker.example'));
 });
 
 test('it refreshes an expired token using the refresh token before falling back to password grant', function () {

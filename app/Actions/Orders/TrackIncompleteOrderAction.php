@@ -19,6 +19,11 @@ class TrackIncompleteOrderAction
      */
     public function execute(string $sessionToken, array $data, ?string $ip, ?string $userAgent): IncompleteOrder
     {
+        // updateOrCreate()'s create path goes through firstOrCreate() /
+        // createOrFirst(), which catches a UniqueConstraintViolationException
+        // on the session_token unique index and re-fetches instead of
+        // throwing - so two near-simultaneous requests for the same checkout
+        // session can't raise a raw 500 here.
         return IncompleteOrder::query()->updateOrCreate(
             ['session_token' => $sessionToken],
             [

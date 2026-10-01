@@ -3,16 +3,8 @@
 use App\Models\IncompleteOrder;
 use App\Models\User;
 
-function actingAsIncompleteOrdersAdmin(): User
-{
-    $admin = User::factory()->create(['is_admin' => true]);
-    test()->actingAs($admin);
-
-    return $admin;
-}
-
 test('the incomplete orders index lists tracked checkout sessions', function () {
-    actingAsIncompleteOrdersAdmin();
+    $this->actingAsAdmin();
 
     IncompleteOrder::query()->create([
         'session_token' => 'session-1',
@@ -26,7 +18,7 @@ test('the incomplete orders index lists tracked checkout sessions', function () 
 });
 
 test('an admin can delete an incomplete order', function () {
-    actingAsIncompleteOrdersAdmin();
+    $this->actingAsAdmin();
 
     $incomplete = IncompleteOrder::query()->create([
         'session_token' => 'session-1',

@@ -3,16 +3,8 @@
 use App\Models\Order;
 use App\Models\User;
 
-function actingAsOrdersAdmin(): User
-{
-    $admin = User::factory()->create(['is_admin' => true]);
-    test()->actingAs($admin);
-
-    return $admin;
-}
-
 test('new orders are marked as new in the orders index', function () {
-    actingAsOrdersAdmin();
+    $this->actingAsAdmin();
     $order = Order::factory()->create();
 
     $this->get(route('admin.orders.index'))
@@ -22,7 +14,7 @@ test('new orders are marked as new in the orders index', function () {
 });
 
 test('opening an order marks it as viewed and it no longer appears as new', function () {
-    actingAsOrdersAdmin();
+    $this->actingAsAdmin();
     $order = Order::factory()->create();
 
     $this->get(route('admin.orders.show', $order));
@@ -34,7 +26,7 @@ test('opening an order marks it as viewed and it no longer appears as new', func
 });
 
 test('reopening an already-viewed order does not change its viewed_at timestamp', function () {
-    actingAsOrdersAdmin();
+    $this->actingAsAdmin();
     $order = Order::factory()->create();
 
     $this->get(route('admin.orders.show', $order));
@@ -47,7 +39,7 @@ test('reopening an already-viewed order does not change its viewed_at timestamp'
 });
 
 test('the shared pending orders count only includes unviewed orders and decreases as orders are opened', function () {
-    actingAsOrdersAdmin();
+    $this->actingAsAdmin();
     $orders = Order::factory()->count(3)->create();
 
     $this->get(route('admin.dashboard'))

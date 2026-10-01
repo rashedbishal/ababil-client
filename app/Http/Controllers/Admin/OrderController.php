@@ -8,6 +8,7 @@ use App\Actions\Orders\UpdateOrderStatusAction;
 use App\Enums\OrderStatus;
 use App\Enums\OrderStatusSyncMode;
 use App\Exceptions\CourierException;
+use App\Exceptions\InvalidOrderStatusTransitionException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OrderStatusSyncModeRequest;
 use App\Http\Requests\Admin\OrderUpdateRequest;
@@ -18,6 +19,7 @@ use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,6 +37,15 @@ class OrderController extends Controller
 
         $orders = Order::query()
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
+            // Deliberately a substring search, not a prefix search: admins
+            // commonly search by the last few digits of a phone number a
+            // customer reads out over a call, or a fragment of an order
+            // number from a screenshot. Neither predicate can use the
+            // customer_phone/order_number indexes with a leading wildcard,
+            // but at this storefront's current (and expected near-term)
+            // order volume that's an acceptable tradeoff against losing
+            // that search flexibility - revisit if the table grows large
+            // enough for this to matter.
             ->when($request->string('phone')->toString(), fn ($query, $phone) => $query->where('customer_phone', 'like', "%{$phone}%"))
             ->when($request->string('order_number')->toString(), fn ($query, $number) => $query->where('order_number', 'like', "%{$number}%"))
             ->when($request->date('from'), fn ($query, $from) => $query->whereDate('created_at', '>=', $from))
@@ -129,7 +140,12 @@ class OrderController extends Controller
         $data = $request->validated();
 
         if (array_key_exists('status', $data)) {
-            $action->execute($order, OrderStatus::from($data['status']), $request->user(), $data['admin_note'] ?? null);
+            try {
+                $action->execute($order, OrderStatus::from($data['status']), $request->user(), $data['admin_note'] ?? null);
+            } catch (InvalidOrderStatusTransitionException $exception) {
+                throw ValidationException::withMessages(['status' => $exception->getMessage()]);
+            }
+
             unset($data['status']);
         }
 

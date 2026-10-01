@@ -6,15 +6,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-
-function actingAsAdmin(): User
-{
-    $admin = User::factory()->create(['is_admin' => true]);
-    test()->actingAs($admin);
-
-    return $admin;
-}
 
 beforeEach(function () {
     Setting::set('courier_default_provider', 'pathao');
@@ -34,7 +27,7 @@ beforeEach(function () {
 });
 
 test('an admin can submit a pending order to the courier', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()
         ->has(OrderItem::factory()->count(1), 'items')
@@ -62,7 +55,7 @@ test('an admin can submit a pending order to the courier', function () {
 });
 
 test('an admin cannot submit the same order to the courier twice', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()->create(['courier_consignment_id' => 'ALREADY-SUBMITTED']);
 
@@ -72,8 +65,88 @@ test('an admin cannot submit the same order to the courier twice', function () {
     Http::assertNothingSent();
 });
 
+test('a submission creates exactly one Pathao parcel', function () {
+    $this->actingAsAdmin();
+
+    $order = Order::factory()
+        ->has(OrderItem::factory()->count(1), 'items')
+        ->create(['status' => OrderStatus::Pending]);
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::response([
+            'expires_in' => 432000,
+            'access_token' => 'token',
+            'refresh_token' => 'refresh',
+        ]),
+        '*/aladdin/api/v1/orders' => Http::response([
+            'data' => ['consignment_id' => 'CONSIGN-ONCE', 'order_status' => 'Pending'],
+        ]),
+    ]);
+
+    $this->post(route('admin.orders.courier.submit', $order));
+
+    Http::assertSentCount(2); // issue-token + orders, exactly once each.
+});
+
+test('a second submission attempt while one is already in flight for the same order is rejected without calling the courier', function () {
+    $this->actingAsAdmin();
+
+    $order = Order::factory()
+        ->has(OrderItem::factory()->count(1), 'items')
+        ->create(['status' => OrderStatus::Pending]);
+
+    // Proves the actual guaranteed invariant - the submit lock - directly:
+    // simulate a first request already holding the per-order submission
+    // lock (exactly what OrderCourierController::submit() does before it
+    // calls Pathao), then send a second request for the same order and
+    // confirm it is rejected and never reaches the courier. A real
+    // multi-process race isn't reproducible in this single-process test
+    // environment, so this exercises the lock itself rather than faking
+    // concurrency.
+    $lock = Cache::lock("order:{$order->id}:courier-submit", 60);
+    expect($lock->get())->toBeTrue();
+
+    Http::fake();
+
+    $response = $this->post(route('admin.orders.courier.submit', $order));
+
+    $response->assertRedirect();
+    Http::assertNothingSent();
+    expect($order->fresh()->courier_consignment_id)->toBeNull();
+
+    $lock->release();
+});
+
+test('the submission lock is released after a failed attempt so a retry can succeed', function () {
+    $this->actingAsAdmin();
+
+    $order = Order::factory()
+        ->has(OrderItem::factory()->count(1), 'items')
+        ->create(['status' => OrderStatus::Pending]);
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::sequence()
+            ->push([], 500)
+            ->push([
+                'expires_in' => 432000,
+                'access_token' => 'token',
+                'refresh_token' => 'refresh',
+            ]),
+        '*/aladdin/api/v1/orders' => Http::response([
+            'data' => ['consignment_id' => 'CONSIGN-RETRY', 'order_status' => 'Pending'],
+        ]),
+    ]);
+
+    $this->post(route('admin.orders.courier.submit', $order));
+    expect($order->fresh()->courier_consignment_id)->toBeNull();
+
+    $this->post(route('admin.orders.courier.submit', $order));
+
+    expect($order->fresh()->courier_consignment_id)->toBe('CONSIGN-RETRY');
+});
+
 test('submitting to the courier fails gracefully when no provider is configured', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     Setting::set('courier_default_provider', null);
 
@@ -87,7 +160,7 @@ test('submitting to the courier fails gracefully when no provider is configured'
 });
 
 test('a cancelled order cannot be submitted to the courier', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()
         ->has(OrderItem::factory()->count(1), 'items')
@@ -101,7 +174,7 @@ test('a cancelled order cannot be submitted to the courier', function () {
 });
 
 test('a cancelled order cannot have its courier status refreshed', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()->create([
         'status' => OrderStatus::Cancelled,
@@ -125,7 +198,7 @@ test('a non-admin cannot submit an order to the courier', function () {
 });
 
 test('an admin can refresh a submitted order courier status', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()->create(['courier_consignment_id' => 'CONSIGN-1', 'courier_provider' => 'pathao']);
 
@@ -148,7 +221,7 @@ test('an admin can refresh a submitted order courier status', function () {
 });
 
 test('opening an order already submitted to the courier automatically refreshes its courier status', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()->create(['courier_consignment_id' => 'CONSIGN-1', 'courier_provider' => 'pathao']);
 
@@ -170,7 +243,7 @@ test('opening an order already submitted to the courier automatically refreshes 
 });
 
 test('opening an order that was never submitted to the courier does not call the courier', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()->create(['courier_consignment_id' => null]);
 
@@ -182,7 +255,7 @@ test('opening an order that was never submitted to the courier does not call the
 });
 
 test('opening a cancelled order does not auto-refresh its courier status', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()->create([
         'status' => OrderStatus::Cancelled,
@@ -198,7 +271,7 @@ test('opening a cancelled order does not auto-refresh its courier status', funct
 });
 
 test('opening an order still renders when the courier auto-refresh call fails', function () {
-    actingAsAdmin();
+    $this->actingAsAdmin();
 
     $order = Order::factory()->create(['courier_consignment_id' => 'CONSIGN-1', 'courier_provider' => 'pathao']);
 

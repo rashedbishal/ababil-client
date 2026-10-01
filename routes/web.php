@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'show'])->name('home');
 
-Route::get('orders/{orderNumber}/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation');
+Route::get('orders/{orderNumber}/confirmation', [OrderController::class, 'confirmation'])
+    ->middleware('throttle:30,1')
+    ->name('orders.confirmation');
 
 Route::post('site-visits', [SiteVisitController::class, 'store'])
     ->middleware('throttle:30,1')

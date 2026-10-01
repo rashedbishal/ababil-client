@@ -1,6 +1,6 @@
 <?php
 
-test('returns a successful response', function () {
+test('the storefront landing page loads successfully', function () {
     $response = $this->get(route('home'));
 
     $response->assertOk();

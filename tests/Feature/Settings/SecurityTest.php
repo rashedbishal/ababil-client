@@ -3,49 +3,19 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;
-use Laravel\Fortify\Features;
 
-test('security page is displayed', function () {
-    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
-
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => true,
-    ]);
-
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->withSession(['auth.password_confirmed_at' => time()])
-        ->get(route('security.edit'))
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('settings/security')
-            ->where('canManageTwoFactor', true)
-            ->where('twoFactorEnabled', false),
-        );
-});
-
-test('security page requires password confirmation when enabled', function () {
-    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
-
-    $user = User::factory()->create();
-
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => true,
-    ]);
-
-    $response = $this->actingAs($user)
-        ->get(route('security.edit'));
-
-    $response->assertRedirect(route('password.confirm'));
-});
-
-test('security page renders without two factor when feature is disabled', function () {
-    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
-
-    config(['fortify.features' => []]);
-
+// Two-factor authentication is not implemented in this app -
+// SecurityController::edit() never shares canManageTwoFactor/
+// twoFactorEnabled/requiresConfirmation, unlike Fortify's own starter-kit
+// scaffold this file was originally copied from. The three tests that used
+// to live here asserted on that scaffold's contract rather than this
+// controller's real one: skipUnlessFortifyHas(Features::twoFactorAuthentication())
+// is always true in this app (2FA is never in config/fortify.php's feature
+// list), so they permanently skipped - including the "disabled" case, whose
+// own skip guard required 2FA to be enabled before it would ever run the
+// scenario where it's disabled. This test replaces all three with one that
+// actually exercises SecurityController's real, unconditional behavior.
+test('security page renders with no two-factor props, since the feature is not implemented', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
@@ -54,7 +24,8 @@ test('security page renders without two factor when feature is disabled', functi
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('settings/security')
-            ->where('canManageTwoFactor', false)
+            ->has('passwordRules')
+            ->missing('canManageTwoFactor')
             ->missing('twoFactorEnabled')
             ->missing('requiresConfirmation'),
         );

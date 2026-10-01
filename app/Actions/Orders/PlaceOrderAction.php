@@ -14,6 +14,7 @@ use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\ShippingArea;
 use App\Support\Decimal;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -27,6 +28,14 @@ use Illuminate\Support\Str;
  */
 class PlaceOrderAction
 {
+    /**
+     * order_number collisions are astronomically unlikely (a 6-character
+     * random suffix per day) but the unique constraint, not this check, is
+     * the real source of truth - this bounds the retry rather than letting
+     * a one-in-a-billion collision surface as a raw 500.
+     */
+    private const MAX_ORDER_NUMBER_ATTEMPTS = 3;
+
     /**
      * @param  array{
      *     product_id: int,
@@ -80,8 +89,7 @@ class PlaceOrderAction
             $grandTotal = bcsub(bcadd($subtotal, $shippingCharge, 2), $discount, 2);
             $duplicateNote = $this->detectDuplicateOrder($data['customer_phone'], $product->id);
 
-            $order = Order::query()->create([
-                'order_number' => $this->generateOrderNumber(),
+            $order = $this->createOrder([
                 'customer_name' => $data['customer_name'],
                 'customer_phone' => $data['customer_phone'],
                 'delivery_address' => $data['delivery_address'],
@@ -212,6 +220,27 @@ class PlaceOrderAction
             $duplicate->order_number,
             $duplicate->created_at->diffForHumans(),
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function createOrder(array $attributes): Order
+    {
+        for ($attempt = 1; $attempt <= self::MAX_ORDER_NUMBER_ATTEMPTS; $attempt++) {
+            try {
+                return Order::query()->create([
+                    ...$attributes,
+                    'order_number' => $this->generateOrderNumber(),
+                ]);
+            } catch (UniqueConstraintViolationException $e) {
+                if ($attempt >= self::MAX_ORDER_NUMBER_ATTEMPTS) {
+                    throw $e;
+                }
+            }
+        }
+
+        throw new OrderPlacementException('Could not place the order. Please try again.');
     }
 
     private function generateOrderNumber(): string
