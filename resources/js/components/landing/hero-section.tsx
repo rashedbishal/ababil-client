@@ -1,8 +1,8 @@
 import { motion, useMotionTemplate, useSpring } from 'motion/react';
 import { useRef } from 'react';
-import heroImage from '../../../images/landing/ababil-oil-glow.webp';
-import CountUp from './motion/count-up';
+import heroImage from '../../../images/landing/ababil-oil.webp';
 import Magnetic from './motion/magnetic';
+import PriceReveal from './motion/price-reveal';
 import Reveal from './motion/reveal';
 import { Button } from '@/components/ui/button';
 
@@ -89,9 +89,10 @@ export default function HeroSection({
                             </span>
                         )}
                         <span className="text-4xl font-bold text-stone-900">
-                            ৳
-                            <CountUp
-                                value={Number(salePrice ?? regularPrice)}
+                            <PriceReveal
+                                prefix="৳"
+                                from={Number(regularPrice)}
+                                to={Number(salePrice ?? regularPrice)}
                             />
                         </span>
                         <span className="text-sm text-stone-600">মাত্র</span>

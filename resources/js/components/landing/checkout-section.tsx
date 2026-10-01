@@ -1,6 +1,6 @@
 import { ShieldCheck } from 'lucide-react';
 import type { FormEvent } from 'react';
-import heroImage from '../../../images/landing/ababil-oil-glow.webp';
+import heroImage from '../../../images/landing/ababil-oil.webp';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

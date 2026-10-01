@@ -6,6 +6,7 @@ import skincareImg from '../../../images/landing/cards/usp-skincare.webp';
 import arnicaImg from '../../../images/landing/cards/ing-arnica.webp';
 import vitamineImg from '../../../images/landing/cards/ing-vitamine.webp';
 import Reveal from './motion/reveal';
+import TiltCard from './motion/tilt-card';
 
 const bnDigits = ['১', '২', '৩', '৪', '৫', '৬'];
 
@@ -59,7 +60,7 @@ export default function UspSection() {
                     </h2>
                 </Reveal>
 
-                <div className="relative mt-16 space-y-16 sm:mt-24 sm:space-y-24">
+                <div className="relative mt-16 space-y-20 sm:mt-24 sm:space-y-28">
                     <div
                         aria-hidden
                         className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-amber-400/60 to-transparent sm:block"
@@ -68,40 +69,53 @@ export default function UspSection() {
                     {usps.map(({ title, description, image }, i) => (
                         <motion.div
                             key={title}
-                            initial={{ opacity: 0, y: 70, scale: 0.8 }}
+                            initial={{ opacity: 0, y: 80, scale: 0.75 }}
                             whileInView={{ opacity: 1, y: 0, scale: 1 }}
                             viewport={{
                                 once: true,
                                 margin: '0px 0px -100px 0px',
                             }}
                             transition={{
-                                duration: 1,
+                                duration: 1.1,
                                 ease: [0.16, 1, 0.3, 1],
                             }}
-                            className={`relative flex flex-col items-center text-center ${
+                            className={`group relative flex flex-col items-center text-center ${
                                 i % 2 === 0
-                                    ? 'sm:-translate-x-10'
-                                    : 'sm:translate-x-10'
+                                    ? 'sm:-translate-x-12'
+                                    : 'sm:translate-x-12'
                             }`}
                         >
                             <div className="relative">
                                 <div
                                     aria-hidden
-                                    className="absolute -inset-5 rounded-full bg-gradient-to-br from-amber-400/40 via-yellow-300/20 to-transparent blur-2xl"
+                                    className="absolute -inset-7 rounded-full bg-gradient-to-br from-amber-400/40 via-yellow-300/20 to-transparent opacity-80 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
                                 />
-                                <div className="relative flex size-36 items-center justify-center rounded-full border-4 border-amber-200 bg-white p-1.5 shadow-2xl shadow-amber-900/20 sm:size-44">
-                                    <img
+                                <div
+                                    aria-hidden
+                                    className="animate-border-spin absolute -inset-2 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(251,191,36,0.95)_10%,transparent_26%,transparent_100%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                                />
+                                <TiltCard
+                                    strength={8}
+                                    glare={false}
+                                    className="relative flex size-44 items-center justify-center rounded-full border-4 border-amber-200 bg-white p-2 shadow-2xl shadow-amber-900/20 transition-shadow duration-500 group-hover:shadow-amber-500/30 sm:size-56"
+                                >
+                                    <motion.img
                                         src={image}
                                         alt=""
+                                        whileHover={{ scale: 1.08 }}
+                                        transition={{
+                                            duration: 0.7,
+                                            ease: [0.16, 1, 0.3, 1],
+                                        }}
                                         className="size-full rounded-full object-cover"
                                     />
-                                </div>
-                                <span className="absolute right-0 bottom-0 flex size-10 items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-lg sm:size-12 sm:text-base">
+                                </TiltCard>
+                                <span className="absolute right-0 bottom-0 flex size-11 items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-lg sm:size-14 sm:text-lg">
                                     {bnDigits[i]}
                                 </span>
                             </div>
 
-                            <h3 className="mt-7 font-bengali text-xl font-bold text-stone-900 sm:text-2xl">
+                            <h3 className="mt-8 font-bengali text-xl font-bold text-stone-900 sm:text-2xl">
                                 {title}
                             </h3>
                             <p className="mt-2 max-w-xs font-bengali text-sm text-stone-600 sm:text-base">

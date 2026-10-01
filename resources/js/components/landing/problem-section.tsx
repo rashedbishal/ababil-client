@@ -5,6 +5,7 @@ import kneeImg from '../../../images/landing/cards/problem-knee.webp';
 import muscleImg from '../../../images/landing/cards/problem-muscle.webp';
 import neckImg from '../../../images/landing/cards/problem-neck.webp';
 import Reveal from './motion/reveal';
+import TiltCard from './motion/tilt-card';
 
 const bnDigits = ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
@@ -32,6 +33,7 @@ const problems = [
         description:
             'হঠাৎ টান বা ব্যায়ামজনিত পেশির ব্যথায় দ্রুত উপশম প্রয়োজন। আবাবিল উষ্ণতা ছড়িয়ে পেশি শিথিল করে।',
         image: muscleImg,
+        position: '38% center',
     },
     {
         label: 'পা ও গোড়ালি',
@@ -63,69 +65,76 @@ export default function ProblemSection() {
                         className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-amber-300 to-transparent lg:block"
                     />
 
-                    {problems.map(({ label, description, image }, i) => {
-                        const fromLeft = i % 2 === 0;
+                    {problems.map(
+                        ({ label, description, image, position }, i) => {
+                            const fromLeft = i % 2 === 0;
 
-                        return (
-                            <motion.div
-                                key={label}
-                                initial={{ opacity: 0, x: fromLeft ? -90 : 90 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{
-                                    once: true,
-                                    margin: '0px 0px -120px 0px',
-                                }}
-                                transition={{
-                                    duration: 1.1,
-                                    ease: [0.16, 1, 0.3, 1],
-                                }}
-                                className={`relative flex flex-col items-center gap-8 sm:gap-10 lg:flex-row ${
-                                    fromLeft ? '' : 'lg:flex-row-reverse'
-                                }`}
-                            >
-                                <div className="relative w-full max-w-sm shrink-0 lg:w-[22rem]">
-                                    <div
-                                        aria-hidden
-                                        className="absolute -inset-3 rounded-[2.25rem] bg-gradient-to-br from-amber-300/40 to-transparent blur-xl"
-                                    />
-                                    <motion.div
-                                        whileHover="hover"
-                                        className="group relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-amber-200/80 bg-stone-950 shadow-2xl shadow-amber-900/20"
-                                    >
-                                        <motion.img
-                                            src={image}
-                                            alt={label}
-                                            variants={{
-                                                hover: { scale: 1.08 },
-                                            }}
-                                            transition={{
-                                                duration: 0.8,
-                                                ease: [0.16, 1, 0.3, 1],
-                                            }}
-                                            className="absolute inset-0 size-full object-cover"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/10 to-transparent" />
-                                    </motion.div>
-                                    <span className="absolute -top-5 -left-5 flex size-16 items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-xl font-bold text-amber-300 shadow-lg">
-                                        {bnDigits[i]}
-                                    </span>
-                                </div>
-
-                                <div
-                                    className={`flex-1 text-center lg:text-left ${
-                                        fromLeft ? '' : 'lg:text-right'
+                            return (
+                                <motion.div
+                                    key={label}
+                                    initial={{
+                                        opacity: 0,
+                                        x: fromLeft ? -90 : 90,
+                                    }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{
+                                        once: true,
+                                        margin: '0px 0px -120px 0px',
+                                    }}
+                                    transition={{
+                                        duration: 1.1,
+                                        ease: [0.16, 1, 0.3, 1],
+                                    }}
+                                    className={`group relative flex flex-col items-center gap-8 sm:gap-10 lg:flex-row ${
+                                        fromLeft ? '' : 'lg:flex-row-reverse'
                                     }`}
                                 >
-                                    <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
-                                        {label}
-                                    </h3>
-                                    <p className="mx-auto mt-3 max-w-md font-bengali text-base text-stone-600 sm:text-lg lg:mx-0">
-                                        {description}
-                                    </p>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
+                                    <div className="relative w-full max-w-md shrink-0 lg:w-[27rem]">
+                                        <div
+                                            aria-hidden
+                                            className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-amber-300/50 to-transparent opacity-80 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+                                        />
+                                        <TiltCard
+                                            strength={7}
+                                            className="relative aspect-[4/5] overflow-hidden rounded-[2.25rem] border border-amber-200/80 bg-stone-950 shadow-2xl shadow-amber-900/20 transition-shadow duration-500 group-hover:shadow-amber-500/30"
+                                        >
+                                            <motion.img
+                                                src={image}
+                                                alt={label}
+                                                whileHover={{ scale: 1.08 }}
+                                                transition={{
+                                                    duration: 0.8,
+                                                    ease: [0.16, 1, 0.3, 1],
+                                                }}
+                                                style={{
+                                                    objectPosition:
+                                                        position ?? 'center',
+                                                }}
+                                                className="absolute inset-0 size-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/10 to-transparent" />
+                                        </TiltCard>
+                                        <span className="absolute -top-6 -left-6 flex size-[4.5rem] items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-2xl font-bold text-amber-300 shadow-lg">
+                                            {bnDigits[i]}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        className={`flex-1 text-center lg:text-left ${
+                                            fromLeft ? '' : 'lg:text-right'
+                                        }`}
+                                    >
+                                        <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                                            {label}
+                                        </h3>
+                                        <p className="mx-auto mt-3 max-w-md font-bengali text-base text-stone-600 sm:text-lg lg:mx-0">
+                                            {description}
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            );
+                        },
+                    )}
                 </div>
             </div>
         </section>

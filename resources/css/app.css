@@ -195,10 +195,30 @@
     animation: pulse-ring 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+@keyframes border-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-border-spin {
+    animation: border-spin 5s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .animate-shimmer,
     .animate-float-slow,
-    .animate-pulse-ring {
+    .animate-pulse-ring,
+    .animate-border-spin {
         animation: none;
     }
+}
+
+.no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
 }

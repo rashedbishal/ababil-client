@@ -4,11 +4,7 @@ export default function SiteFooter({ phone }: { phone: string | null }) {
     return (
         <footer className="border-t border-amber-500/10 bg-stone-950 py-10">
             <div className="mx-auto max-w-6xl space-y-4 px-4 text-center font-bengali sm:px-6">
-                <img
-                    src={logo}
-                    alt="Ababil"
-                    className="mx-auto h-10 w-10 rounded-lg"
-                />
+                <img src={logo} alt="Ababil" className="mx-auto h-12 w-12" />
 
                 <p className="mx-auto max-w-xl text-xs text-stone-500">
                     এই পণ্যটি কোনো রোগের চিকিৎসা বা নিরাময়ের দাবি করে না। ব্যবহারের আগে
