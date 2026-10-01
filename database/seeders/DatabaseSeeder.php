@@ -39,8 +39,8 @@ class DatabaseSeeder extends Seeder
             ]));
 
         $shippingAreas = [
-            ['name' => 'Inside Dhaka', 'charge' => 70, 'sort_order' => 0],
-            ['name' => 'Outside Dhaka', 'charge' => 110, 'sort_order' => 1],
+            ['name' => 'Inside Dhaka City Corporation', 'charge' => 70, 'sort_order' => 0],
+            ['name' => 'Outside Dhaka City Corporation', 'charge' => 110, 'sort_order' => 1],
         ];
 
         foreach ($shippingAreas as $area) {

@@ -180,6 +180,7 @@ export default function CheckoutSection({
                                     placeholder="বাসা/হোল্ডিং, রোড, এলাকা, জেলা"
                                     className={fieldClass}
                                     required
+                                    minLength={10}
                                 />
                                 <InputError message={errors.delivery_address} />
                             </div>

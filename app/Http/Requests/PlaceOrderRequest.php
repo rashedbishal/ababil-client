@@ -41,7 +41,7 @@ class PlaceOrderRequest extends FormRequest
             // input pattern already enforces - the backend must not be
             // looser than what the form claims to require.
             'customer_phone' => ['required', 'string', 'regex:/^01[3-9][0-9]{8}$/'],
-            'delivery_address' => ['required', 'string', 'max:1000'],
+            'delivery_address' => ['required', 'string', 'min:10', 'max:1000'],
             'shipping_area_id' => ['required', 'integer', 'exists:shipping_areas,id'],
             'customer_note' => ['nullable', 'string', 'max:1000'],
             'session_token' => ['nullable', 'string', 'max:100'],

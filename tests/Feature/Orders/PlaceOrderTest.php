@@ -187,6 +187,18 @@ test('placing an order requires the core customer fields', function () {
     expect(Order::count())->toBe(0);
 });
 
+test('a delivery address shorter than 10 characters is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'delivery_address' => 'Dhaka',
+    ]));
+
+    $response->assertSessionHasErrors(['delivery_address']);
+    expect(Order::count())->toBe(0);
+});
+
 test('a filled-in honeypot field silently rejects the order', function () {
     $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
     $shippingArea = ShippingArea::factory()->create();
