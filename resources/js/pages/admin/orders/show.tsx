@@ -429,9 +429,8 @@ export default function OrderShow({
 
                                 {!courierConfigured && (
                                     <p className="text-xs text-muted-foreground">
-                                        No courier provider is configured
-                                        yet. Set one up under Courier
-                                        Integration.
+                                        No courier provider is configured yet.
+                                        Set one up under Courier Integration.
                                     </p>
                                 )}
 

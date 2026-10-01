@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 /** An infinite, seamless horizontal scrolling strip. */
 export default function Marquee({
     children,
-    durationSeconds = 22,
+    durationSeconds = 42,
     className,
 }: {
     children: ReactNode;

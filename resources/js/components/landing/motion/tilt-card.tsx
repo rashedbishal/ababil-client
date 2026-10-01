@@ -19,10 +19,10 @@ export default function TiltCard({
 }) {
     const ref = useRef<HTMLDivElement>(null);
 
-    const rotateX = useSpring(0, { stiffness: 300, damping: 25 });
-    const rotateY = useSpring(0, { stiffness: 300, damping: 25 });
-    const glareX = useSpring(50, { stiffness: 300, damping: 30 });
-    const glareY = useSpring(50, { stiffness: 300, damping: 30 });
+    const rotateX = useSpring(0, { stiffness: 120, damping: 22 });
+    const rotateY = useSpring(0, { stiffness: 120, damping: 22 });
+    const glareX = useSpring(50, { stiffness: 120, damping: 26 });
+    const glareY = useSpring(50, { stiffness: 120, damping: 26 });
 
     function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
         const rect = ref.current?.getBoundingClientRect();

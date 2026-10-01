@@ -1,13 +1,17 @@
-import { Activity, Bone, Footprints, UserRound, Zap } from 'lucide-react';
+import { motion } from 'motion/react';
+import backImg from '../../../images/landing/cards/problem-back.webp';
+import feetImg from '../../../images/landing/cards/problem-feet.webp';
+import kneeImg from '../../../images/landing/cards/problem-knee.webp';
+import muscleImg from '../../../images/landing/cards/problem-muscle.webp';
+import neckImg from '../../../images/landing/cards/problem-neck.webp';
 import Reveal, { RevealGroup, RevealItem } from './motion/reveal';
-import TiltCard from './motion/tilt-card';
 
 const problems = [
-    { label: 'হাঁটু ও জয়েন্ট', icon: Bone },
-    { label: 'পিঠ ও কোমর', icon: Activity },
-    { label: 'ঘাড় ও কাঁধ', icon: UserRound },
-    { label: 'পেশির টান', icon: Zap },
-    { label: 'পা ও গোড়ালি', icon: Footprints },
+    { label: 'হাঁটু ও জয়েন্ট', image: kneeImg },
+    { label: 'পিঠ ও কোমর', image: backImg },
+    { label: 'ঘাড় ও কাঁধ', image: neckImg },
+    { label: 'পেশির টান', image: muscleImg },
+    { label: 'পা ও গোড়ালি', image: feetImg },
 ];
 
 export default function ProblemSection() {
@@ -21,19 +25,30 @@ export default function ProblemSection() {
                 </Reveal>
 
                 <RevealGroup className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                    {problems.map(({ label, icon: Icon }) => (
+                    {problems.map(({ label, image }) => (
                         <RevealItem key={label}>
-                            <TiltCard
-                                strength={8}
-                                className="relative flex flex-col items-center gap-3 rounded-xl border border-amber-200 bg-white px-4 py-6 text-center shadow-sm transition-shadow hover:shadow-xl hover:shadow-amber-900/10"
+                            <motion.div
+                                whileHover="hover"
+                                className="group relative aspect-[3/4] overflow-hidden rounded-[1.75rem] border border-amber-200/80 bg-stone-950 shadow-sm"
                             >
-                                <span className="flex size-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                                    <Icon className="size-6" />
-                                </span>
-                                <span className="font-bengali text-sm font-medium text-stone-800">
-                                    {label}
-                                </span>
-                            </TiltCard>
+                                <motion.img
+                                    src={image}
+                                    alt={label}
+                                    variants={{ hover: { scale: 1.08 } }}
+                                    transition={{
+                                        duration: 0.8,
+                                        ease: [0.16, 1, 0.3, 1],
+                                    }}
+                                    className="absolute inset-0 size-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/10 to-transparent" />
+                                <div className="absolute inset-x-0 bottom-0 p-3">
+                                    <span className="font-bengali text-sm font-semibold text-white drop-shadow sm:text-base">
+                                        {label}
+                                    </span>
+                                </div>
+                                <div className="absolute top-3 right-3 size-2 rounded-full bg-amber-400 shadow-[0_0_12px_3px_rgba(251,191,36,0.6)]" />
+                            </motion.div>
                         </RevealItem>
                     ))}
                 </RevealGroup>

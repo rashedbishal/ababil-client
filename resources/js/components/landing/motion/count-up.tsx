@@ -14,7 +14,7 @@ export default function CountUp({
     const ref = useRef<HTMLSpanElement>(null);
     const inView = useInView(ref, { once: true, margin: '-40px' });
     const motionValue = useMotionValue(0);
-    const spring = useSpring(motionValue, { stiffness: 90, damping: 20 });
+    const spring = useSpring(motionValue, { stiffness: 50, damping: 16 });
     const [display, setDisplay] = useState(0);
 
     useEffect(() => {

@@ -1,4 +1,9 @@
-import { Droplets, Flame, Hand, Leaf, Sparkles, Timer } from 'lucide-react';
+import warmingImg from '../../../images/landing/cards/usp-warming.webp';
+import nonstickyImg from '../../../images/landing/cards/usp-nonsticky.webp';
+import massageImg from '../../../images/landing/cards/usp-massage.webp';
+import skincareImg from '../../../images/landing/cards/usp-skincare.webp';
+import arnicaImg from '../../../images/landing/cards/ing-arnica.webp';
+import vitamineImg from '../../../images/landing/cards/ing-vitamine.webp';
 import Reveal, { RevealGroup, RevealItem } from './motion/reveal';
 import TiltCard from './motion/tilt-card';
 
@@ -6,32 +11,32 @@ const usps = [
     {
         title: 'থেরাপিউটিক ওয়ার্মিং',
         description: 'ত্বকে প্রাকৃতিক উষ্ণতা তৈরি করে পেশি শিথিল করে।',
-        icon: Flame,
+        image: warmingImg,
     },
     {
         title: 'নন-স্টিকি ড্রাই ফর্মুলা',
         description: 'ব্যবহারের পর কোনো আঠালো বা তৈলাক্ত ভাব থাকে না।',
-        icon: Droplets,
+        image: nonstickyImg,
     },
     {
         title: 'দ্রুত শোষণ',
         description: 'মাত্র ২-৩ মিনিটেই ত্বকে সম্পূর্ণ শোষিত হয়ে যায়।',
-        icon: Timer,
+        image: vitamineImg,
     },
     {
         title: 'সহজ ম্যাসাজ',
         description: 'মসৃণ টেক্সচারের কারণে সহজেই ম্যাসাজ করা যায়।',
-        icon: Hand,
+        image: massageImg,
     },
     {
         title: 'হারবাল ফর্মুলেশন',
         description: '৯টি প্রাকৃতিক ভেষজ উপাদানের অনন্য সংমিশ্রণ।',
-        icon: Leaf,
+        image: arnicaImg,
     },
     {
         title: 'স্কিন কেয়ার',
         description: 'ত্বকের বিবর্ণতা কমাতে সাহায্য করে, অ্যালার্জিক ত্বকেও নিরাপদ।',
-        icon: Sparkles,
+        image: skincareImg,
     },
 ];
 
@@ -50,21 +55,27 @@ export default function UspSection() {
                 </Reveal>
 
                 <RevealGroup className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {usps.map(({ title, description, icon: Icon }) => (
+                    {usps.map(({ title, description, image }) => (
                         <RevealItem key={title}>
                             <TiltCard
-                                strength={6}
-                                className="relative rounded-xl border border-amber-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-xl hover:shadow-amber-900/10"
+                                strength={5}
+                                className="relative flex items-center gap-4 rounded-2xl border border-amber-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-xl hover:shadow-amber-900/10"
                             >
-                                <span className="flex size-11 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                                    <Icon className="size-5" />
-                                </span>
-                                <h3 className="mt-4 font-bengali text-lg font-semibold text-stone-900">
-                                    {title}
-                                </h3>
-                                <p className="mt-1.5 font-bengali text-sm text-stone-600">
-                                    {description}
-                                </p>
+                                <div className="relative size-20 shrink-0 overflow-hidden rounded-full border-2 border-amber-300 shadow-inner">
+                                    <img
+                                        src={image}
+                                        alt=""
+                                        className="size-full object-cover"
+                                    />
+                                </div>
+                                <div>
+                                    <h3 className="font-bengali text-base font-semibold text-stone-900">
+                                        {title}
+                                    </h3>
+                                    <p className="mt-1 font-bengali text-sm text-stone-600">
+                                        {description}
+                                    </p>
+                                </div>
                             </TiltCard>
                         </RevealItem>
                     ))}

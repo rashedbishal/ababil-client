@@ -12,8 +12,8 @@ export default function Magnetic({
     strength?: number;
 }) {
     const ref = useRef<HTMLDivElement>(null);
-    const x = useSpring(0, { stiffness: 200, damping: 15, mass: 0.4 });
-    const y = useSpring(0, { stiffness: 200, damping: 15, mass: 0.4 });
+    const x = useSpring(0, { stiffness: 110, damping: 16, mass: 0.5 });
+    const y = useSpring(0, { stiffness: 110, damping: 16, mass: 0.5 });
 
     function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
         const rect = ref.current?.getBoundingClientRect();

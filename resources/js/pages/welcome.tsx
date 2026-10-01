@@ -1,6 +1,9 @@
-import { Head, useForm, useHttp } from '@inertiajs/react';
-import { useEffect, useMemo, useRef } from 'react';
+import { Head, router, useForm, useHttp } from '@inertiajs/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import CheckoutSection from '@/components/landing/checkout-section';
+import OrderResultDialog, {
+    type OrderResult,
+} from '@/components/landing/order-result-dialog';
 import FaqSection from '@/components/landing/faq-section';
 import FloatingActions from '@/components/landing/floating-actions';
 import GuaranteeSection from '@/components/landing/guarantee-section';
@@ -8,11 +11,13 @@ import HeroSection from '@/components/landing/hero-section';
 import IngredientsSection from '@/components/landing/ingredients-section';
 import MarqueeStrip from '@/components/landing/marquee-strip';
 import NationwideSection from '@/components/landing/nationwide-section';
+import OrderCtaBand from '@/components/landing/order-cta-band';
 import ProblemSection from '@/components/landing/problem-section';
 import SafetySection from '@/components/landing/safety-section';
 import ScrollProgress from '@/components/landing/scroll-progress';
 import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
+import StickyOrderBar from '@/components/landing/sticky-order-bar';
 import TestimonialsSection from '@/components/landing/testimonials-section';
 import TrustSection from '@/components/landing/trust-section';
 import UsageGuideSection from '@/components/landing/usage-guide-section';
@@ -100,6 +105,46 @@ export default function Welcome({
         void visitTracker.post(siteVisits.store().url);
     }, []);
 
+    const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
+
+    useEffect(() => {
+        return router.on('flash', (event) => {
+            const flash = (
+                event as CustomEvent<{
+                    flash?: {
+                        orderPlaced?: {
+                            order_number: string;
+                            customer_name: string;
+                            shipping_area_name: string;
+                            grand_total: string;
+                        };
+                    };
+                }>
+            ).detail?.flash;
+            const placed = flash?.orderPlaced;
+
+            if (!placed) {
+                return;
+            }
+
+            setOrderResult({
+                type: 'success',
+                orderNumber: placed.order_number,
+                customerName: placed.customer_name,
+                shippingAreaName: placed.shipping_area_name,
+                grandTotal: placed.grand_total,
+            });
+
+            form.reset(
+                'quantity',
+                'customer_name',
+                'customer_phone',
+                'delivery_address',
+                'customer_note',
+            );
+        });
+    }, []);
+
     function track(partial: Partial<typeof tracker.data>) {
         tracker.setData((data) => ({ ...data, ...partial }));
 
@@ -125,7 +170,9 @@ export default function Welcome({
     );
     const shippingCharge = product?.free_delivery
         ? 0
-        : (selectedShippingArea ? Number(selectedShippingArea.charge) : 0);
+        : selectedShippingArea
+          ? Number(selectedShippingArea.charge)
+          : 0;
     const displayShippingAreas = product?.free_delivery
         ? shippingAreas.map((area) => ({ ...area, charge: '0.00' }))
         : shippingAreas;
@@ -154,7 +201,13 @@ export default function Welcome({
             session_token: sessionToken,
         }));
 
-        form.post(orders.store().url);
+        form.post(orders.store().url, {
+            onError: (errors) => {
+                if (errors.order) {
+                    setOrderResult({ type: 'error', message: errors.order });
+                }
+            },
+        });
     }
 
     if (!product) {
@@ -193,12 +246,20 @@ export default function Welcome({
                     <MarqueeStrip />
                     <ProblemSection />
                     <UspSection />
+                    <OrderCtaBand
+                        title="এখনই অর্ডার করে পেয়ে যান আবাবিল"
+                        subtitle="ক্যাশ অন ডেলিভারি — সারা বাংলাদেশে"
+                    />
                     <IngredientsSection />
                     <NationwideSection />
                     <UsageGuideSection />
                     <SafetySection />
                     <TrustSection />
                     <TestimonialsSection />
+                    <OrderCtaBand
+                        title="৩ দিনের মানি-ব্যাক গ্যারান্টি সহ অর্ডার করুন"
+                        subtitle="ঝুঁকিমুক্তভাবে আজই ব্যবহার শুরু করুন"
+                    />
                     <GuaranteeSection />
 
                     <CheckoutSection
@@ -248,6 +309,15 @@ export default function Welcome({
                 <FloatingActions
                     whatsapp={contact.whatsapp}
                     facebookUrl={contact.facebookUrl}
+                />
+
+                <StickyOrderBar
+                    price={product.sale_price ?? product.regular_price}
+                />
+
+                <OrderResultDialog
+                    result={orderResult}
+                    onClose={() => setOrderResult(null)}
                 />
             </div>
         </>

@@ -53,6 +53,15 @@ class OrderController extends Controller
             return back()->withErrors(['order' => $exception->getMessage()])->withInput();
         }
 
-        return to_route('orders.confirmation', $order->order_number);
+        // The storefront shows the result in a modal on the same page
+        // rather than navigating to a separate confirmation route.
+        Inertia::flash('orderPlaced', [
+            'order_number' => $order->order_number,
+            'customer_name' => $order->customer_name,
+            'shipping_area_name' => $order->shipping_area_name,
+            'grand_total' => (string) $order->grand_total,
+        ]);
+
+        return back();
     }
 }

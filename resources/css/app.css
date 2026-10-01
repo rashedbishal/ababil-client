@@ -176,15 +176,15 @@
 
 .animate-shimmer {
     background-size: 200% auto;
-    animation: shimmer 5s linear infinite;
+    animation: shimmer 8s linear infinite;
 }
 
 .animate-float-slow {
-    animation: float-slow 6s ease-in-out infinite;
+    animation: float-slow 9s ease-in-out infinite;
 }
 
 .animate-pulse-ring {
-    animation: pulse-ring 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: pulse-ring 3.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

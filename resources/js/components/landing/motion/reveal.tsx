@@ -7,18 +7,18 @@ export const staggerContainer: Variants = {
     hidden: {},
     show: {
         transition: {
-            staggerChildren: 0.1,
-            delayChildren: 0.05,
+            staggerChildren: 0.22,
+            delayChildren: 0.1,
         },
     },
 };
 
 export const staggerItem: Variants = {
-    hidden: { opacity: 0, y: 28 },
+    hidden: { opacity: 0, y: 36 },
     show: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.7, ease: easeOut },
+        transition: { duration: 1.1, ease: easeOut },
     },
 };
 
@@ -41,7 +41,7 @@ export default function Reveal({
             initial={{ opacity: 0, y }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '0px 0px -60px 0px' }}
-            transition={{ duration: 0.7, ease: easeOut, delay }}
+            transition={{ duration: 1.1, ease: easeOut, delay }}
             className={className}
         >
             {children}

@@ -175,8 +175,8 @@ export function ProductFormFields({
                         </select>
                         {!canSetVisibility && (
                             <p className="text-xs text-muted-foreground">
-                                This is the only product in your catalog, so
-                                it must stay active.
+                                This is the only product in your catalog, so it
+                                must stay active.
                             </p>
                         )}
                         <InputError message={errors.is_active} />
@@ -260,8 +260,8 @@ export function ProductFormFields({
                         <Label htmlFor="free_delivery">Free delivery</Label>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        When checked, the delivery/shipping charge is waived
-                        for this product - customers pay ৳0.00 for shipping
+                        When checked, the delivery/shipping charge is waived for
+                        this product - customers pay ৳0.00 for shipping
                         regardless of the selected area.
                     </p>
                     <InputError message={errors.free_delivery} />

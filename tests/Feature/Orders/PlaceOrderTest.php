@@ -32,7 +32,10 @@ test('a customer can place an order without authentication', function () {
     $this->assertGuest();
     $order = Order::first();
     expect($order)->not->toBeNull();
-    $response->assertRedirect(route('orders.confirmation', $order->order_number));
+    // The storefront shows the result in a modal on the same page instead
+    // of navigating to a separate confirmation route.
+    $response->assertSessionHasNoErrors();
+    $response->assertRedirect();
 });
 
 test('order creation persists a matching order item snapshot', function () {

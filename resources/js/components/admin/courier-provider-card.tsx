@@ -104,8 +104,8 @@ export function CourierProviderCard({
                 {!provider.enabled && (
                     <p className="text-sm text-muted-foreground">
                         This provider is disabled. Set ENABLE_
-                        {provider.name.toUpperCase()}=true in the environment
-                        to configure and use it.
+                        {provider.name.toUpperCase()}=true in the environment to
+                        configure and use it.
                     </p>
                 )}
                 <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
