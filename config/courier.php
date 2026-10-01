@@ -26,8 +26,24 @@ return [
                 'client_secret' => ['label' => 'Client Secret', 'secret' => true],
                 'username' => ['label' => 'Username (email)', 'secret' => true],
                 'password' => ['label' => 'Password', 'secret' => true],
-                'delivery_type' => ['label' => 'Delivery Type', 'secret' => false, 'default' => '48'],
-                'item_type' => ['label' => 'Item Type', 'secret' => false, 'default' => '2'],
+                'delivery_type' => [
+                    'label' => 'Delivery Type',
+                    'secret' => false,
+                    'default' => '48',
+                    'options' => [
+                        ['value' => '48', 'label' => 'Normal Delivery'],
+                        ['value' => '12', 'label' => 'On Demand Delivery'],
+                    ],
+                ],
+                'item_type' => [
+                    'label' => 'Item Type',
+                    'secret' => false,
+                    'default' => '2',
+                    'options' => [
+                        ['value' => '2', 'label' => 'Parcel'],
+                        ['value' => '1', 'label' => 'Document'],
+                    ],
+                ],
             ],
         ],
 

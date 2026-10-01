@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CourierCredentialsRequest extends FormRequest
 {
@@ -22,15 +23,17 @@ class CourierCredentialsRequest extends FormRequest
     {
         $rules = [];
 
-        foreach (array_keys($this->fieldDefinitions()) as $key) {
-            $rules[$key] = ['nullable', 'string', 'max:255'];
+        foreach ($this->fieldDefinitions() as $key => $field) {
+            $rules[$key] = isset($field['options'])
+                ? ['nullable', Rule::in(array_column($field['options'], 'value'))]
+                : ['nullable', 'string', 'max:255'];
         }
 
         return $rules;
     }
 
     /**
-     * @return array<string, array{label: string, secret: bool}>
+     * @return array<string, array{label: string, secret: bool, options?: array<int, array{value: string, label: string}>}>
      */
     private function fieldDefinitions(): array
     {

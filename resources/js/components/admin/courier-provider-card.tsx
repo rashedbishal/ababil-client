@@ -13,6 +13,7 @@ export type ProviderField = {
     secret: boolean;
     value: string | null;
     configured: boolean;
+    options: { value: string; label: string }[] | null;
 };
 
 export type Provider = {
@@ -119,23 +120,44 @@ export function CourierProviderCard({
                                     </span>
                                 )}
                             </Label>
-                            <Input
-                                id={`${provider.name}-${field.key}`}
-                                type={field.secret ? 'password' : 'text'}
-                                value={form.data[field.key] ?? ''}
-                                onChange={(e) =>
-                                    form.setData(field.key, e.target.value)
-                                }
-                                disabled={!provider.enabled}
-                                placeholder={
-                                    field.secret
-                                        ? field.configured
-                                            ? '••••••••'
-                                            : 'Not set'
-                                        : undefined
-                                }
-                                autoComplete="off"
-                            />
+                            {field.options ? (
+                                <select
+                                    id={`${provider.name}-${field.key}`}
+                                    value={form.data[field.key] ?? ''}
+                                    onChange={(e) =>
+                                        form.setData(field.key, e.target.value)
+                                    }
+                                    disabled={!provider.enabled}
+                                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
+                                >
+                                    {field.options.map((option) => (
+                                        <option
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <Input
+                                    id={`${provider.name}-${field.key}`}
+                                    type={field.secret ? 'password' : 'text'}
+                                    value={form.data[field.key] ?? ''}
+                                    onChange={(e) =>
+                                        form.setData(field.key, e.target.value)
+                                    }
+                                    disabled={!provider.enabled}
+                                    placeholder={
+                                        field.secret
+                                            ? field.configured
+                                                ? '••••••••'
+                                                : 'Not set'
+                                            : undefined
+                                    }
+                                    autoComplete="off"
+                                />
+                            )}
                             <InputError message={form.errors[field.key]} />
                         </div>
                     ))}

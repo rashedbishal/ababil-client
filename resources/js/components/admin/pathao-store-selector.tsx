@@ -52,6 +52,11 @@ export function PathaoStoreSelector({
             }
 
             setStores(body.stores);
+            setSelectedStoreId((current: number | null) =>
+                body.stores.some((s: Store) => s.id === current)
+                    ? current
+                    : (body.stores[0]?.id ?? null),
+            );
         } catch {
             setFetchError('Failed to fetch stores.');
         } finally {

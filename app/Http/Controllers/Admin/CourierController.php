@@ -43,6 +43,7 @@ class CourierController extends Controller
                     // Secret values are never exposed - only whether one is set.
                     'value' => $field['secret'] ? null : ($credentials[$key] ?? $field['default'] ?? null),
                     'configured' => ! empty($credentials[$key]),
+                    'options' => $field['options'] ?? null,
                 ];
             }
 
@@ -67,7 +68,7 @@ class CourierController extends Controller
     }
 
     /**
-     * @return array<string, array{label: string, fields: array<string, array{label: string, secret: bool, default?: string}>, enabled?: bool}>
+     * @return array<string, array{label: string, fields: array<string, array{label: string, secret: bool, default?: string, options?: array<int, array{value: string, label: string}>}>, enabled?: bool}>
      */
     private function providerDefinitions(): array
     {
