@@ -135,6 +135,41 @@ test('it refreshes an expired token using the refresh token before falling back 
         ->toBe('refreshed-access-token');
 });
 
+test('it discards a stored token and retries once when Pathao rejects it with a 401', function () {
+    pathaoConfig();
+
+    // Locally this token still looks valid (expires tomorrow) - the whole
+    // point of this test is that Pathao itself has invalidated it server
+    // side, which our own expiry bookkeeping can't know about in advance.
+    CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'stale-token',
+        'refresh_token' => 'stale-refresh',
+        'expires_at' => now()->addDay(),
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/orders' => Http::sequence()
+            ->push(['message' => 'Unauthorized User'], 401)
+            ->push(['data' => ['consignment_id' => 'CONSIGN-RETRY', 'order_status' => 'Pending']]),
+        '*/aladdin/api/v1/issue-token' => Http::response([
+            'expires_in' => 432000,
+            'access_token' => 'fresh-access-token',
+            'refresh_token' => 'fresh-refresh-token',
+        ]),
+    ]);
+
+    $result = (new PathaoCourierService)->createParcel(sampleParcel());
+
+    expect($result->consignmentId)->toBe('CONSIGN-RETRY');
+
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'issue-token')
+        && $request['grant_type'] === 'password');
+
+    expect(CourierToken::query()->where('provider', 'pathao')->first()->access_token)
+        ->toBe('fresh-access-token');
+});
+
 test('it maps a known courier status and preserves the raw text', function (string $rawStatus, CourierStatus $expected) {
     pathaoConfig();
 

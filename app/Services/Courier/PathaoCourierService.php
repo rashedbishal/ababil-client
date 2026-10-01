@@ -6,6 +6,7 @@ use App\Enums\CourierStatus;
 use App\Exceptions\CourierException;
 use App\Models\CourierProvider;
 use App\Models\CourierToken;
+use Closure;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
@@ -41,7 +42,7 @@ class PathaoCourierService implements CourierServiceInterface
             throw new CourierException('No Pathao store is selected. Choose one on the Courier Integration page.');
         }
 
-        $response = $this->client()->post('/aladdin/api/v1/orders', [
+        $response = $this->send(fn (PendingRequest $client) => $client->post('/aladdin/api/v1/orders', [
             'store_id' => (int) $storeId,
             'merchant_order_id' => $parcel->orderNumber,
             'recipient_name' => $parcel->recipientName,
@@ -53,7 +54,7 @@ class PathaoCourierService implements CourierServiceInterface
             'item_weight' => number_format($parcel->itemWeightKg, 1, '.', ''),
             'item_description' => $parcel->itemDescription,
             'amount_to_collect' => (int) round((float) $parcel->codAmount),
-        ]);
+        ]));
 
         $data = $this->data($response, 'Failed to create the Pathao parcel.');
 
@@ -72,7 +73,7 @@ class PathaoCourierService implements CourierServiceInterface
      */
     public function listStores(): array
     {
-        $response = $this->client()->get('/aladdin/api/v1/stores');
+        $response = $this->send(fn (PendingRequest $client) => $client->get('/aladdin/api/v1/stores'));
 
         $data = $this->data($response, 'Failed to fetch Pathao stores.');
 
@@ -95,7 +96,7 @@ class PathaoCourierService implements CourierServiceInterface
 
     public function getParcelStatus(string $consignmentId): ParcelStatus
     {
-        $response = $this->client()->get("/aladdin/api/v1/orders/{$consignmentId}/info");
+        $response = $this->send(fn (PendingRequest $client) => $client->get("/aladdin/api/v1/orders/{$consignmentId}/info"));
 
         $data = $this->data($response, 'Failed to fetch the Pathao parcel status.');
 
@@ -141,6 +142,31 @@ class PathaoCourierService implements CourierServiceInterface
             ->withToken($this->accessToken())
             ->acceptJson()
             ->asJson();
+    }
+
+    /**
+     * Sends an authenticated request, retrying once with a freshly issued
+     * token if Pathao rejects the stored one with a 401. Our own expiry
+     * bookkeeping only knows what Pathao told us when the token was issued -
+     * it can't detect a token Pathao has since revoked server-side, which
+     * would otherwise fail every request until the locally-tracked expiry
+     * (hours or months away) finally catches up.
+     */
+    private function send(Closure $makeRequest): Response
+    {
+        $response = $makeRequest($this->client());
+
+        if ($response->status() === 401) {
+            $this->invalidateToken();
+            $response = $makeRequest($this->client());
+        }
+
+        return $response;
+    }
+
+    private function invalidateToken(): void
+    {
+        CourierToken::query()->where('provider', self::PROVIDER)->delete();
     }
 
     /**
