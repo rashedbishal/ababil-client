@@ -124,6 +124,7 @@ class ProductController extends Controller
             // If this is the only product in the whole catalog, it must stay
             // active - there'd otherwise be nothing for the storefront to show.
             'canSetVisibility' => Product::query()->count() > 1,
+            'sizeManagementEnabled' => (bool) config('catalog.size_set'),
         ]);
     }
 

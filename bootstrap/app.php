@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\BlockDisallowedIps;
 use App\Http\Middleware\EnsureProductCreationIsUnlocked;
+use App\Http\Middleware\EnsureSizeManagementIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureUserIsAdmin::class,
             'blocked-ip' => BlockDisallowedIps::class,
             'product-creation-unlocked' => EnsureProductCreationIsUnlocked::class,
+            'size-management-enabled' => EnsureSizeManagementIsEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -41,11 +41,13 @@ export default function ProductEdit({
     media,
     sizes,
     canSetVisibility,
+    sizeManagementEnabled,
 }: {
     product: ProductDetail;
     media: MediaOption[];
     sizes: { id: number; name: string }[];
     canSetVisibility: boolean;
+    sizeManagementEnabled: boolean;
 }) {
     return (
         <>
@@ -73,13 +75,17 @@ export default function ProductEdit({
                 )}
             </Form>
 
-            <Separator />
+            {sizeManagementEnabled && (
+                <>
+                    <Separator />
 
-            <VariantsManager
-                productId={product.id}
-                variants={product.variants}
-                sizes={sizes}
-            />
+                    <VariantsManager
+                        productId={product.id}
+                        variants={product.variants}
+                        sizes={sizes}
+                    />
+                </>
+            )}
         </>
     );
 }

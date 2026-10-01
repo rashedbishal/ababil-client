@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\IncompleteOrder;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -32,5 +33,14 @@ class IncompleteOrderController extends Controller
                 'last_activity_at' => $incomplete->last_activity_at?->toIso8601String(),
             ]),
         ]);
+    }
+
+    public function destroy(IncompleteOrder $incompleteOrder): RedirectResponse
+    {
+        $incompleteOrder->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Incomplete checkout deleted.']);
+
+        return back();
     }
 }

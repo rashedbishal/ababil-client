@@ -22,11 +22,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         ->middlewareFor(['create', 'store'], 'product-creation-unlocked');
     Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
 
-    Route::post('products/{product}/variants', [ProductVariantController::class, 'store'])->name('products.variants.store');
-    Route::patch('products/{product}/variants/{variant}', [ProductVariantController::class, 'update'])->name('products.variants.update');
-    Route::delete('products/{product}/variants/{variant}', [ProductVariantController::class, 'destroy'])->name('products.variants.destroy');
+    Route::middleware('size-management-enabled')->group(function (): void {
+        Route::post('products/{product}/variants', [ProductVariantController::class, 'store'])->name('products.variants.store');
+        Route::patch('products/{product}/variants/{variant}', [ProductVariantController::class, 'update'])->name('products.variants.update');
+        Route::delete('products/{product}/variants/{variant}', [ProductVariantController::class, 'destroy'])->name('products.variants.destroy');
 
-    Route::resource('sizes', SizeController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('sizes', SizeController::class)->only(['index', 'store', 'update', 'destroy']);
+    });
 
     Route::resource('orders', OrderController::class)->only(['index', 'show', 'update']);
     Route::patch('orders/{order}/status-sync-mode', [OrderController::class, 'updateStatusSyncMode'])->name('orders.status-sync-mode');
@@ -34,6 +36,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('orders/{order}/courier/refresh', [OrderCourierController::class, 'refresh'])->name('orders.courier.refresh');
 
     Route::get('incomplete-orders', [IncompleteOrderController::class, 'index'])->name('incomplete-orders.index');
+    Route::delete('incomplete-orders/{incompleteOrder}', [IncompleteOrderController::class, 'destroy'])->name('incomplete-orders.destroy');
 
     Route::resource('blocked-ips', BlockedIpController::class)->only(['index', 'store', 'update', 'destroy']);
 

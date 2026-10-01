@@ -13,6 +13,7 @@ declare module '@inertiajs/core' {
             auth: Auth;
             sidebarOpen: boolean;
             pendingOrdersCount: number | null;
+            sizeManagementEnabled: boolean;
             [key: string]: unknown;
         };
     }

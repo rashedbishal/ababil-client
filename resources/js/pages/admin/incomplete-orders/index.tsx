@@ -1,7 +1,8 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Table,
     TableBody,
@@ -33,6 +34,18 @@ export default function IncompleteOrdersIndex({
 }: {
     incompleteOrders: Paginated<Row>;
 }) {
+    function remove(row: Row) {
+        if (
+            confirm(
+                `Delete the incomplete checkout from "${row.customer_name ?? 'this visitor'}"?`,
+            )
+        ) {
+            router.delete(incompleteOrders.destroy(row.id).url, {
+                preserveScroll: true,
+            });
+        }
+    }
+
     return (
         <>
             <Head title="Incomplete Orders" />
@@ -52,13 +65,14 @@ export default function IncompleteOrdersIndex({
                         <TableHead>IP</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Last activity</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {paginated.data.length === 0 && (
                         <TableRow>
                             <TableCell
-                                colSpan={7}
+                                colSpan={8}
                                 className="text-center text-muted-foreground"
                             >
                                 No incomplete checkouts recorded.
@@ -97,6 +111,15 @@ export default function IncompleteOrdersIndex({
                                           row.last_activity_at,
                                       ).toLocaleString()
                                     : '—'}
+                            </TableCell>
+                            <TableCell className="text-right">
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => remove(row)}
+                                >
+                                    Delete
+                                </Button>
                             </TableCell>
                         </TableRow>
                     ))}

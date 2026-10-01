@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
             'pendingOrdersCount' => $request->user()?->is_admin
                 ? Order::query()->whereNull('viewed_at')->count()
                 : null,
+            'sizeManagementEnabled' => (bool) config('catalog.size_set'),
         ];
     }
 }

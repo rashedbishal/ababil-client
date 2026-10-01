@@ -17,4 +17,18 @@ return [
 
     'product_lock' => (bool) env('PRODUCT_LOCK', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Size/Variant Management
+    |--------------------------------------------------------------------------
+    |
+    | The current catalog has no products that need per-size variants. While
+    | false, the Sizes admin page, the size/variant section on the product
+    | edit page, and their underlying routes are all hidden/locked down.
+    | Set to true only if a product that actually needs sizes is added.
+    |
+    */
+
+    'size_set' => (bool) env('SIZE_SET', false),
+
 ];

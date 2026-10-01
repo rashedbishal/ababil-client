@@ -39,7 +39,10 @@ import shippingAreas from '@/routes/admin/shipping-areas';
 import sizes from '@/routes/admin/sizes';
 import type { NavItem } from '@/types';
 
-function buildGroups(pendingOrdersCount: number | null): {
+function buildGroups(
+    pendingOrdersCount: number | null,
+    sizeManagementEnabled: boolean,
+): {
     label: string;
     items: NavItem[];
 }[] {
@@ -54,7 +57,15 @@ function buildGroups(pendingOrdersCount: number | null): {
             label: 'Catalog',
             items: [
                 { title: 'Products', href: products.index(), icon: Package },
-                { title: 'Sizes', href: sizes.index(), icon: Rows3 },
+                ...(sizeManagementEnabled
+                    ? [
+                          {
+                              title: 'Sizes',
+                              href: sizes.index(),
+                              icon: Rows3,
+                          },
+                      ]
+                    : []),
             ],
         },
         {
@@ -117,8 +128,8 @@ function buildGroups(pendingOrdersCount: number | null): {
 
 export function AdminSidebar() {
     const { isCurrentUrl } = useCurrentUrl();
-    const { pendingOrdersCount } = usePage().props;
-    const groups = buildGroups(pendingOrdersCount);
+    const { pendingOrdersCount, sizeManagementEnabled } = usePage().props;
+    const groups = buildGroups(pendingOrdersCount, sizeManagementEnabled);
 
     return (
         <Sidebar collapsible="icon" variant="inset">
