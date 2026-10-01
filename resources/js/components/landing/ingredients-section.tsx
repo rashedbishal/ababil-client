@@ -1,5 +1,4 @@
 import {
-    AnimatePresence,
     motion,
     useAnimationFrame,
     useMotionValue,
@@ -7,7 +6,6 @@ import {
     type MotionValue,
 } from 'motion/react';
 import { Leaf } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
 import angelicaImg from '../../../images/landing/cards/ing-angelica.webp';
 import arnicaImg from '../../../images/landing/cards/ing-arnica.webp';
 import boswelliaImg from '../../../images/landing/cards/ing-boswellia.webp';
@@ -48,9 +46,9 @@ function IngredientOrb({
     image: string | null;
 }) {
     const diff = useTransform(progress, (p) => circularOffset(index, p));
-    const x = useTransform(diff, (d) => `calc(-50% + ${d} * min(22vw, 140px))`);
+    const x = useTransform(diff, (d) => `calc(-50% + ${d} * min(30vw, 190px))`);
     const scale = useTransform(diff, (d) =>
-        Math.max(1.45 - Math.abs(d) * 0.2, 0.55),
+        Math.max(1.5 - Math.abs(d) * 0.2, 0.6),
     );
     const opacity = useTransform(diff, (d) =>
         Math.max(1 - Math.abs(d) * 0.1, 0.45),
@@ -62,13 +60,13 @@ function IngredientOrb({
     return (
         <motion.div
             style={{ x, y: '-50%', scale, opacity, rotateY, zIndex }}
-            className="absolute top-1/2 left-1/2 size-16 shrink-0 sm:size-20 lg:size-24"
+            className="absolute top-1/2 left-1/2 flex w-20 shrink-0 flex-col items-center gap-2.5 sm:w-28 lg:w-32"
         >
-            <div className="relative size-full">
+            <div className="relative aspect-square w-full">
                 <motion.div
                     aria-hidden
                     style={{ opacity: glow }}
-                    className="absolute -inset-4 rounded-full bg-gradient-to-br from-amber-400/50 via-yellow-300/20 to-transparent blur-2xl"
+                    className="absolute -inset-6 rounded-full bg-gradient-to-br from-amber-400/50 via-yellow-300/20 to-transparent blur-2xl"
                 />
                 <div className="relative size-full overflow-hidden rounded-full border-4 border-amber-300 bg-gradient-to-br from-amber-100 to-amber-50 shadow-2xl shadow-amber-900/20">
                     {image ? (
@@ -79,36 +77,26 @@ function IngredientOrb({
                         />
                     ) : (
                         <div className="flex size-full items-center justify-center text-amber-500">
-                            <Leaf className="size-7 lg:size-9" />
+                            <Leaf className="size-9 lg:size-12" />
                         </div>
                     )}
                 </div>
             </div>
+            <span className="text-center font-bengali text-xs leading-tight font-semibold text-nowrap text-stone-800 sm:text-sm">
+                {name}
+            </span>
         </motion.div>
     );
 }
 
 export default function IngredientsSection() {
     const progress = useMotionValue(0);
-    const [labelIndex, setLabelIndex] = useState(0);
-    const lastIndexRef = useRef(0);
 
     useAnimationFrame((_, delta) => {
         progress.set(
             progress.get() + (delta / 1000) * (total / revolutionSeconds),
         );
     });
-
-    useEffect(() => {
-        return progress.on('change', (v) => {
-            const idx = Math.round(((v % total) + total) % total) % total;
-
-            if (idx !== lastIndexRef.current) {
-                lastIndexRef.current = idx;
-                setLabelIndex(idx);
-            }
-        });
-    }, [progress]);
 
     return (
         <section
@@ -129,7 +117,7 @@ export default function IngredientsSection() {
                 <Reveal delay={0.1} className="relative mt-12">
                     <div
                         style={{ perspective: '1600px' }}
-                        className="relative flex h-32 items-center justify-center overflow-x-hidden sm:h-40 lg:h-48"
+                        className="relative flex h-48 items-center justify-center overflow-x-hidden sm:h-60 lg:h-72"
                     >
                         {ingredients.map(({ name, image }, i) => (
                             <IngredientOrb
@@ -140,21 +128,6 @@ export default function IngredientsSection() {
                                 image={image}
                             />
                         ))}
-                    </div>
-
-                    <div className="mt-8 h-8 text-center">
-                        <AnimatePresence mode="wait">
-                            <motion.span
-                                key={labelIndex}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -8 }}
-                                transition={{ duration: 0.3 }}
-                                className="font-bengali text-lg font-bold text-stone-900 sm:text-xl"
-                            >
-                                {ingredients[labelIndex].name}
-                            </motion.span>
-                        </AnimatePresence>
                     </div>
                 </Reveal>
             </div>
