@@ -202,6 +202,7 @@ export default function Welcome({
         }));
 
         form.post(orders.store().url, {
+            preserveScroll: true,
             onError: (errors) => {
                 if (errors.order) {
                     setOrderResult({ type: 'error', message: errors.order });
