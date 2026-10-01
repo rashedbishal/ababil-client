@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Orders\RefreshCourierStatusAction;
 use App\Actions\Orders\SetOrderStatusSyncModeAction;
 use App\Actions\Orders\UpdateOrderStatusAction;
 use App\Enums\OrderStatus;
 use App\Enums\OrderStatusSyncMode;
+use App\Exceptions\CourierException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OrderStatusSyncModeRequest;
 use App\Http\Requests\Admin\OrderUpdateRequest;
@@ -38,7 +40,7 @@ class OrderController extends Controller
             ->when($request->date('from'), fn ($query, $from) => $query->whereDate('created_at', '>=', $from))
             ->when($request->date('to'), fn ($query, $to) => $query->whereDate('created_at', '<=', $to))
             ->latest()
-            ->paginate(20)
+            ->paginate(15)
             ->withQueryString();
 
         return Inertia::render('admin/orders/index', [
@@ -51,14 +53,27 @@ class OrderController extends Controller
                 'status_label' => $order->status->label(),
                 'grand_total' => (string) $order->grand_total,
                 'created_at' => $order->created_at?->toIso8601String(),
+                'is_new' => $order->viewed_at === null,
             ]),
             'filters' => $request->only(['status', 'phone', 'order_number', 'from', 'to']),
             'statuses' => array_map(fn (OrderStatus $s) => ['value' => $s->value, 'label' => $s->label()], OrderStatus::cases()),
         ]);
     }
 
-    public function show(Order $order): Response
+    public function show(Request $request, Order $order, RefreshCourierStatusAction $action): Response
     {
+        if ($order->viewed_at === null) {
+            $order->update(['viewed_at' => now()]);
+        }
+
+        if ($order->courier_consignment_id !== null && $order->status !== OrderStatus::Cancelled) {
+            try {
+                $order = $action->execute($order, $request->user());
+            } catch (CourierException) {
+                // Auto-refresh is best-effort; don't block the page if the courier API is unavailable.
+            }
+        }
+
         $order->load(['items', 'shippingArea', 'statusHistories.changedBy']);
 
         return Inertia::render('admin/orders/show', [

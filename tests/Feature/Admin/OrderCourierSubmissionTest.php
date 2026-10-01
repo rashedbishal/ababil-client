@@ -146,3 +146,65 @@ test('an admin can refresh a submitted order courier status', function () {
 
     expect($order->fresh()->courier_raw_status)->toBe('Delivered');
 });
+
+test('opening an order already submitted to the courier automatically refreshes its courier status', function () {
+    actingAsAdmin();
+
+    $order = Order::factory()->create(['courier_consignment_id' => 'CONSIGN-1', 'courier_provider' => 'pathao']);
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::response([
+            'expires_in' => 432000,
+            'access_token' => 'token',
+            'refresh_token' => 'refresh',
+        ]),
+        '*/aladdin/api/v1/orders/CONSIGN-1/info' => Http::response([
+            'data' => ['consignment_id' => 'CONSIGN-1', 'order_status_slug' => 'Delivered'],
+        ]),
+    ]);
+
+    $response = $this->get(route('admin.orders.show', $order));
+
+    $response->assertOk();
+    expect($order->fresh()->courier_raw_status)->toBe('Delivered');
+});
+
+test('opening an order that was never submitted to the courier does not call the courier', function () {
+    actingAsAdmin();
+
+    $order = Order::factory()->create(['courier_consignment_id' => null]);
+
+    Http::fake();
+
+    $this->get(route('admin.orders.show', $order))->assertOk();
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'pathao'));
+});
+
+test('opening a cancelled order does not auto-refresh its courier status', function () {
+    actingAsAdmin();
+
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Cancelled,
+        'courier_consignment_id' => 'CONSIGN-1',
+        'courier_provider' => 'pathao',
+    ]);
+
+    Http::fake();
+
+    $this->get(route('admin.orders.show', $order))->assertOk();
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'pathao'));
+});
+
+test('opening an order still renders when the courier auto-refresh call fails', function () {
+    actingAsAdmin();
+
+    $order = Order::factory()->create(['courier_consignment_id' => 'CONSIGN-1', 'courier_provider' => 'pathao']);
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::response([], 500),
+    ]);
+
+    $this->get(route('admin.orders.show', $order))->assertOk();
+});

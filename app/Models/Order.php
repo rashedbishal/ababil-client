@@ -40,6 +40,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $shipped_at
  * @property Carbon|null $delivered_at
  * @property Carbon|null $cancelled_at
+ * @property Carbon|null $viewed_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -74,6 +75,7 @@ class Order extends Model
         'shipped_at',
         'delivered_at',
         'cancelled_at',
+        'viewed_at',
     ];
 
     protected function casts(): array
@@ -90,6 +92,7 @@ class Order extends Model
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'viewed_at' => 'datetime',
         ];
     }
 

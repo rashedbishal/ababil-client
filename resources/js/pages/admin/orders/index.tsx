@@ -25,6 +25,7 @@ type OrderRow = {
     status_label: string;
     grand_total: string;
     created_at: string | null;
+    is_new: boolean;
 };
 
 type Filters = {
@@ -137,11 +138,14 @@ export default function OrdersIndex({
                         </TableRow>
                     )}
                     {paginated.data.map((order) => (
-                        <TableRow key={order.id}>
+                        <TableRow
+                            key={order.id}
+                            className={order.is_new ? 'font-bold' : undefined}
+                        >
                             <TableCell>
                                 <Link
                                     href={orders.show(order.id)}
-                                    className="font-medium text-primary hover:underline"
+                                    className={`text-primary hover:underline ${order.is_new ? 'font-bold' : 'font-medium'}`}
                                 >
                                     {order.order_number}
                                 </Link>

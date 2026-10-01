@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Orders\RefreshCourierStatusAction;
 use App\Actions\Orders\UpdateOrderStatusAction;
 use App\Enums\OrderStatus;
 use App\Enums\OrderStatusSyncMode;
@@ -62,7 +63,7 @@ class OrderCourierController extends Controller
         return back();
     }
 
-    public function refresh(Request $request, Order $order, CourierServiceInterface $courier): RedirectResponse
+    public function refresh(Request $request, Order $order, RefreshCourierStatusAction $action): RedirectResponse
     {
         if ($order->status === OrderStatus::Cancelled) {
             Inertia::flash('toast', ['type' => 'error', 'message' => 'This order is cancelled.']);
@@ -77,30 +78,11 @@ class OrderCourierController extends Controller
         }
 
         try {
-            $parcel = $courier->getParcelStatus($order->courier_consignment_id);
+            $action->execute($order, $request->user());
         } catch (CourierException $exception) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $exception->getMessage()]);
 
             return back();
-        }
-
-        $order->update([
-            'courier_status' => $parcel->status,
-            'courier_raw_status' => $parcel->rawStatus,
-            'courier_tracking_code' => $parcel->trackingCode ?? $order->courier_tracking_code,
-        ]);
-
-        if ($order->status_sync_mode === OrderStatusSyncMode::Automated) {
-            $implied = $parcel->status->toOrderStatus();
-
-            if ($implied !== null && $implied !== $order->status) {
-                app(UpdateOrderStatusAction::class)->execute(
-                    $order,
-                    $implied,
-                    $request->user(),
-                    'Synced from courier status: '.$parcel->status->label(),
-                );
-            }
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Courier status refreshed.']);

@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     Images,
@@ -21,6 +21,7 @@ import {
     SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
+    SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
@@ -38,68 +39,86 @@ import shippingAreas from '@/routes/admin/shipping-areas';
 import sizes from '@/routes/admin/sizes';
 import type { NavItem } from '@/types';
 
-const groups: { label: string; items: NavItem[] }[] = [
-    {
-        label: 'Overview',
-        items: [{ title: 'Dashboard', href: dashboard(), icon: LayoutGrid }],
-    },
-    {
-        label: 'Catalog',
-        items: [
-            { title: 'Products', href: products.index(), icon: Package },
-            { title: 'Sizes', href: sizes.index(), icon: Rows3 },
-        ],
-    },
-    {
-        label: 'Orders',
-        items: [
-            { title: 'Orders', href: orders.index(), icon: ShoppingCart },
-            {
-                title: 'Incomplete Orders',
-                href: incompleteOrders.index(),
-                icon: ListOrdered,
-            },
-        ],
-    },
-    {
-        label: 'Operations',
-        items: [
-            {
-                title: 'Shipping Charges',
-                href: shippingAreas.index(),
-                icon: Truck,
-            },
-            {
-                title: 'Courier Integration',
-                href: courier.index(),
-                icon: Undo2,
-            },
-        ],
-    },
-    {
-        label: 'Content',
-        items: [{ title: 'Media', href: media.index(), icon: Images }],
-    },
-    {
-        label: 'Security',
-        items: [
-            {
-                title: 'Blocked IPs',
-                href: blockedIps.index(),
-                icon: AlertTriangle,
-            },
-        ],
-    },
-    {
-        label: 'Configuration',
-        items: [
-            { title: 'Settings', href: settings.edit(), icon: SettingsIcon },
-        ],
-    },
-];
+function buildGroups(pendingOrdersCount: number | null): {
+    label: string;
+    items: NavItem[];
+}[] {
+    return [
+        {
+            label: 'Overview',
+            items: [
+                { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+            ],
+        },
+        {
+            label: 'Catalog',
+            items: [
+                { title: 'Products', href: products.index(), icon: Package },
+                { title: 'Sizes', href: sizes.index(), icon: Rows3 },
+            ],
+        },
+        {
+            label: 'Orders',
+            items: [
+                {
+                    title: 'Orders',
+                    href: orders.index(),
+                    icon: ShoppingCart,
+                    badge: pendingOrdersCount ?? undefined,
+                },
+                {
+                    title: 'Incomplete Orders',
+                    href: incompleteOrders.index(),
+                    icon: ListOrdered,
+                },
+            ],
+        },
+        {
+            label: 'Operations',
+            items: [
+                {
+                    title: 'Shipping Charges',
+                    href: shippingAreas.index(),
+                    icon: Truck,
+                },
+                {
+                    title: 'Courier Integration',
+                    href: courier.index(),
+                    icon: Undo2,
+                },
+            ],
+        },
+        {
+            label: 'Content',
+            items: [{ title: 'Media', href: media.index(), icon: Images }],
+        },
+        {
+            label: 'Security',
+            items: [
+                {
+                    title: 'Blocked IPs',
+                    href: blockedIps.index(),
+                    icon: AlertTriangle,
+                },
+            ],
+        },
+        {
+            label: 'Configuration',
+            items: [
+                {
+                    title: 'Settings',
+                    href: settings.edit(),
+                    icon: SettingsIcon,
+                },
+            ],
+        },
+    ];
+}
 
 export function AdminSidebar() {
     const { isCurrentUrl } = useCurrentUrl();
+    const { pendingOrdersCount } = usePage().props;
+    const groups = buildGroups(pendingOrdersCount);
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -107,7 +126,7 @@ export function AdminSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href={dashboard()}>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -127,11 +146,16 @@ export function AdminSidebar() {
                                         isActive={isCurrentUrl(item.href)}
                                         tooltip={{ children: item.title }}
                                     >
-                                        <Link href={item.href} prefetch>
+                                        <Link href={item.href}>
                                             {item.icon && <item.icon />}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
+                                    {!!item.badge && (
+                                        <SidebarMenuBadge className="bg-destructive text-white">
+                                            {item.badge}
+                                        </SidebarMenuBadge>
+                                    )}
                                 </SidebarMenuItem>
                             ))}
                         </SidebarMenu>
