@@ -50,12 +50,19 @@ const usps = [
     },
 ];
 
-const titleSettleProgress = 0.06;
+const titleSettleProgress = 0.02;
+// Cards start entering just before the title finishes settling.
+const slidesStart = 0.008;
 
-// Maps linear time to a sweep position. Speed is 1 - 0.8·sin(πt): slow but
-// moving on entry and exit, slowest at the centre (about a fifth of the entry
-// speed), and never zero, so the card keeps drifting through the middle.
-const SWEEP_AMPLITUDE = 0.8;
+// Each card's slot overlaps the next by this fraction, so the next card starts
+// appearing while the current one is leaving.
+const slideSpan = 2;
+const slideStep = (1 - slidesStart) / (usps.length - 1 + slideSpan);
+
+// Maps linear time to a sweep position. Speed is 1 - 0.7·sin(πt): faster on
+// entry and exit, about 60% speed at the centre, and never zero, so the card
+// keeps drifting through the middle.
+const SWEEP_AMPLITUDE = 0.7;
 const sweepTotal = 1 - (2 * SWEEP_AMPLITUDE) / Math.PI;
 const sweepPace = (t: number) =>
     (t - (SWEEP_AMPLITUDE * (1 - Math.cos(Math.PI * t))) / Math.PI) /
@@ -72,15 +79,14 @@ function UspSlide({
     progress: MotionValue<number>;
     active: boolean;
 }) {
-    const itemRange = (1 - titleSettleProgress) / usps.length;
     const itemProgress = useTransform(progress, (value) =>
         sweepPace(
             Math.min(
                 1,
                 Math.max(
                     0,
-                    (value - titleSettleProgress - index * itemRange) /
-                        itemRange,
+                    (value - slidesStart - index * slideStep) /
+                        (slideStep * slideSpan),
                 ),
             ),
         ),
@@ -89,13 +95,13 @@ function UspSlide({
     // stops. Only the fades use the entry and exit windows.
     const x = useTransform(itemProgress, [0, 1], ['100%', '-100%']);
     const opacity = useTransform(itemProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-    const scale = useTransform(itemProgress, [0, 0.5, 1], [0.98, 1, 1.03]);
+    const scale = useTransform(itemProgress, [0, 0.5, 1], [0.7, 1.2, 0.7]);
 
     return (
         <motion.div
             style={{ x, opacity, scale }}
             aria-hidden={!active}
-            className={`absolute inset-0 flex flex-col items-center justify-center pt-32 pb-4 text-center sm:pb-8 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center pt-20 pb-4 text-center sm:pb-8 ${
                 active ? 'pointer-events-auto' : 'pointer-events-none'
             }`}
         >
@@ -172,13 +178,11 @@ export default function UspSection() {
     );
 
     useMotionValueEvent(progress, 'change', (value) => {
-        const itemProgress = Math.max(
-            0,
-            (value - titleSettleProgress) / (1 - titleSettleProgress),
-        );
+        // Active card is the one whose centre is closest to the sweep position.
+        const slot = (value - slidesStart) / slideStep;
         const nextIndex = Math.min(
             usps.length - 1,
-            Math.floor(itemProgress * usps.length + 0.01),
+            Math.max(0, Math.round(slot - slideSpan / 2)),
         );
 
         setActiveIndex(nextIndex);
@@ -188,7 +192,7 @@ export default function UspSection() {
         <section
             ref={sectionRef}
             id="usp"
-            className="relative h-[6000svh] scroll-mt-24 bg-gradient-to-b from-amber-50 to-amber-100/60"
+            className="relative h-[4800svh] scroll-mt-24 bg-gradient-to-b from-amber-50 to-amber-100/60"
         >
             <div
                 aria-hidden
