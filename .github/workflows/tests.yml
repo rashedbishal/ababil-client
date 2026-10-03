@@ -32,8 +32,27 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Setup Application
-        run: composer setup
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # `composer setup` (used for local dev onboarding) isn't used here -
+      # it ends with `artisan migrate --force` against a real MySQL server,
+      # which doesn't exist on this runner. Tests don't need it: Pest
+      # already runs against an in-memory SQLite DB via RefreshDatabase
+      # (see tests/Pest.php + phpunit.xml). We still need a real .env and
+      # built assets so `php artisan` can boot and Wayfinder's generated
+      # resources/js/actions|routes exist for the type checker.
+      - name: Copy environment file
+        run: cp .env.example .env
+
+      - name: Generate application key
+        run: php artisan key:generate --ansi
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
 
       - name: Run CI Checks
         run: composer ci:check
