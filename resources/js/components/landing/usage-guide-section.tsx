@@ -1,10 +1,15 @@
-import { motion } from 'motion/react';
+import { useRef, useState } from 'react';
+import {
+    AnimatePresence,
+    motion,
+    useMotionValueEvent,
+    useScroll,
+} from 'motion/react';
 import cleanseImg from '../../../images/landing/cards/usage-cleanse.webp';
 import dispenseImg from '../../../images/landing/cards/usage-dispense.webp';
 import massageImg from '../../../images/landing/cards/usage-massage.webp';
 import routineImg from '../../../images/landing/cards/usage-routine.webp';
 import Reveal from './motion/reveal';
-import TiltCard from './motion/tilt-card';
 
 const steps = [
     {
@@ -34,93 +39,82 @@ const steps = [
 ];
 
 export default function UsageGuideSection() {
+    const sectionRef = useRef<HTMLElement>(null);
+    const [activeStep, setActiveStep] = useState(0);
+    const { scrollYProgress } = useScroll({
+        target: sectionRef,
+        offset: ['start start', 'end end'],
+    });
+
+    useMotionValueEvent(scrollYProgress, 'change', (progress) => {
+        const nextStep = Math.min(
+            steps.length - 1,
+            Math.floor(progress * steps.length),
+        );
+
+        setActiveStep(nextStep);
+    });
+
+    const { step, title, description, image } = steps[activeStep];
+    const fromLeft = activeStep % 2 === 0;
+
     return (
         <section
+            ref={sectionRef}
             id="usage"
-            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-white via-amber-50 to-white py-16 sm:py-24"
+            className="relative h-[400svh] scroll-mt-24 bg-gradient-to-b from-white via-amber-50 to-white"
         >
-            <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
-                <Reveal className="mx-auto max-w-2xl text-center">
-                    <span className="inline-block rounded-full border border-amber-300/60 bg-amber-100/60 px-4 py-1 font-bengali text-xs font-semibold tracking-wide text-amber-800">
+            <div className="sticky top-24 flex h-[calc(100svh-12rem)] flex-col overflow-hidden px-4 sm:px-6">
+                <Reveal className="mx-auto w-full max-w-5xl pt-5 text-center sm:pt-12">
+                    <span className="inline-block rounded-full border border-amber-300/60 bg-amber-100/60 px-4 py-1 font-bengali text-sm font-semibold tracking-wide text-amber-800 sm:text-base">
                         সঠিক ব্যবহার পদ্ধতি
                     </span>
-                    <h2 className="mt-4 font-bengali text-2xl font-bold text-stone-900 sm:text-3xl lg:text-4xl">
+                    <h2 className="mt-2 font-bengali text-3xl font-bold text-stone-900 sm:text-4xl">
                         ব্যবহারের নিয়ম
                     </h2>
                 </Reveal>
 
-                <div className="relative mt-16 space-y-20 sm:mt-24 sm:space-y-28">
-                    <div
-                        aria-hidden
-                        className="absolute inset-y-0 left-1/2 hidden w-1 -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-200 via-amber-400 to-amber-200 lg:block"
-                    />
+                <div className="mx-auto flex w-full max-w-5xl flex-1 items-center justify-center pb-8">
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                            key={activeStep}
+                            initial={{ opacity: 0, x: fromLeft ? -48 : 48 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: fromLeft ? 48 : -48 }}
+                            transition={{
+                                duration: 0.45,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
+                            aria-live="polite"
+                            className={`flex w-full flex-col items-center gap-4 sm:gap-8 lg:flex-row lg:gap-12 ${
+                                fromLeft ? '' : 'lg:flex-row-reverse'
+                            }`}
+                        >
+                            <div className="relative aspect-square w-[min(68vw,28svh)] max-w-sm shrink-0 overflow-hidden rounded-[2.5rem] border border-amber-200 bg-white/80 shadow-2xl shadow-amber-900/20 lg:w-96">
+                                <img
+                                    src={image}
+                                    alt={title}
+                                    className="size-full object-contain p-3"
+                                />
+                                <span className="absolute top-4 left-4 flex size-14 items-center justify-center rounded-2xl bg-stone-950/90 font-bengali text-xl font-bold text-amber-300 shadow-lg backdrop-blur-sm">
+                                    {step}
+                                </span>
+                            </div>
 
-                    {steps.map(({ step, title, description, image }, i) => {
-                        const fromLeft = i % 2 === 0;
-
-                        return (
-                            <motion.div
-                                key={step}
-                                initial={{ opacity: 0, x: fromLeft ? -80 : 80 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{
-                                    once: true,
-                                    margin: '0px 0px -100px 0px',
-                                }}
-                                transition={{
-                                    duration: 2.5,
-                                    ease: [0.16, 1, 0.3, 1],
-                                }}
-                                className={`group relative flex flex-col items-center gap-8 lg:flex-row lg:gap-12 ${
-                                    fromLeft ? '' : 'lg:flex-row-reverse'
+                            <div
+                                className={`w-full flex-1 text-center lg:text-left ${
+                                    fromLeft ? '' : 'lg:text-right'
                                 }`}
                             >
-                                <span
-                                    aria-hidden
-                                    className="absolute top-1/2 left-1/2 z-10 hidden size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-amber-50 bg-amber-500 shadow-[0_0_0_6px_rgba(251,191,36,0.25)] lg:block"
-                                />
-
-                                <div className="relative w-full max-w-sm shrink-0 lg:w-96">
-                                    <div
-                                        aria-hidden
-                                        className="absolute -inset-3 rounded-[2.75rem] bg-gradient-to-br from-amber-300/50 to-transparent opacity-80 blur-xl transition-opacity duration-1000 group-hover:opacity-100"
-                                    />
-                                    <TiltCard
-                                        strength={6}
-                                        className="relative aspect-square overflow-hidden rounded-[2.5rem] border border-amber-200 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30"
-                                    >
-                                        <motion.img
-                                            src={image}
-                                            alt={title}
-                                            whileHover={{ scale: 1.07 }}
-                                            transition={{
-                                                duration: 1.7,
-                                                ease: [0.16, 1, 0.3, 1],
-                                            }}
-                                            className="size-full object-cover"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 to-transparent" />
-                                        <span className="absolute top-5 left-5 flex size-14 items-center justify-center rounded-2xl bg-stone-950/90 font-bengali text-xl font-bold text-amber-300 shadow-lg backdrop-blur-sm">
-                                            {step}
-                                        </span>
-                                    </TiltCard>
-                                </div>
-
-                                <div
-                                    className={`flex-1 text-center lg:text-left ${
-                                        fromLeft ? '' : 'lg:text-right'
-                                    }`}
-                                >
-                                    <h3 className="font-bengali text-xl font-bold text-stone-900 sm:text-2xl">
-                                        {title}
-                                    </h3>
-                                    <p className="mx-auto mt-2 max-w-md font-bengali text-sm text-stone-600 sm:text-base lg:mx-0">
-                                        {description}
-                                    </p>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
+                                <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                                    {title}
+                                </h3>
+                                <p className="mx-auto mt-3 max-w-md font-bengali text-lg leading-relaxed text-stone-700 sm:text-xl lg:mx-0">
+                                    {description}
+                                </p>
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </div>
         </section>
