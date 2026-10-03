@@ -3,7 +3,6 @@ import {
     motion,
     useMotionValueEvent,
     useScroll,
-    useSpring,
     useTransform,
 } from 'motion/react';
 import cleanseImg from '../../../images/landing/cards/usage-clean-area-full.webp';
@@ -47,16 +46,13 @@ export default function UsageGuideSection() {
         target: sectionRef,
         offset: ['start start', 'end end'],
     });
-    const smoothScrollProgress = useSpring(scrollYProgress, {
-        stiffness: 125,
-        damping: 28,
-        mass: 0.7,
-        restDelta: 0.001,
-    });
-    const titleFontSize = useTransform(
+    // Raw scroll progress, so the step follows the finger one-to-one.
+    const smoothScrollProgress = scrollYProgress;
+    // Scale instead of animating font-size, which relayouts on every scroll frame.
+    const titleScale = useTransform(
         smoothScrollProgress,
         [0, titleSettleProgress],
-        ['clamp(2.5rem, 6vw, 4rem)', 'clamp(2rem, 4vw, 3rem)'],
+        [1.3, 1],
     );
     const titleTop = useTransform(
         smoothScrollProgress,
@@ -125,7 +121,7 @@ export default function UsageGuideSection() {
         <section
             ref={sectionRef}
             id="usage"
-            className="relative h-[2400svh] scroll-mt-24 bg-gradient-to-b from-white via-amber-50 to-white"
+            className="relative h-[500svh] scroll-mt-24 bg-gradient-to-b from-white via-amber-50 to-white"
         >
             <div className="relative sticky top-24 flex h-[calc(100svh-12rem)] flex-col overflow-hidden px-4 sm:px-6">
                 <motion.div
@@ -136,8 +132,8 @@ export default function UsageGuideSection() {
                         সঠিক ব্যবহার পদ্ধতি
                     </span>
                     <motion.h2
-                        style={{ fontSize: titleFontSize }}
-                        className="mt-2 font-bengali leading-tight font-bold text-stone-900"
+                        style={{ scale: titleScale }}
+                        className="mt-2 font-bengali text-[clamp(2rem,4vw,3rem)] leading-tight font-bold text-stone-900"
                     >
                         ব্যবহারের নিয়ম
                     </motion.h2>
@@ -158,13 +154,13 @@ export default function UsageGuideSection() {
                                 fromLeft ? '' : 'lg:flex-row-reverse'
                             }`}
                         >
-                            <div className="relative aspect-square w-[min(68vw,28svh)] max-w-sm shrink-0 overflow-hidden rounded-[2.5rem] border border-amber-200 bg-white/80 shadow-2xl shadow-amber-900/20 lg:w-[min(68vw,40svh)]">
+                            <div className="relative aspect-square w-[min(68vw,28svh)] max-w-sm shrink-0 overflow-hidden rounded-[2.5rem] border border-amber-200 bg-white/80 shadow-lg shadow-amber-900/20 sm:shadow-2xl lg:w-[min(68vw,40svh)]">
                                 <img
                                     src={image}
                                     alt={title}
                                     className="size-full rounded-[2.4rem] object-contain"
                                 />
-                                <span className="absolute top-3 left-3 flex size-9 items-center justify-center rounded-xl bg-stone-950/90 font-bengali text-base font-bold text-amber-300 shadow-lg backdrop-blur-sm sm:top-4 sm:left-4 sm:size-12 sm:rounded-2xl sm:text-xl">
+                                <span className="absolute top-3 left-3 flex size-9 items-center justify-center rounded-xl bg-stone-950/90 font-bengali text-base font-bold text-amber-300 shadow-lg sm:top-4 sm:left-4 sm:size-12 sm:rounded-2xl sm:text-xl">
                                     {step}
                                 </span>
                             </div>
