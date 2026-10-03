@@ -38,7 +38,7 @@ const steps = [
     },
 ];
 
-const titleSettleProgress = 0.12;
+const titleSettleProgress = 0.1;
 
 export default function UsageGuideSection() {
     const sectionRef = useRef<HTMLElement>(null);
@@ -48,7 +48,7 @@ export default function UsageGuideSection() {
         offset: ['start start', 'end end'],
     });
     const smoothScrollProgress = useSpring(scrollYProgress, {
-        stiffness: 110,
+        stiffness: 125,
         damping: 28,
         mass: 0.7,
         restDelta: 0.001,
@@ -117,7 +117,7 @@ export default function UsageGuideSection() {
         <section
             ref={sectionRef}
             id="usage"
-            className="relative h-[2000svh] scroll-mt-24 bg-gradient-to-b from-white via-amber-50 to-white"
+            className="relative h-[1800svh] scroll-mt-24 bg-gradient-to-b from-white via-amber-50 to-white"
         >
             <div className="relative sticky top-24 flex h-[calc(100svh-12rem)] flex-col overflow-hidden px-4 sm:px-6">
                 <motion.div
