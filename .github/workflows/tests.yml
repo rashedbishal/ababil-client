@@ -1,10 +1,11 @@
-name: tests
+name: ci-cd
 
 on:
   push:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -36,3 +37,82 @@ jobs:
 
       - name: Run CI Checks
         run: composer ci:check
+
+  deploy:
+    name: Deploy to Hostinger
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      - name: Install PHP dependencies (production)
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      # A throwaway .env just so `php artisan` can boot during the asset
+      # build (the Wayfinder Vite plugin shells out to artisan to generate
+      # resources/js/actions|routes). Never touches the real server .env.
+      - name: Prepare throwaway .env for the asset build
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Remove build-only .env
+        run: rm -f .env
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.DEPLOY_SSH_PORT }}" -H "${{ secrets.DEPLOY_SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync files to Hostinger
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.DEPLOY_SSH_PORT }}" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='.env' \
+            --exclude='.env.example' \
+            --exclude='public/storage' \
+            --exclude='storage/app/public' \
+            --exclude='storage/logs' \
+            --exclude='storage/framework/sessions' \
+            --exclude='storage/framework/views' \
+            --exclude='storage/framework/cache' \
+            --exclude='storage/framework/testing' \
+            ./ "${{ secrets.DEPLOY_SSH_USER }}@${{ secrets.DEPLOY_SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/"
+
+      - name: Run post-deploy commands
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "${{ secrets.DEPLOY_SSH_PORT }}" \
+            "${{ secrets.DEPLOY_SSH_USER }}@${{ secrets.DEPLOY_SSH_HOST }}" \
+            "bash ${{ secrets.DEPLOY_PATH }}/deploy/post-deploy.sh"
