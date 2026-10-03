@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import {
+    AnimatePresence,
     motion,
     useMotionValueEvent,
     useScroll,
@@ -107,12 +108,6 @@ export default function UsageGuideSection() {
         [0, 0.32, 0.82, 1],
         [0.96, 1, 1.05, 1.08],
     );
-    const stepX = useTransform(
-        stepProgress,
-        [0, 0.32, 0.82, 1],
-        [fromLeft ? -24 : 24, 0, 0, fromLeft ? 8 : -8],
-    );
-
     return (
         <section
             ref={sectionRef}
@@ -143,46 +138,57 @@ export default function UsageGuideSection() {
                         style={{
                             opacity: stepOpacity,
                             scale: stepScale,
-                            x: stepX,
                         }}
                         className="w-full"
                     >
-                        <motion.div
-                            aria-live="polite"
-                            className={`flex w-full flex-col items-center gap-4 sm:gap-8 lg:flex-row lg:gap-12 ${
-                                fromLeft ? '' : 'lg:flex-row-reverse'
-                            }`}
-                        >
-                            <div className="relative aspect-square w-[min(68vw,28svh)] max-w-sm shrink-0 overflow-hidden rounded-[2.5rem] border border-amber-200 bg-white/80 shadow-2xl shadow-amber-900/20 lg:w-[min(68vw,40svh)]">
-                                <img
-                                    src={image}
-                                    alt={title}
-                                    className="size-full rounded-[2.4rem] object-contain"
-                                />
-                                <span className="absolute top-3 left-3 flex size-9 items-center justify-center rounded-xl bg-stone-950/90 font-bengali text-base font-bold text-amber-300 shadow-lg backdrop-blur-sm sm:top-4 sm:left-4 sm:size-12 sm:rounded-2xl sm:text-xl">
-                                    {step}
-                                </span>
-                            </div>
-
-                            <div
-                                className={`w-full flex-1 text-center ${
-                                    fromLeft ? 'lg:text-left' : 'lg:text-right'
+                        <AnimatePresence mode="sync" initial={false}>
+                            <motion.div
+                                key={activeStep}
+                                initial={{ opacity: 0, x: '100%' }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: '-100%' }}
+                                transition={{
+                                    duration: 0.75,
+                                    ease: [0.22, 1, 0.36, 1],
+                                }}
+                                aria-live="polite"
+                                className={`flex w-full flex-col items-center gap-4 sm:gap-8 lg:flex-row lg:gap-12 ${
+                                    fromLeft ? '' : 'lg:flex-row-reverse'
                                 }`}
                             >
-                                <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
-                                    {title}
-                                </h3>
-                                <p
-                                    className={`mx-auto mt-3 w-full max-w-md font-bengali text-lg leading-relaxed text-stone-700 sm:text-xl ${
+                                <div className="relative aspect-square w-[min(68vw,28svh)] max-w-sm shrink-0 overflow-hidden rounded-[2.5rem] border border-amber-200 bg-white/80 shadow-2xl shadow-amber-900/20 lg:w-[min(68vw,40svh)]">
+                                    <img
+                                        src={image}
+                                        alt={title}
+                                        className="size-full rounded-[2.4rem] object-contain"
+                                    />
+                                    <span className="absolute top-3 left-3 flex size-9 items-center justify-center rounded-xl bg-stone-950/90 font-bengali text-base font-bold text-amber-300 shadow-lg backdrop-blur-sm sm:top-4 sm:left-4 sm:size-12 sm:rounded-2xl sm:text-xl">
+                                        {step}
+                                    </span>
+                                </div>
+
+                                <div
+                                    className={`w-full flex-1 text-center ${
                                         fromLeft
-                                            ? 'lg:mx-0 lg:text-left'
-                                            : 'lg:mr-0 lg:ml-auto lg:text-right'
+                                            ? 'lg:text-left'
+                                            : 'lg:text-right'
                                     }`}
                                 >
-                                    {description}
-                                </p>
-                            </div>
-                        </motion.div>
+                                    <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                                        {title}
+                                    </h3>
+                                    <p
+                                        className={`mx-auto mt-3 w-full max-w-md font-bengali text-lg leading-relaxed text-stone-700 sm:text-xl ${
+                                            fromLeft
+                                                ? 'lg:mx-0 lg:text-left'
+                                                : 'lg:mr-0 lg:ml-auto lg:text-right'
+                                        }`}
+                                    >
+                                        {description}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
                     </motion.div>
                 </motion.div>
             </div>

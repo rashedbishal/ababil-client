@@ -1,11 +1,18 @@
-import { motion } from 'motion/react';
-import warmingImg from '../../../images/landing/cards/usp-warming.webp';
-import nonstickyImg from '../../../images/landing/cards/usp-nonsticky.webp';
-import massageImg from '../../../images/landing/cards/usp-massage.webp';
-import skincareImg from '../../../images/landing/cards/usp-skincare.webp';
-import arnicaImg from '../../../images/landing/cards/ing-arnica.webp';
-import vitamineImg from '../../../images/landing/cards/ing-vitamine.webp';
-import Reveal from './motion/reveal';
+import {
+    motion,
+    type MotionValue,
+    useMotionValueEvent,
+    useScroll,
+    useSpring,
+    useTransform,
+} from 'motion/react';
+import { useRef, useState } from 'react';
+import warmingImg from '../../../images/landing/cards/usp-warming-original.webp';
+import nonstickyImg from '../../../images/landing/cards/usp-nonsticky-original.webp';
+import massageImg from '../../../images/landing/cards/usp-massage-original.webp';
+import skincareImg from '../../../images/landing/cards/usp-skincare-original.webp';
+import arnicaImg from '../../../images/landing/cards/usp-herbal-original.webp';
+import vitamineImg from '../../../images/landing/cards/usp-absorption-original.webp';
 import TiltCard from './motion/tilt-card';
 
 const bnDigits = ['১', '২', '৩', '৪', '৫', '৬'];
@@ -43,87 +50,174 @@ const usps = [
     },
 ];
 
+const titleSettleProgress = 0.12;
+
+function UspSlide({
+    item,
+    index,
+    progress,
+    active,
+}: {
+    item: (typeof usps)[number];
+    index: number;
+    progress: MotionValue<number>;
+    active: boolean;
+}) {
+    const itemRange = (1 - titleSettleProgress) / usps.length;
+    const itemProgress = useTransform(progress, (value) =>
+        Math.min(
+            1,
+            Math.max(
+                0,
+                (value - titleSettleProgress - index * itemRange) / itemRange,
+            ),
+        ),
+    );
+    const x = useTransform(
+        itemProgress,
+        [0, 0.18, 0.72, 1],
+        ['100%', '0%', '0%', '-100%'],
+    );
+    const opacity = useTransform(
+        itemProgress,
+        [0, 0.12, 0.84, 1],
+        [0, 1, 1, 0],
+    );
+    const scale = useTransform(
+        itemProgress,
+        [0, 0.22, 0.78, 1],
+        [0.98, 1, 1.03, 1.04],
+    );
+
+    return (
+        <motion.div
+            style={{ x, opacity, scale }}
+            aria-hidden={!active}
+            className={`absolute inset-0 flex flex-col items-center justify-center text-center ${
+                active ? 'pointer-events-auto' : 'pointer-events-none'
+            }`}
+        >
+            <div className="group relative">
+                <div
+                    aria-hidden
+                    className="absolute -inset-7 rounded-full bg-gradient-to-br from-amber-400/40 via-yellow-300/20 to-transparent opacity-80 blur-2xl transition-opacity duration-1000 group-hover:opacity-100"
+                />
+                <div
+                    aria-hidden
+                    className="animate-border-spin absolute -inset-2 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(251,191,36,0.95)_10%,transparent_26%,transparent_100%)] opacity-0 transition-opacity duration-1000 group-hover:opacity-100"
+                />
+                <TiltCard
+                    strength={8}
+                    glare={false}
+                    className="relative flex size-[min(78vw,48svh)] max-w-md items-center justify-center rounded-full border-4 border-amber-200 bg-white p-0 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30"
+                >
+                    <motion.img
+                        src={item.image}
+                        alt=""
+                        className="size-[70%] rounded-xl object-contain"
+                    />
+                </TiltCard>
+                <span className="absolute right-0 bottom-0 flex size-11 items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-lg sm:size-14 sm:text-lg">
+                    {bnDigits[index]}
+                </span>
+            </div>
+
+            <h3 className="mt-8 font-bengali text-xl font-bold text-stone-900 sm:text-2xl">
+                {item.title}
+            </h3>
+            <p className="mt-2 max-w-xs font-bengali text-sm text-stone-600 sm:text-base">
+                {item.description}
+            </p>
+        </motion.div>
+    );
+}
+
 export default function UspSection() {
+    const sectionRef = useRef<HTMLElement>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const { scrollYProgress } = useScroll({
+        target: sectionRef,
+        offset: ['start start', 'end end'],
+    });
+    const progress = useSpring(scrollYProgress, {
+        stiffness: 70,
+        damping: 24,
+        mass: 0.9,
+        restDelta: 0.001,
+    });
+    const titleFontSize = useTransform(
+        progress,
+        [0, titleSettleProgress],
+        ['clamp(2.5rem, 7vw, 4.5rem)', 'clamp(2rem, 4vw, 3rem)'],
+    );
+    const titleTop = useTransform(
+        progress,
+        [0, titleSettleProgress],
+        ['50%', '0%'],
+    );
+    const titleOffset = useTransform(
+        progress,
+        [0, titleSettleProgress],
+        ['-50%', '0%'],
+    );
+    const contentOpacity = useTransform(progress, (value) =>
+        Math.min(1, Math.max(0, value / titleSettleProgress)),
+    );
+    const contentY = useTransform(
+        progress,
+        (value) =>
+            36 * (1 - Math.min(1, Math.max(0, value / titleSettleProgress))),
+    );
+
+    useMotionValueEvent(progress, 'change', (value) => {
+        const itemProgress = Math.max(
+            0,
+            (value - titleSettleProgress) / (1 - titleSettleProgress),
+        );
+        const nextIndex = Math.min(
+            usps.length - 1,
+            Math.floor(itemProgress * usps.length + 0.01),
+        );
+
+        setActiveIndex(nextIndex);
+    });
+
     return (
         <section
+            ref={sectionRef}
             id="usp"
-            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 to-amber-100/60 py-16 sm:py-24"
+            className="relative h-[2400svh] scroll-mt-24 bg-gradient-to-b from-amber-50 to-amber-100/60"
         >
             <div
                 aria-hidden
                 className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(217,161,65,0.15),transparent_50%)]"
             />
-            <div className="relative mx-auto max-w-2xl px-4 sm:px-6">
-                <Reveal>
-                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl lg:text-4xl">
-                        কেন আবাবিল বেছে নেবেন
-                    </h2>
-                </Reveal>
+            <div className="relative sticky top-24 flex h-[calc(100svh-12rem)] flex-col overflow-hidden px-4 sm:px-6">
+                <motion.h2
+                    style={{
+                        top: titleTop,
+                        y: titleOffset,
+                        fontSize: titleFontSize,
+                    }}
+                    className="absolute inset-x-4 z-10 mx-auto w-auto max-w-5xl text-center font-bengali leading-tight font-bold text-stone-900"
+                >
+                    কেন আবাবিল বেছে নেবেন
+                </motion.h2>
 
-                <div className="relative mt-16 space-y-20 sm:mt-24 sm:space-y-28">
-                    <div
-                        aria-hidden
-                        className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-amber-400/60 to-transparent sm:block"
-                    />
-
-                    {usps.map(({ title, description, image }, i) => (
-                        <motion.div
-                            key={title}
-                            initial={{ opacity: 0, y: 80, scale: 0.75 }}
-                            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                            viewport={{
-                                once: true,
-                                margin: '0px 0px -100px 0px',
-                            }}
-                            transition={{
-                                duration: 2.6,
-                                ease: [0.16, 1, 0.3, 1],
-                            }}
-                            className={`group relative flex flex-col items-center text-center ${
-                                i % 2 === 0
-                                    ? 'sm:-translate-x-12'
-                                    : 'sm:translate-x-12'
-                            }`}
-                        >
-                            <div className="relative">
-                                <div
-                                    aria-hidden
-                                    className="absolute -inset-7 rounded-full bg-gradient-to-br from-amber-400/40 via-yellow-300/20 to-transparent opacity-80 blur-2xl transition-opacity duration-1000 group-hover:opacity-100"
-                                />
-                                <div
-                                    aria-hidden
-                                    className="animate-border-spin absolute -inset-2 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(251,191,36,0.95)_10%,transparent_26%,transparent_100%)] opacity-0 transition-opacity duration-1000 group-hover:opacity-100"
-                                />
-                                <TiltCard
-                                    strength={8}
-                                    glare={false}
-                                    className="relative flex size-44 items-center justify-center rounded-full border-4 border-amber-200 bg-white p-2 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30 sm:size-56"
-                                >
-                                    <motion.img
-                                        src={image}
-                                        alt=""
-                                        whileHover={{ scale: 1.08 }}
-                                        transition={{
-                                            duration: 1.6,
-                                            ease: [0.16, 1, 0.3, 1],
-                                        }}
-                                        className="size-full rounded-full object-cover"
-                                    />
-                                </TiltCard>
-                                <span className="absolute right-0 bottom-0 flex size-11 items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-lg sm:size-14 sm:text-lg">
-                                    {bnDigits[i]}
-                                </span>
-                            </div>
-
-                            <h3 className="mt-8 font-bengali text-xl font-bold text-stone-900 sm:text-2xl">
-                                {title}
-                            </h3>
-                            <p className="mt-2 max-w-xs font-bengali text-sm text-stone-600 sm:text-base">
-                                {description}
-                            </p>
-                        </motion.div>
+                <motion.div
+                    style={{ opacity: contentOpacity, y: contentY }}
+                    className="relative mx-auto flex w-full max-w-none flex-1 items-center justify-center overflow-hidden pt-20 pb-4 sm:pt-24 sm:pb-8"
+                >
+                    {usps.map((item, index) => (
+                        <UspSlide
+                            key={item.title}
+                            item={item}
+                            index={index}
+                            progress={progress}
+                            active={index === activeIndex}
+                        />
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     );
