@@ -1,7 +1,6 @@
-import { ArrowRight } from 'lucide-react';
 import Magnetic from './motion/magnetic';
 import Reveal from './motion/reveal';
-import { Button } from '@/components/ui/button';
+import OrderButton from './order-button';
 
 export default function OrderCtaBand({
     title,
@@ -25,16 +24,7 @@ export default function OrderCtaBand({
                 </div>
 
                 <Magnetic strength={0.25}>
-                    <Button
-                        asChild
-                        size="lg"
-                        className="gap-2 bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 font-bengali font-semibold text-stone-950 hover:brightness-105"
-                    >
-                        <a href="#order">
-                            অর্ডার করুন
-                            <ArrowRight className="size-4" />
-                        </a>
-                    </Button>
+                    <OrderButton>অর্ডার করুন</OrderButton>
                 </Magnetic>
             </Reveal>
         </div>

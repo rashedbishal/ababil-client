@@ -2,9 +2,9 @@ import { motion, useMotionTemplate, useSpring } from 'motion/react';
 import { useRef } from 'react';
 import heroImage from '../../../images/landing/ababil-oil.webp';
 import Magnetic from './motion/magnetic';
+import OrderButton from './order-button';
 import PriceReveal from './motion/price-reveal';
 import Reveal from './motion/reveal';
-import { Button } from '@/components/ui/button';
 
 const trustPoints = [
     'সারা বাংলাদেশে Cash on Delivery',
@@ -50,10 +50,6 @@ export default function HeroSection({
             className="relative overflow-hidden bg-gradient-to-br from-amber-200 via-yellow-300 to-amber-400 pt-10 pb-20 sm:pt-16 sm:pb-28"
         >
             {/* Ambient floating gold orbs */}
-            <div
-                aria-hidden
-                className="animate-float-slow absolute -top-20 -left-16 size-72 rounded-full bg-amber-100/50 blur-3xl"
-            />
             <div
                 aria-hidden
                 className="animate-float-slow absolute top-1/3 -right-20 size-96 rounded-full bg-yellow-100/40 blur-3xl"
@@ -114,13 +110,7 @@ export default function HeroSection({
 
                     <div className="mt-8">
                         <Magnetic className="inline-block">
-                            <Button
-                                asChild
-                                size="lg"
-                                className="w-full bg-stone-900 font-bengali text-base font-semibold text-amber-300 shadow-lg shadow-stone-900/20 hover:bg-stone-800 sm:w-auto"
-                            >
-                                <a href="#order">এখনই অর্ডার করুন</a>
-                            </Button>
+                            <OrderButton>এখনই অর্ডার করুন</OrderButton>
                         </Magnetic>
                     </div>
                 </Reveal>

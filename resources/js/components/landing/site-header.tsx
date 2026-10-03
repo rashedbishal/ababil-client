@@ -3,7 +3,7 @@ import { Phone } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import logo from '../../../images/landing/ababil-logo.webp';
 import Magnetic from './motion/magnetic';
-import { Button } from '@/components/ui/button';
+import OrderButton from './order-button';
 
 const navLinks = [
     { href: '#problem', label: 'সমস্যা' },
@@ -149,13 +149,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                         )}
 
                         <Magnetic strength={0.25}>
-                            <Button
-                                asChild
-                                size="sm"
-                                className="rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 bg-[length:200%_auto] font-bengali font-semibold text-stone-950 transition-[background-position] duration-1000 hover:bg-right"
-                            >
-                                <a href="#order">অর্ডার করুন</a>
-                            </Button>
+                            <OrderButton size="sm">অর্ডার করুন</OrderButton>
                         </Magnetic>
                     </div>
                 </motion.header>

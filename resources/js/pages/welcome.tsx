@@ -246,6 +246,10 @@ export default function Welcome({
                     />
                     <MarqueeStrip />
                     <ProblemSection />
+                    <OrderCtaBand
+                        title="ব্যথা যেখানেই হোক, আজই অর্ডার করুন"
+                        subtitle="ক্যাশ অন ডেলিভারি — সারা বাংলাদেশে"
+                    />
                     <UspSection />
                     <OrderCtaBand
                         title="এখনই অর্ডার করে পেয়ে যান আবাবিল"
@@ -253,8 +257,16 @@ export default function Welcome({
                     />
                     <IngredientsSection />
                     <NationwideSection />
+                    <OrderCtaBand
+                        title="হোম ডেলিভারিতে আজই পেয়ে যান আবাবিল"
+                        subtitle="সারা দেশে ঘরে বসেই পৌঁছে যাবে — ক্যাশ অন ডেলিভারি"
+                    />
                     <UsageGuideSection />
                     <SafetySection />
+                    <OrderCtaBand
+                        title="নিরাপদে ব্যবহার করুন, আজই অর্ডার করুন"
+                        subtitle="নির্দেশনা মেনে ব্যবহারে আবাবিল আপনার পাশে আছে"
+                    />
                     <TrustSection />
                     <TestimonialsSection />
                     <OrderCtaBand

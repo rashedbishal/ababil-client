@@ -1,4 +1,5 @@
 import { motion, useScroll, useTransform } from 'motion/react';
+import OrderButton from './order-button';
 
 export default function StickyOrderBar({ price }: { price: string }) {
     const { scrollY } = useScroll();
@@ -14,12 +15,7 @@ export default function StickyOrderBar({ price }: { price: string }) {
                 <p className="text-[11px] text-neutral-400">মূল্য</p>
                 <p className="text-lg font-bold text-amber-400">৳{price}</p>
             </div>
-            <a
-                href="#order"
-                className="rounded-lg bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 px-6 py-2.5 font-bengali text-sm font-semibold text-stone-950"
-            >
-                অর্ডার করুন
-            </a>
+            <OrderButton size="sm">অর্ডার করুন</OrderButton>
         </motion.div>
     );
 }
