@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true,
             // The seeded admin is the one and only mother admin - other
             // admins are created afterwards through the admin management UI.
+            // Real environments should replace these credentials with
+            // `php artisan ababil:mother-admin` instead of editing this seeder.
             'is_mother_admin' => true,
         ]);
 
