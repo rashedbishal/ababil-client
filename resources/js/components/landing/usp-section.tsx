@@ -51,22 +51,47 @@ const usps = [
 ];
 
 const titleSettleProgress = 0.02;
-// Cards start entering just before the title finishes settling.
-const slidesStart = 0.008;
+// Negative start: the first card is already partly on screen at the top.
+const slidesStart = -0.06;
+
+// Maps slot time to a sweep position. Speed is CENTER_SPEED + SIDE_BOOST·cos²(πt):
+// fast on entry and exit (7× the centre speed), CENTER_SPEED through the middle,
+// and never zero.
+const CENTER_SPEED = 0.6;
+const SIDE_BOOST = 3.6;
+const sweepRaw = (t: number) =>
+    CENTER_SPEED * t +
+    SIDE_BOOST * (t / 2 + Math.sin(2 * Math.PI * t) / (4 * Math.PI));
+// The position is capped at 1, so a card that reaches the far side early waits
+// off-screen (with opacity 0) until its slot ends.
+const sweepPace = (t: number) => Math.min(1, sweepRaw(t));
+// Slot time at which a card reaches the far side, found from the speed curve so
+// the last card finishes exactly at the end of the scroll.
+const sweepTimeTo = (target: number) => {
+    let lo = 0;
+    let hi = 1;
+    for (let i = 0; i < 60; i++) {
+        const mid = (lo + hi) / 2;
+        if (sweepRaw(mid) < target) lo = mid;
+        else hi = mid;
+    }
+    return lo;
+};
+// Slot time at which a card is off-screen (far side), and at which it is centred.
+const cardVisibleSpan = sweepTimeTo(1);
+const cardCentreSpan = sweepTimeTo(0.5);
 
 // Each card's slot overlaps the next by this fraction, so the next card starts
 // appearing while the current one is leaving.
-const slideSpan = 2;
-const slideStep = (1 - slidesStart) / (usps.length - 1 + slideSpan);
-
-// Maps linear time to a sweep position. Speed is 1 - 0.7·sin(πt): faster on
-// entry and exit, about 60% speed at the centre, and never zero, so the card
-// keeps drifting through the middle.
-const SWEEP_AMPLITUDE = 0.7;
-const sweepTotal = 1 - (2 * SWEEP_AMPLITUDE) / Math.PI;
-const sweepPace = (t: number) =>
-    (t - (SWEEP_AMPLITUDE * (1 - Math.cos(Math.PI * t))) / Math.PI) /
-    sweepTotal;
+// How many card-spacings a card travels while on screen. Larger means more
+// overlap with the next card, so a smaller gap.
+const cardTravelSteps = 3.5;
+const slideSpan = cardTravelSteps / cardVisibleSpan;
+// Chosen so the last card reaches the far side exactly at the end of the scroll.
+// The last card stops at the centre, so it only needs to travel to it.
+const slideStep =
+    (1 - slidesStart) /
+    (usps.length - 1 + (cardTravelSteps * cardCentreSpan) / cardVisibleSpan);
 
 function UspSlide({
     item,
@@ -79,8 +104,9 @@ function UspSlide({
     progress: MotionValue<number>;
     active: boolean;
 }) {
-    const itemProgress = useTransform(progress, (value) =>
-        sweepPace(
+    const isLast = index === usps.length - 1;
+    const itemProgress = useTransform(progress, (value) => {
+        const position = sweepPace(
             Math.min(
                 1,
                 Math.max(
@@ -89,8 +115,10 @@ function UspSlide({
                         (slideStep * slideSpan),
                 ),
             ),
-        ),
-    );
+        );
+        // The last card stays centred while the section scrolls away.
+        return isLast ? Math.min(position, 0.5) : position;
+    });
     // Position moves continuously across the whole slot, so the card never
     // stops. Only the fades use the entry and exit windows.
     const x = useTransform(itemProgress, [0, 1], ['100%', '-100%']);
@@ -101,7 +129,7 @@ function UspSlide({
         <motion.div
             style={{ x, opacity, scale }}
             aria-hidden={!active}
-            className={`absolute inset-0 flex flex-col items-center justify-center pt-20 pb-4 text-center sm:pb-8 ${
+            className={`absolute inset-0 flex flex-col items-center justify-center pt-20 pb-8 text-center sm:pb-12 ${
                 active ? 'pointer-events-auto' : 'pointer-events-none'
             }`}
         >
@@ -117,7 +145,7 @@ function UspSlide({
                 <TiltCard
                     strength={8}
                     glare={false}
-                    className="relative flex size-[min(78vw,48svh)] max-w-md items-center justify-center rounded-full border-4 border-amber-200 bg-white p-0 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30"
+                    className="relative flex size-[min(70vw,40svh)] max-w-md items-center justify-center rounded-full border-4 border-amber-200 bg-white p-0 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30"
                 >
                     <motion.img
                         src={item.image}
@@ -182,7 +210,7 @@ export default function UspSection() {
         const slot = (value - slidesStart) / slideStep;
         const nextIndex = Math.min(
             usps.length - 1,
-            Math.max(0, Math.round(slot - slideSpan / 2)),
+            Math.max(0, Math.round(slot - (cardVisibleSpan * slideSpan) / 2)),
         );
 
         setActiveIndex(nextIndex);
@@ -192,13 +220,13 @@ export default function UspSection() {
         <section
             ref={sectionRef}
             id="usp"
-            className="relative h-[4800svh] scroll-mt-24 bg-gradient-to-b from-amber-50 to-amber-100/60"
+            className="relative h-[2667svh] scroll-mt-24 bg-gradient-to-b from-amber-50 to-amber-100/60"
         >
             <div
                 aria-hidden
                 className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(217,161,65,0.15),transparent_50%)]"
             />
-            <div className="relative sticky top-24 flex h-[calc(100svh-12rem)] flex-col overflow-hidden px-4 sm:px-6">
+            <div className="relative sticky top-24 flex h-[calc(100svh-6rem)] flex-col overflow-hidden px-4 sm:px-6">
                 <motion.h2
                     style={{
                         top: titleTop,
