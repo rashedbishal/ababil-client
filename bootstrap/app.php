@@ -37,10 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // on every request regardless of config caching, so the usual
         // "env() breaks under config:cache" caveat doesn't apply to this
         // file the way it does inside config/*.php.
-        $trustedProxies = array_filter(array_map(
-            'trim',
-            explode(',', (string) env('TRUSTED_PROXIES', '')),
-        ));
+        // @phpstan-ignore larastan.noEnvCallsOutsideOfConfig (config() isn't bound yet here, see comment above)
+        $trustedProxiesEnv = (string) env('TRUSTED_PROXIES', '');
+
+        $trustedProxies = array_filter(array_map('trim', explode(',', $trustedProxiesEnv)));
 
         if ($trustedProxies !== []) {
             $middleware->trustProxies(
