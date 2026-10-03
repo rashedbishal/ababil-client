@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import {
-    AnimatePresence,
     motion,
     useMotionValueEvent,
     useScroll,
@@ -94,25 +93,39 @@ export default function UsageGuideSection() {
     const { step, title, description, image } = steps[activeStep];
     const fromLeft = activeStep % 2 === 0;
     const stepRange = (1 - titleSettleProgress) / steps.length;
-    const stepStart = titleSettleProgress + activeStep * stepRange;
-    const stepProgress = useTransform(smoothScrollProgress, (progress) =>
-        Math.min(1, Math.max(0, (progress - stepStart) / stepRange)),
-    );
+    // Position within the current step, derived from scroll progress itself so
+    // it never depends on the (possibly stale) activeStep value.
+    const stepProgress = useTransform(smoothScrollProgress, (progress) => {
+        const index = Math.min(
+            steps.length - 1,
+            Math.max(
+                0,
+                Math.floor((progress - titleSettleProgress) / stepRange),
+            ),
+        );
+        return Math.min(
+            1,
+            Math.max(
+                0,
+                (progress - titleSettleProgress - index * stepRange) /
+                    stepRange,
+            ),
+        );
+    });
+    // Fades in and out at the step edges, and keeps scaling slowly throughout so
+    // the card is never still. The step is at zero opacity at each boundary, so
+    // swapping the content there is invisible.
     const stepOpacity = useTransform(
         stepProgress,
-        [0, 0.12, 0.3, 0.7, 0.9, 1],
-        [0.08, 0.6, 1, 1, 0.6, 0.08],
+        [0, 0.3, 0.7, 1],
+        [0, 1, 1, 0],
     );
-    const stepScale = useTransform(
-        stepProgress,
-        [0, 0.32, 0.82, 1],
-        [0.96, 1, 1.05, 1.08],
-    );
+    const stepScale = useTransform(stepProgress, [0, 1], [0.94, 1.06]);
     return (
         <section
             ref={sectionRef}
             id="usage"
-            className="relative h-[1800svh] scroll-mt-24 bg-gradient-to-b from-white via-amber-50 to-white"
+            className="relative h-[2400svh] scroll-mt-24 bg-gradient-to-b from-white via-amber-50 to-white"
         >
             <div className="relative sticky top-24 flex h-[calc(100svh-12rem)] flex-col overflow-hidden px-4 sm:px-6">
                 <motion.div
@@ -135,60 +148,46 @@ export default function UsageGuideSection() {
                     className="mx-auto flex w-full max-w-5xl flex-1 items-center justify-center pt-16 pb-4 sm:pt-20 sm:pb-8"
                 >
                     <motion.div
-                        style={{
-                            opacity: stepOpacity,
-                            scale: stepScale,
-                        }}
+                        style={{ opacity: stepOpacity, scale: stepScale }}
                         className="w-full"
                     >
-                        <AnimatePresence mode="sync" initial={false}>
-                            <motion.div
-                                key={activeStep}
-                                initial={{ opacity: 0, x: '100%' }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: '-100%' }}
-                                transition={{
-                                    duration: 0.75,
-                                    ease: [0.22, 1, 0.36, 1],
-                                }}
-                                aria-live="polite"
-                                className={`flex w-full flex-col items-center gap-4 sm:gap-8 lg:flex-row lg:gap-12 ${
-                                    fromLeft ? '' : 'lg:flex-row-reverse'
+                        <div
+                            key={activeStep}
+                            aria-live="polite"
+                            className={`flex w-full flex-col items-center gap-4 sm:gap-8 lg:flex-row lg:gap-12 ${
+                                fromLeft ? '' : 'lg:flex-row-reverse'
+                            }`}
+                        >
+                            <div className="relative aspect-square w-[min(68vw,28svh)] max-w-sm shrink-0 overflow-hidden rounded-[2.5rem] border border-amber-200 bg-white/80 shadow-2xl shadow-amber-900/20 lg:w-[min(68vw,40svh)]">
+                                <img
+                                    src={image}
+                                    alt={title}
+                                    className="size-full rounded-[2.4rem] object-contain"
+                                />
+                                <span className="absolute top-3 left-3 flex size-9 items-center justify-center rounded-xl bg-stone-950/90 font-bengali text-base font-bold text-amber-300 shadow-lg backdrop-blur-sm sm:top-4 sm:left-4 sm:size-12 sm:rounded-2xl sm:text-xl">
+                                    {step}
+                                </span>
+                            </div>
+
+                            <div
+                                className={`w-full flex-1 text-center ${
+                                    fromLeft ? 'lg:text-left' : 'lg:text-right'
                                 }`}
                             >
-                                <div className="relative aspect-square w-[min(68vw,28svh)] max-w-sm shrink-0 overflow-hidden rounded-[2.5rem] border border-amber-200 bg-white/80 shadow-2xl shadow-amber-900/20 lg:w-[min(68vw,40svh)]">
-                                    <img
-                                        src={image}
-                                        alt={title}
-                                        className="size-full rounded-[2.4rem] object-contain"
-                                    />
-                                    <span className="absolute top-3 left-3 flex size-9 items-center justify-center rounded-xl bg-stone-950/90 font-bengali text-base font-bold text-amber-300 shadow-lg backdrop-blur-sm sm:top-4 sm:left-4 sm:size-12 sm:rounded-2xl sm:text-xl">
-                                        {step}
-                                    </span>
-                                </div>
-
-                                <div
-                                    className={`w-full flex-1 text-center ${
+                                <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
+                                    {title}
+                                </h3>
+                                <p
+                                    className={`mx-auto mt-3 w-full max-w-md font-bengali text-lg leading-relaxed text-stone-700 sm:text-xl ${
                                         fromLeft
-                                            ? 'lg:text-left'
-                                            : 'lg:text-right'
+                                            ? 'lg:mx-0 lg:text-left'
+                                            : 'lg:mr-0 lg:ml-auto lg:text-right'
                                     }`}
                                 >
-                                    <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
-                                        {title}
-                                    </h3>
-                                    <p
-                                        className={`mx-auto mt-3 w-full max-w-md font-bengali text-lg leading-relaxed text-stone-700 sm:text-xl ${
-                                            fromLeft
-                                                ? 'lg:mx-0 lg:text-left'
-                                                : 'lg:mr-0 lg:ml-auto lg:text-right'
-                                        }`}
-                                    >
-                                        {description}
-                                    </p>
-                                </div>
-                            </motion.div>
-                        </AnimatePresence>
+                                    {description}
+                                </p>
+                            </div>
+                        </div>
                     </motion.div>
                 </motion.div>
             </div>
