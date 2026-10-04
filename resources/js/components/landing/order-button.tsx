@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 /** Glowing, pulsing order CTA that draws the eye and reacts to hover and press. */
 export default function OrderButton({
     children,
-    href = '#order',
+    href = '#checkout',
     size = 'lg',
     className = '',
 }: {

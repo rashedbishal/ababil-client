@@ -11,6 +11,7 @@ const navLinks = [
     { href: '#ingredients', label: 'উপাদান' },
     { href: '#usage', label: 'ব্যবহার' },
     { href: '#reviews', label: 'রিভিউ' },
+    { href: '#checkout', label: 'পেমেন্ট' },
 ];
 
 export default function SiteHeader({ phone }: { phone: string | null }) {
@@ -25,33 +26,40 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
     const [activeHref, setActiveHref] = useState<string | null>(null);
 
     useEffect(() => {
-        const sections = navLinks
-            .map((link) => document.querySelector(link.href))
-            .filter((el): el is Element => el !== null);
+        const handleScroll = () => {
+            const scrollPos = window.scrollY + 180;
+            const totalHeight = document.documentElement.scrollHeight;
+            const viewportHeight = window.innerHeight;
 
-        if (sections.length === 0) {
-            return;
-        }
+            if (window.scrollY < 120) {
+                setActiveHref(null);
+                return;
+            }
 
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const visible = entries
-                    .filter((entry) => entry.isIntersecting)
-                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+            if (window.scrollY + viewportHeight >= totalHeight - 100) {
+                setActiveHref('#checkout');
+                return;
+            }
 
-                if (visible[0]) {
-                    setActiveHref(`#${visible[0].target.id}`);
+            let current: string | null = null;
+            for (const link of navLinks) {
+                const el = document.querySelector(link.href);
+                if (el) {
+                    const top = el.getBoundingClientRect().top + window.scrollY;
+                    if (scrollPos >= top - 60) {
+                        current = link.href;
+                    }
                 }
-            },
-            {
-                rootMargin: '-45% 0px -45% 0px',
-                threshold: [0, 0.25, 0.5, 0.75, 1],
-            },
-        );
+            }
 
-        sections.forEach((el) => observer.observe(el));
+            if (current) {
+                setActiveHref(current);
+            }
+        };
 
-        return () => observer.disconnect();
+        handleScroll();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     return (

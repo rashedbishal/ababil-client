@@ -90,7 +90,7 @@ export default function CheckoutSection({
     return (
         <section
             id="checkout"
-            className="scroll-mt-16 bg-gradient-to-b from-amber-100 via-amber-50 to-amber-100 py-14 select-none sm:py-20"
+            className="scroll-mt-24 bg-gradient-to-b from-amber-100 via-amber-50 to-amber-100 py-14 select-none sm:py-20"
         >
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <Reveal>
