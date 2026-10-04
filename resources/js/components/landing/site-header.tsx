@@ -1,5 +1,5 @@
-import { motion, useScroll, useTransform } from 'motion/react';
-import { Phone } from 'lucide-react';
+import { ChevronDown, Phone } from 'lucide-react';
+import { AnimatePresence, motion, useScroll, useTransform } from 'motion/react';
 import { useEffect, useState } from 'react';
 import logo from '../../../images/landing/ababil-logo.webp';
 import Magnetic from './motion/magnetic';
@@ -14,6 +14,16 @@ const navLinks = [
     { href: '#checkout', label: 'পেমেন্ট' },
 ];
 
+const mobileNavLinks = [
+    { href: '#top', label: 'হোম', icon: '🏠' },
+    { href: '#problem', label: 'সমস্যা', icon: '⚡' },
+    { href: '#usp', label: 'কেন আবাবিল', icon: '⭐' },
+    { href: '#ingredients', label: 'উপাদান', icon: '🌿' },
+    { href: '#usage', label: 'ব্যবহার', icon: '📖' },
+    { href: '#reviews', label: 'রিভিউ', icon: '💬' },
+    { href: '#checkout', label: 'পেমেন্ট', icon: '💳' },
+];
+
 export default function SiteHeader({ phone }: { phone: string | null }) {
     const { scrollY } = useScroll();
     const scale = useTransform(scrollY, [0, 160], [1, 0.97]);
@@ -24,36 +34,41 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
     );
 
     const [activeHref, setActiveHref] = useState<string | null>(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
-            const scrollPos = window.scrollY + 180;
-            const totalHeight = document.documentElement.scrollHeight;
+            const currentScroll = window.scrollY;
             const viewportHeight = window.innerHeight;
+            const totalHeight = document.documentElement.scrollHeight;
 
-            if (window.scrollY < 120) {
+            if (currentScroll < 120) {
                 setActiveHref(null);
                 return;
             }
 
-            if (window.scrollY + viewportHeight >= totalHeight - 100) {
+            if (currentScroll + viewportHeight >= totalHeight - 140) {
                 setActiveHref('#checkout');
                 return;
             }
 
-            let current: string | null = null;
+            const viewportTarget = currentScroll + viewportHeight * 0.35;
+            let currentActive: string | null = null;
+
             for (const link of navLinks) {
                 const el = document.querySelector(link.href);
                 if (el) {
-                    const top = el.getBoundingClientRect().top + window.scrollY;
-                    if (scrollPos >= top - 60) {
-                        current = link.href;
+                    const rect = el.getBoundingClientRect();
+                    const top = rect.top + currentScroll;
+                    const bottom = top + rect.height;
+                    if (viewportTarget >= top && viewportTarget <= bottom) {
+                        currentActive = link.href;
                     }
                 }
             }
 
-            if (current) {
-                setActiveHref(current);
+            if (currentActive) {
+                setActiveHref(currentActive);
             }
         };
 
@@ -61,6 +76,9 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const activeLink = navLinks.find((l) => l.href === activeHref);
+    const currentLabel = activeLink ? activeLink.label : 'আবাবিল';
 
     return (
         <div className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
@@ -80,6 +98,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                     style={{ boxShadow: shadow }}
                     className="relative flex items-center justify-between gap-2 rounded-full bg-stone-950/95 px-3 py-2 sm:gap-3 sm:px-5 sm:py-2.5 sm:backdrop-blur-xl"
                 >
+                    {/* Brand Logo */}
                     <a
                         href="#top"
                         className="group flex shrink-0 items-center gap-2"
@@ -93,13 +112,31 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                 stiffness: 150,
                                 damping: 20,
                             }}
-                            className="size-8 sm:size-9"
+                            className="size-7 sm:size-9"
                         />
                         <span className="font-bengali text-base font-semibold tracking-wide text-amber-300 transition-colors group-hover:text-amber-200 sm:text-lg">
                             আবাবিল
                         </span>
                     </a>
 
+                    {/* Mobile Section Pill Trigger */}
+                    <div className="relative flex items-center lg:hidden">
+                        <button
+                            type="button"
+                            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                            className="flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 font-bengali text-xs font-semibold text-amber-300 shadow-inner backdrop-blur-md transition-all active:scale-95 sm:px-3.5 sm:text-sm"
+                        >
+                            <span className="size-1.5 animate-pulse rounded-full bg-amber-400" />
+                            <span>{currentLabel}</span>
+                            <ChevronDown
+                                className={`size-3.5 text-amber-400/80 transition-transform duration-300 ${
+                                    isMobileMenuOpen ? 'rotate-180' : ''
+                                }`}
+                            />
+                        </button>
+                    </div>
+
+                    {/* Desktop Navigation Links */}
                     <nav className="hidden items-center gap-0.5 lg:flex">
                         {navLinks.map((link) => {
                             const isActive = activeHref === link.href;
@@ -132,6 +169,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                         })}
                     </nav>
 
+                    {/* Right Action Items */}
                     <div className="flex items-center gap-2 sm:gap-3">
                         {phone && (
                             <a
@@ -157,6 +195,71 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                         </Magnetic>
                     </div>
                 </motion.header>
+
+                {/* Mobile Dropdown Menu Overlay */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
+                            />
+
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.94, y: -10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.94, y: -10 }}
+                                transition={{
+                                    duration: 0.25,
+                                    ease: [0.16, 1, 0.3, 1],
+                                }}
+                                className="absolute top-full left-1/2 z-50 mt-2 w-[92vw] max-w-xs -translate-x-1/2 overflow-hidden rounded-2xl border border-amber-400/30 bg-stone-950/95 p-2 shadow-2xl backdrop-blur-2xl lg:hidden"
+                            >
+                                <div className="flex items-center justify-between border-b border-amber-400/15 px-3 py-2 font-bengali text-xs font-semibold text-amber-400/80">
+                                    <span>ন্যাভিগেশন মেনু</span>
+                                    <span className="size-1.5 rounded-full bg-amber-400" />
+                                </div>
+
+                                <div className="mt-1 flex flex-col gap-1">
+                                    {mobileNavLinks.map((link) => {
+                                        const isActive =
+                                            activeHref === link.href ||
+                                            (!activeHref &&
+                                                link.href === '#top');
+
+                                        return (
+                                            <a
+                                                key={link.href}
+                                                href={link.href}
+                                                onClick={() =>
+                                                    setIsMobileMenuOpen(false)
+                                                }
+                                                className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 font-bengali text-sm font-medium transition-all ${
+                                                    isActive
+                                                        ? 'bg-amber-400/15 font-bold text-amber-300 shadow-sm ring-1 ring-amber-400/40'
+                                                        : 'text-neutral-300 hover:bg-white/5 hover:text-white'
+                                                }`}
+                                            >
+                                                <span className="flex items-center gap-2.5">
+                                                    <span className="text-base">
+                                                        {link.icon}
+                                                    </span>
+                                                    <span>{link.label}</span>
+                                                </span>
+                                                {isActive && (
+                                                    <span className="size-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+                                                )}
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
             </motion.div>
         </div>
     );
