@@ -1,4 +1,4 @@
-import { motion, useInView, useMotionValue, useSpring } from 'motion/react';
+import { useInView, useMotionValue, useSpring } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 
 /**

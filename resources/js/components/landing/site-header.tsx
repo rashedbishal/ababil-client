@@ -55,7 +55,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
     }, []);
 
     return (
-        <div className="fixed top-0 inset-x-0 z-50 pointer-events-none px-3 pt-3 sm:px-4 sm:pt-4">
+        <div className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
             <motion.div
                 initial={{ opacity: 0, y: -48 }}
                 animate={{ opacity: 1, y: 0 }}

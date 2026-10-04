@@ -175,12 +175,13 @@ export default function TestimonialsSection() {
     };
 
     // Calculate real active index for indicator dots (0 to 6)
-    const activeDotIndex = ((currentIndex % TOTAL_ORIGINAL) + TOTAL_ORIGINAL) % TOTAL_ORIGINAL;
+    const activeDotIndex =
+        ((currentIndex % TOTAL_ORIGINAL) + TOTAL_ORIGINAL) % TOTAL_ORIGINAL;
 
     return (
         <section
             id="reviews"
-            className="relative scroll-mt-24 overflow-hidden bg-stone-950 py-16 sm:py-24 select-none"
+            className="relative scroll-mt-24 overflow-hidden bg-stone-950 py-16 select-none sm:py-24"
         >
             {/* Background Glow Effects */}
             <div
@@ -207,7 +208,8 @@ export default function TestimonialsSection() {
                         গ্রাহকদের ভিডিও অভিজ্ঞতা
                     </h2>
                     <p className="mx-auto mt-3 max-w-2xl font-bengali text-sm text-neutral-400 sm:text-base">
-                        আমাদের আসল গ্রাহকদের ভিডিও রিভিউ সরাসরি দেখুন। ১০০% অরিজিনাল অভিজ্ঞতা।
+                        আমাদের আসল গ্রাহকদের ভিডিও রিভিউ সরাসরি দেখুন। ১০০% অরিজিনাল
+                        অভিজ্ঞতা।
                     </p>
                 </Reveal>
 
@@ -218,24 +220,24 @@ export default function TestimonialsSection() {
                         type="button"
                         onClick={slidePrev}
                         aria-label="Previous video"
-                        className="group absolute -left-2 sm:-left-5 top-1/2 z-20 -translate-y-1/2 flex size-11 sm:size-13 items-center justify-center rounded-full border border-amber-400/30 bg-stone-900/80 text-amber-400 shadow-xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        className="group absolute top-1/2 -left-2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-amber-400/30 bg-stone-900/80 text-amber-400 shadow-xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:ring-2 focus:ring-amber-400 focus:outline-none sm:-left-5 sm:size-13"
                     >
-                        <ChevronLeft className="size-6 sm:size-7 transition-transform group-hover:-translate-x-0.5" />
+                        <ChevronLeft className="size-6 transition-transform group-hover:-translate-x-0.5 sm:size-7" />
                     </button>
 
                     <button
                         type="button"
                         onClick={slideNext}
                         aria-label="Next video"
-                        className="group absolute -right-2 sm:-right-5 top-1/2 z-20 -translate-y-1/2 flex size-11 sm:size-13 items-center justify-center rounded-full border border-amber-400/30 bg-stone-900/80 text-amber-400 shadow-xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        className="group absolute top-1/2 -right-2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-amber-400/30 bg-stone-900/80 text-amber-400 shadow-xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:ring-2 focus:ring-amber-400 focus:outline-none sm:-right-5 sm:size-13"
                     >
-                        <ChevronRight className="size-6 sm:size-7 transition-transform group-hover:translate-x-0.5" />
+                        <ChevronRight className="size-6 transition-transform group-hover:translate-x-0.5 sm:size-7" />
                     </button>
 
                     {/* Carousel Track Wrapper */}
                     <div
                         ref={sliderRef}
-                        className="overflow-hidden rounded-3xl py-4 touch-pan-y cursor-grab active:cursor-grabbing"
+                        className="cursor-grab touch-pan-y overflow-hidden rounded-3xl py-4 active:cursor-grabbing"
                         onPointerDown={handlePointerDown}
                         onPointerMove={handlePointerMove}
                         onPointerUp={handlePointerUp}
@@ -262,8 +264,10 @@ export default function TestimonialsSection() {
                                 return (
                                     <div
                                         key={`${item.id}-${index}`}
-                                        className="px-3 shrink-0"
-                                        style={{ width: `${100 / visibleCount}%` }}
+                                        className="shrink-0 px-3"
+                                        style={{
+                                            width: `${100 / visibleCount}%`,
+                                        }}
                                     >
                                         <div className="relative overflow-hidden rounded-[1.75rem] border border-amber-400/20 bg-gradient-to-b from-stone-900/90 via-stone-900/60 to-stone-950/90 p-4 shadow-2xl shadow-black/70 backdrop-blur-md transition-transform duration-300 hover:border-amber-400/40">
                                             {/* Top Header Badge inside Card */}
@@ -290,30 +294,34 @@ export default function TestimonialsSection() {
                                             </div>
 
                                             {/* 1080x1080p Square Video Container (Aspect Ratio 1:1) */}
-                                            <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-black border border-amber-500/20 shadow-inner group">
+                                            <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner">
                                                 {/* Disables pointer events on iframe while dragging slider */}
                                                 <iframe
                                                     src={embedUrl}
                                                     title={`Testimonial video by ${item.name}`}
                                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                                     allowFullScreen
-                                                    className={`h-full w-full object-cover rounded-2xl ${
-                                                        isDragging ? 'pointer-events-none' : ''
+                                                    className={`h-full w-full rounded-2xl object-cover ${
+                                                        isDragging
+                                                            ? 'pointer-events-none'
+                                                            : ''
                                                     }`}
                                                 />
                                             </div>
 
                                             {/* Bottom Card Meta & Stars */}
-                                            <div className="mt-4 pt-2 border-t border-amber-400/10">
+                                            <div className="mt-4 border-t border-amber-400/10 pt-2">
                                                 <div className="flex items-center gap-1 text-amber-400">
-                                                    {Array.from({ length: item.rating }).map((_, i) => (
+                                                    {Array.from({
+                                                        length: item.rating,
+                                                    }).map((_, i) => (
                                                         <Star
                                                             key={i}
                                                             className="size-4 fill-current"
                                                         />
                                                     ))}
                                                 </div>
-                                                <p className="mt-2 font-bengali text-sm font-medium leading-snug text-neutral-200 line-clamp-2">
+                                                <p className="mt-2 line-clamp-2 font-bengali text-sm leading-snug font-medium text-neutral-200">
                                                     “{item.title}”
                                                 </p>
                                             </div>
@@ -325,7 +333,7 @@ export default function TestimonialsSection() {
                     </div>
 
                     {/* Pagination / Indicator Dots */}
-                    <div className="mt-8 flex justify-center items-center gap-2">
+                    <div className="mt-8 flex items-center justify-center gap-2">
                         {videoTestimonials.map((_, index) => (
                             <button
                                 key={index}

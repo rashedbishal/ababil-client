@@ -68,7 +68,7 @@ export default function UsageGuideSection() {
     return (
         <section
             id="usage"
-            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-white via-amber-50/60 to-white py-14 sm:py-24 select-none"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-white via-amber-50/60 to-white py-14 select-none sm:py-24"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
@@ -90,16 +90,16 @@ export default function UsageGuideSection() {
                 </Reveal>
 
                 {/* Step Selector Tabs (১, ২, ৩, ৪) */}
-                <div className="mt-8 flex justify-center items-center gap-3 sm:gap-4">
+                <div className="mt-8 flex items-center justify-center gap-3 sm:gap-4">
                     {steps.map((item, idx) => (
                         <button
                             key={item.step}
                             type="button"
                             onClick={() => setActiveStep(idx)}
-                            className={`flex size-11 sm:size-14 items-center justify-center rounded-2xl font-bengali text-base sm:text-xl font-bold transition-all duration-300 shadow-md ${
+                            className={`flex size-11 items-center justify-center rounded-2xl font-bengali text-base font-bold shadow-md transition-all duration-300 sm:size-14 sm:text-xl ${
                                 idx === activeStep
-                                    ? 'bg-amber-400 text-stone-950 scale-110 ring-4 ring-amber-300/50 shadow-amber-500/30'
-                                    : 'bg-white text-stone-700 hover:bg-amber-100 border border-amber-200'
+                                    ? 'scale-110 bg-amber-400 text-stone-950 ring-4 shadow-amber-500/30 ring-amber-300/50'
+                                    : 'border border-amber-200 bg-white text-stone-700 hover:bg-amber-100'
                             }`}
                         >
                             {item.step}
@@ -108,52 +108,55 @@ export default function UsageGuideSection() {
                 </div>
 
                 {/* Liquid Fast Scaled Step Card Container */}
-                <div className="mt-10 sm:mt-14 flex flex-col items-center">
+                <div className="mt-10 flex flex-col items-center sm:mt-14">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeStep}
                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
                             animate={{ opacity: 1, scale: 1.05, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                            transition={{
+                                duration: 0.4,
+                                ease: [0.16, 1, 0.3, 1],
+                            }}
                             className="w-[92vw] max-w-4xl"
                         >
                             <TiltCard
                                 strength={6}
-                                className="relative overflow-hidden rounded-3xl border-2 border-amber-200/90 bg-white p-5 sm:p-8 lg:p-10 shadow-2xl shadow-amber-900/15"
+                                className="relative overflow-hidden rounded-3xl border-2 border-amber-200/90 bg-white p-5 shadow-2xl shadow-amber-900/15 sm:p-8 lg:p-10"
                             >
-                                <div className="flex flex-col lg:flex-row items-center gap-6 sm:gap-8 lg:gap-12">
+                                <div className="flex flex-col items-center gap-6 sm:gap-8 lg:flex-row lg:gap-12">
                                     {/* Large Scaled Image Container (Fills Mobile, Scaled up on Desktop) */}
-                                    <div className="relative w-full lg:w-1/2 aspect-square max-w-md shrink-0 overflow-hidden rounded-2xl border-2 border-amber-100 bg-stone-900 shadow-inner group">
+                                    <div className="group relative aspect-square w-full max-w-md shrink-0 overflow-hidden rounded-2xl border-2 border-amber-100 bg-stone-900 shadow-inner lg:w-1/2">
                                         <img
                                             src={current.image}
                                             alt={current.title}
                                             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
-                                        <span className="absolute top-4 left-4 flex size-12 sm:size-14 items-center justify-center rounded-2xl bg-stone-950/90 font-bengali text-xl sm:text-2xl font-bold text-amber-300 shadow-xl border border-amber-400/30">
+                                        <span className="absolute top-4 left-4 flex size-12 items-center justify-center rounded-2xl border border-amber-400/30 bg-stone-950/90 font-bengali text-xl font-bold text-amber-300 shadow-xl sm:size-14 sm:text-2xl">
                                             ধাপ {current.step}
                                         </span>
                                     </div>
 
                                     {/* Content Area */}
                                     <div className="flex-1 text-center lg:text-left">
-                                        <span className="font-bengali text-xs font-semibold text-amber-600 uppercase tracking-widest">
+                                        <span className="font-bengali text-xs font-semibold tracking-widest text-amber-600 uppercase">
                                             ধাপ {current.step} / ৪
                                         </span>
-                                        <h3 className="mt-2 font-bengali text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900">
+                                        <h3 className="mt-2 font-bengali text-2xl font-extrabold text-stone-900 sm:text-3xl lg:text-4xl">
                                             {current.title}
                                         </h3>
-                                        <p className="mt-4 font-bengali text-base sm:text-lg lg:text-xl leading-relaxed text-stone-700">
+                                        <p className="mt-4 font-bengali text-base leading-relaxed text-stone-700 sm:text-lg lg:text-xl">
                                             {current.description}
                                         </p>
 
                                         {/* Step Control Buttons */}
-                                        <div className="mt-8 flex items-center justify-center lg:justify-start gap-4">
+                                        <div className="mt-8 flex items-center justify-center gap-4 lg:justify-start">
                                             <button
                                                 type="button"
                                                 onClick={prevStep}
                                                 disabled={activeStep === 0}
-                                                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-amber-300 bg-amber-50 font-bengali text-sm font-semibold text-stone-800 transition hover:bg-amber-400 hover:text-stone-950 disabled:opacity-40 disabled:cursor-not-allowed"
+                                                className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 font-bengali text-sm font-semibold text-stone-800 transition hover:bg-amber-400 hover:text-stone-950 disabled:cursor-not-allowed disabled:opacity-40"
                                             >
                                                 <ChevronLeft className="size-4" />
                                                 পূর্ববর্তী
@@ -163,7 +166,7 @@ export default function UsageGuideSection() {
                                                 type="button"
                                                 onClick={nextStep}
                                                 disabled={isLastStep}
-                                                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-400 font-bengali text-sm font-bold text-stone-950 shadow-md transition hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                                                className="flex items-center gap-1.5 rounded-xl bg-amber-400 px-5 py-2.5 font-bengali text-sm font-bold text-stone-950 shadow-md transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
                                             >
                                                 পরবর্তী
                                                 <ChevronRight className="size-4" />

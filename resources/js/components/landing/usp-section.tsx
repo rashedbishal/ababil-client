@@ -139,18 +139,20 @@ export default function UspSection() {
 
     const handleDotClick = (index: number) => {
         setIsTransitioning(true);
-        const currentMod = ((currentIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
+        const currentMod =
+            ((currentIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
         const diff = index - currentMod;
         setCurrentIndex((prev) => prev + diff);
     };
 
     // Exact active dot index (0 to 5)
-    const activeDotIndex = ((currentIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
+    const activeDotIndex =
+        ((currentIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
 
     return (
         <section
             id="usp"
-            className="relative scroll-mt-24 bg-gradient-to-b from-amber-50 via-white to-amber-100/60 py-14 sm:py-20 overflow-hidden select-none"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 via-white to-amber-100/60 py-14 select-none sm:py-20"
         >
             {/* Background Ambient Glow */}
             <div
@@ -164,7 +166,7 @@ export default function UspSection() {
                     <span className="mx-auto inline-block rounded-full border border-amber-300/60 bg-amber-100/60 px-4 py-1 font-bengali text-xs font-semibold tracking-wide text-amber-800">
                         বিশেষ বৈশিষ্ট্যসমূহ
                     </span>
-                    <h2 className="mx-auto mt-3 max-w-xs sm:max-w-md text-center font-bengali text-2xl font-bold leading-tight text-stone-900 sm:text-3xl lg:text-4xl">
+                    <h2 className="mx-auto mt-3 max-w-xs text-center font-bengali text-2xl leading-tight font-bold text-stone-900 sm:max-w-md sm:text-3xl lg:text-4xl">
                         কেন আবাবিল বেছে নেবেন
                     </h2>
                 </Reveal>
@@ -176,7 +178,7 @@ export default function UspSection() {
                         type="button"
                         onClick={slidePrev}
                         aria-label="Previous feature"
-                        className="group absolute -left-2 sm:-left-5 top-1/3 z-20 -translate-y-1/2 flex size-11 sm:size-13 items-center justify-center rounded-full border border-amber-300/80 bg-white text-stone-800 shadow-xl transition-all hover:scale-110 hover:bg-amber-500 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        className="group absolute top-1/3 -left-2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-amber-300/80 bg-white text-stone-800 shadow-xl transition-all hover:scale-110 hover:bg-amber-500 hover:text-stone-950 focus:ring-2 focus:ring-amber-400 focus:outline-none sm:-left-5 sm:size-13"
                     >
                         <ChevronLeft className="size-6 transition-transform group-hover:-translate-x-0.5" />
                     </button>
@@ -185,14 +187,14 @@ export default function UspSection() {
                         type="button"
                         onClick={slideNext}
                         aria-label="Next feature"
-                        className="group absolute -right-2 sm:-right-5 top-1/3 z-20 -translate-y-1/2 flex size-11 sm:size-13 items-center justify-center rounded-full border border-amber-300/80 bg-white text-stone-800 shadow-xl transition-all hover:scale-110 hover:bg-amber-500 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        className="group absolute top-1/3 -right-2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-amber-300/80 bg-white text-stone-800 shadow-xl transition-all hover:scale-110 hover:bg-amber-500 hover:text-stone-950 focus:ring-2 focus:ring-amber-400 focus:outline-none sm:-right-5 sm:size-13"
                     >
                         <ChevronRight className="size-6 transition-transform group-hover:translate-x-0.5" />
                     </button>
 
                     {/* Touch & Mouse Drag Track */}
                     <div
-                        className="overflow-hidden py-4 touch-pan-y cursor-grab active:cursor-grabbing"
+                        className="cursor-grab touch-pan-y overflow-hidden py-4 active:cursor-grabbing"
                         onPointerDown={handlePointerDown}
                         onPointerMove={handlePointerMove}
                         onPointerUp={handlePointerUp}
@@ -218,8 +220,10 @@ export default function UspSection() {
                                 return (
                                     <div
                                         key={`${item.title}-${index}`}
-                                        className="px-3 shrink-0 flex flex-col items-center text-center"
-                                        style={{ width: `${100 / visibleCount}%` }}
+                                        className="flex shrink-0 flex-col items-center px-3 text-center"
+                                        style={{
+                                            width: `${100 / visibleCount}%`,
+                                        }}
                                     >
                                         <div className="group relative">
                                             {/* Outer Circle Ambient Glow */}
@@ -229,7 +233,7 @@ export default function UspSection() {
                                             />
 
                                             {/* Issue 1 Fix: Full Container Image Fill Frame */}
-                                            <div className="relative flex size-56 sm:size-64 md:size-72 items-center justify-center overflow-hidden rounded-full border-4 border-amber-300 bg-stone-900 shadow-xl shadow-amber-900/10 transition-transform duration-300 group-hover:scale-105">
+                                            <div className="relative flex size-56 items-center justify-center overflow-hidden rounded-full border-4 border-amber-300 bg-stone-900 shadow-xl shadow-amber-900/10 transition-transform duration-300 group-hover:scale-105 sm:size-64 md:size-72">
                                                 <img
                                                     src={item.image}
                                                     alt={item.title}
@@ -238,15 +242,15 @@ export default function UspSection() {
                                             </div>
 
                                             {/* Number Badge */}
-                                            <span className="absolute bottom-1 right-1 flex size-10 sm:size-12 items-center justify-center rounded-full border-3 border-amber-50 bg-stone-950 font-bengali text-sm sm:text-base font-bold text-amber-300 shadow-md">
+                                            <span className="absolute right-1 bottom-1 flex size-10 items-center justify-center rounded-full border-3 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-md sm:size-12 sm:text-base">
                                                 {bnDigits[realIndex]}
                                             </span>
                                         </div>
 
-                                        <h3 className="mt-6 font-bengali text-lg sm:text-xl font-bold text-stone-900">
+                                        <h3 className="mt-6 font-bengali text-lg font-bold text-stone-900 sm:text-xl">
                                             {item.title}
                                         </h3>
-                                        <p className="mt-2 max-w-xs font-bengali text-sm text-stone-600 leading-relaxed">
+                                        <p className="mt-2 max-w-xs font-bengali text-sm leading-relaxed text-stone-600">
                                             {item.description}
                                         </p>
                                     </div>
@@ -256,7 +260,7 @@ export default function UspSection() {
                     </div>
 
                     {/* Issue 3 Fix: Exactly 6 Indicator Dots matching card count */}
-                    <div className="mt-8 flex justify-center items-center gap-2">
+                    <div className="mt-8 flex items-center justify-center gap-2">
                         {usps.map((_, index) => (
                             <button
                                 key={index}
