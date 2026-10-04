@@ -1,16 +1,64 @@
-import { motion, useMotionTemplate, useSpring } from 'motion/react';
-import { useRef } from 'react';
-import heroImage from '../../../images/landing/ababil-oil.webp';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Magnetic from './motion/magnetic';
 import OrderButton from './order-button';
 import PriceReveal from './motion/price-reveal';
-import Reveal from './motion/reveal';
 
-const trustPoints = [
-    'সারা বাংলাদেশে Cash on Delivery',
-    'দ্রুত শোষিত হয়',
-    'আলাদা করে গরম করার প্রয়োজন নেই',
+interface HeroSlide {
+    id: number;
+    imageWebp: string;
+    imageJpeg: string;
+    alt: string;
+    badge: string;
+    tagline: string;
+}
+
+const heroSlides: HeroSlide[] = [
+    {
+        id: 1,
+        imageWebp: '/images/hero/IMG_3612.webp',
+        imageJpeg: '/images/hero/IMG_3612.JPEG',
+        alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ১',
+        badge: '১০০% অর্গানিক · ৯টি প্রাকৃতিক উপাদান',
+        tagline: 'হাঁটু, কোমর ও ঘাড় ব্যথায় দ্রত আরামদায়ক উপশম',
+    },
+    {
+        id: 2,
+        imageWebp: '/images/hero/IMG_3613.webp',
+        imageJpeg: '/images/hero/IMG_3613.JPEG',
+        alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ২',
+        badge: 'প্রিমিয়াম ভেষজ ফর্মুলা',
+        tagline: 'মহাঔষধী ভেষজের বিশেষ গুণসম্পন্ন ম্যাসাজ তেল',
+    },
+    {
+        id: 3,
+        imageWebp: '/images/hero/IMG_3614.webp',
+        imageJpeg: '/images/hero/IMG_3614.JPEG',
+        alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৩',
+        badge: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি',
+        tagline: 'ঘরে বসেই অর্ডার করুন, হাতে পেয়ে মূল্য পরিশোধ করুন',
+    },
+    {
+        id: 4,
+        imageWebp: '/images/hero/IMG_3615.webp',
+        imageJpeg: '/images/hero/IMG_3615.JPEG',
+        alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৪',
+        badge: '৩ দিনের মানি-ব্যাক গ্যারান্টি',
+        tagline: '১০০% ঝুঁকিমুক্ত কেনাকাটার নিশ্চয়তা',
+    },
+    {
+        id: 5,
+        imageWebp: '/images/hero/IMG_3616.webp',
+        imageJpeg: '/images/hero/IMG_3616.JPEG',
+        alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৫',
+        badge: '৫০০০+ সন্তুষ্ট গ্রাহকের ভরসা',
+        tagline: 'নিয়মিত ব্যবহারে জীবনের স্বাভাবিক গতি ফিরে পান',
+    },
 ];
+
+const BENGALI_NUMERALS = ['০১', '০২', '০৩', '০৪', '০৫'];
+const AUTO_PLAY_DURATION = 7000;
 
 export default function HeroSection({
     regularPrice,
@@ -19,124 +67,228 @@ export default function HeroSection({
     regularPrice: string;
     salePrice: string | null;
 }) {
-    const imageRef = useRef<HTMLDivElement>(null);
-    const rotateX = useSpring(0, { stiffness: 95, damping: 24 });
-    const rotateY = useSpring(0, { stiffness: 95, damping: 24 });
+    const [[page, direction], setPage] = useState([0, 0]);
+    const [isPaused, setIsPaused] = useState(false);
 
-    function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-        const rect = imageRef.current?.getBoundingClientRect();
+    const activeIndex = ((page % heroSlides.length) + heroSlides.length) % heroSlides.length;
+    const currentSlide = heroSlides[activeIndex];
 
-        if (!rect) {
-            return;
-        }
+    const paginate = useCallback((newDirection: number) => {
+        setPage(([prevPage]) => [prevPage + newDirection, newDirection]);
+    }, []);
 
-        const px = (e.clientX - rect.left) / rect.width;
-        const py = (e.clientY - rect.top) / rect.height;
+    useEffect(() => {
+        if (isPaused) return;
+        const timer = setInterval(() => {
+            paginate(1);
+        }, AUTO_PLAY_DURATION);
+        return () => clearInterval(timer);
+    }, [isPaused, paginate]);
 
-        rotateY.set((px - 0.5) * 16);
-        rotateX.set((0.5 - py) * 16);
-    }
-
-    function handleMouseLeave() {
-        rotateX.set(0);
-        rotateY.set(0);
-    }
-
-    const shadowOpacity = useMotionTemplate`drop-shadow(0 30px 40px rgb(120 72 0 / 0.35))`;
+    // Luxurious smooth slide transition variants
+    const slideVariants = {
+        enter: (dir: number) => ({
+            x: dir > 0 ? '4%' : '-4%',
+            opacity: 0,
+            scale: 1.02,
+            filter: 'blur(4px)',
+        }),
+        center: {
+            x: '0%',
+            opacity: 1,
+            scale: 1,
+            filter: 'blur(0px)',
+            transition: {
+                duration: 1.4,
+                ease: [0.16, 1, 0.3, 1],
+            },
+        },
+        exit: (dir: number) => ({
+            x: dir < 0 ? '4%' : '-4%',
+            opacity: 0,
+            scale: 0.98,
+            filter: 'blur(4px)',
+            transition: {
+                duration: 1.2,
+                ease: [0.16, 1, 0.3, 1],
+            },
+        }),
+    };
 
     return (
         <section
             id="top"
-            className="relative overflow-hidden bg-gradient-to-br from-amber-200 via-yellow-300 to-amber-400 pt-10 pb-20 sm:pt-16 sm:pb-28"
+            aria-label="Hero Wallpaper Slider"
+            className="relative w-full min-h-[70vh] sm:min-h-[85vh] lg:min-h-screen overflow-hidden bg-stone-950 select-none flex flex-col justify-between"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
         >
-            {/* Ambient floating gold orbs */}
+            {/* Ambient Lighting */}
             <div
                 aria-hidden
-                className="animate-float-slow absolute top-1/3 -right-20 size-96 rounded-full bg-yellow-100/40 blur-3xl"
-                style={{ animationDelay: '1.5s' }}
+                className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 size-[700px] rounded-full bg-amber-500/15 blur-[160px] z-10"
             />
             <div
                 aria-hidden
-                className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgb(120,72,0,0.06)_100%)]"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgb(120,72,0,0.15)_100%)] z-10"
             />
 
-            <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-8">
-                <Reveal className="order-2 text-center lg:order-1 lg:text-left">
-                    <span className="inline-block rounded-full border border-stone-900/15 bg-white/40 px-4 py-1 font-bengali text-xs font-semibold tracking-wide text-stone-800 backdrop-blur-sm">
-                        ১০০% অর্গানিক · ৯টি প্রাকৃতিক উপাদান
-                    </span>
-
-                    <h1 className="mt-4 font-bengali text-3xl leading-tight font-bold text-stone-900 sm:text-4xl lg:text-5xl">
-                        আবাবিল অর্গানিক
-                        <span className="animate-shimmer mt-1 block bg-gradient-to-r from-amber-700 via-stone-900 to-amber-700 bg-clip-text text-transparent">
-                            পেইন রিলিফ অয়েল
-                        </span>
-                    </h1>
-
-                    <p className="mt-4 font-bengali text-base text-stone-700 sm:text-lg">
-                        হাঁটু, ঘাড়, পিঠ ও কোমরের ব্যথায় দ্রুত আরাম দিতে ৯টি প্রাকৃতিক ভেষজ
-                        উপাদানে তৈরি প্রিমিয়াম পেইন রিলিফ অয়েল।
-                    </p>
-
-                    <div className="mt-6 flex items-center justify-center gap-3 font-bengali lg:justify-start">
-                        {salePrice && (
-                            <span className="text-2xl text-stone-500 line-through">
-                                ৳{regularPrice}
-                            </span>
-                        )}
-                        <span className="text-4xl font-bold text-stone-900">
-                            <PriceReveal
-                                prefix="৳"
-                                from={Number(regularPrice)}
-                                to={Number(salePrice ?? regularPrice)}
-                            />
-                        </span>
-                        <span className="text-sm text-stone-600">মাত্র</span>
-                    </div>
-
-                    <ul className="mt-6 space-y-2 font-bengali">
-                        {trustPoints.map((point) => (
-                            <li
-                                key={point}
-                                className="flex items-center justify-center gap-2 text-sm font-medium text-stone-800 lg:justify-start"
-                            >
-                                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-stone-900 text-[10px] text-amber-300">
-                                    ✓
-                                </span>
-                                {point}
-                            </li>
-                        ))}
-                    </ul>
-
-                    <div className="mt-8">
-                        <Magnetic className="inline-block">
-                            <OrderButton>এখনই অর্ডার করুন</OrderButton>
-                        </Magnetic>
-                    </div>
-                </Reveal>
-
+            {/* Auto-play Top Progress Line */}
+            <div className="absolute top-0 inset-x-0 z-40 h-1 bg-stone-900/60 overflow-hidden">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 2.0, ease: [0.16, 1, 0.3, 1] }}
-                    className="order-1 flex justify-center lg:order-2"
-                >
-                    <div
-                        ref={imageRef}
-                        onMouseMove={handleMouseMove}
-                        onMouseLeave={handleMouseLeave}
-                        style={{ perspective: 1000 }}
-                        className="relative flex size-full max-w-md items-center justify-center"
+                    key={page}
+                    initial={{ width: '0%' }}
+                    animate={{ width: isPaused ? '100%' : '100%' }}
+                    transition={{
+                        duration: isPaused ? 0 : AUTO_PLAY_DURATION / 1000,
+                        ease: 'linear',
+                    }}
+                    className="h-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 shadow-md shadow-amber-400/50"
+                />
+            </div>
+
+            {/* Full Screen Viewport Slider Container */}
+            <div className="relative w-full h-[70vh] sm:h-[85vh] lg:h-screen overflow-hidden">
+                <AnimatePresence initial={false} custom={direction} mode="sync">
+                    <motion.div
+                        key={page}
+                        custom={direction}
+                        variants={slideVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        className="absolute inset-0 size-full"
                     >
-                        <div className="absolute inset-0 rounded-full bg-white/30 blur-3xl" />
-                        <motion.img
-                            style={{ rotateX, rotateY, filter: shadowOpacity }}
-                            src={heroImage}
-                            alt="আবাবিল অর্গানিক পেইন রিলিফ অয়েল"
-                            className="animate-float-slow relative w-full max-w-sm will-change-transform"
+                        {/* Subtle Ken Burns Pan/Scale */}
+                        <motion.div
+                            initial={{ scale: 1.0 }}
+                            animate={{ scale: 1.04 }}
+                            transition={{
+                                duration: 8,
+                                ease: 'linear',
+                            }}
+                            className="relative size-full flex items-center justify-center bg-stone-950"
+                        >
+                            <picture className="size-full">
+                                <source
+                                    srcSet={currentSlide.imageWebp}
+                                    type="image/webp"
+                                />
+                                <img
+                                    src={currentSlide.imageJpeg}
+                                    alt={currentSlide.alt}
+                                    className="size-full object-cover object-center"
+                                />
+                            </picture>
+                        </motion.div>
+
+                        {/* Soft Vignette Overlay */}
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-black/40" />
+                    </motion.div>
+                </AnimatePresence>
+
+                {/* Top-Left Counter Badge (Positioned below floating header) */}
+                <div className="absolute top-20 left-4 sm:top-24 sm:left-8 z-30 flex items-center gap-2 rounded-full border border-amber-400/30 bg-stone-950/80 px-4 py-1.5 backdrop-blur-md shadow-lg">
+                    <span className="font-bengali text-sm font-bold text-amber-400">
+                        {BENGALI_NUMERALS[activeIndex]}
+                    </span>
+                    <span className="text-stone-600 text-xs">/</span>
+                    <span className="font-bengali text-xs sm:text-sm text-stone-400">
+                        ০৫
+                    </span>
+                </div>
+
+                {/* Left & Right Slider Arrow Buttons */}
+                <button
+                    type="button"
+                    onClick={() => paginate(-1)}
+                    aria-label="Previous slide"
+                    className="group absolute left-4 sm:left-8 top-1/2 z-30 -translate-y-1/2 flex size-11 sm:size-14 items-center justify-center rounded-full border border-amber-400/30 bg-stone-950/70 text-amber-400 shadow-2xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                >
+                    <ChevronLeft className="size-6 sm:size-8 transition-transform group-hover:-translate-x-0.5" />
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => paginate(1)}
+                    aria-label="Next slide"
+                    className="group absolute right-4 sm:right-8 top-1/2 z-30 -translate-y-1/2 flex size-11 sm:size-14 items-center justify-center rounded-full border border-amber-400/30 bg-stone-950/70 text-amber-400 shadow-2xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                >
+                    <ChevronRight className="size-6 sm:size-8 transition-transform group-hover:translate-x-0.5" />
+                </button>
+
+                {/* Floating CTA & Pricing Glassmorphic Overlay Box */}
+                <div className="absolute right-4 sm:right-10 lg:right-16 bottom-10 sm:bottom-14 lg:bottom-16 z-30 max-w-[92%] sm:max-w-md">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={currentSlide.id}
+                            initial={{ opacity: 0, y: 15, scale: 0.96 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -10, scale: 0.96 }}
+                            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                            className="rounded-2xl sm:rounded-3xl border border-amber-400/30 bg-stone-950/85 p-4 sm:p-6 shadow-2xl shadow-black/90 backdrop-blur-xl ring-1 ring-white/10"
+                        >
+                            <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 font-bengali text-xs font-semibold text-amber-300">
+                                    <Sparkles className="size-3 text-amber-400" />
+                                    {currentSlide.badge}
+                                </span>
+                            </div>
+
+                            <div className="mt-3 flex items-baseline gap-3 font-bengali">
+                                <span className="text-xs sm:text-sm text-stone-400">মূল্য:</span>
+                                {salePrice && (
+                                    <span className="text-lg sm:text-xl text-stone-500 line-through">
+                                        ৳{regularPrice}
+                                    </span>
+                                )}
+                                <span className="text-2xl sm:text-4xl font-extrabold text-amber-400 tracking-tight drop-shadow">
+                                    <PriceReveal
+                                        prefix="৳"
+                                        from={Number(regularPrice)}
+                                        to={Number(salePrice ?? regularPrice)}
+                                    />
+                                </span>
+                                <span className="text-xs text-amber-300/80 font-medium">
+                                    (ক্যাশ অন ডেলিভারি)
+                                </span>
+                            </div>
+
+                            <p className="mt-2 font-bengali text-xs sm:text-sm font-medium text-neutral-300 leading-snug">
+                                {currentSlide.tagline}
+                            </p>
+
+                            <div className="mt-4 pt-1">
+                                <Magnetic className="w-full">
+                                    <OrderButton
+                                        href="#order"
+                                        size="lg"
+                                        className="w-full shadow-xl shadow-amber-500/20"
+                                    >
+                                        এখনই অর্ডার করুন
+                                    </OrderButton>
+                                </Magnetic>
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
+
+                {/* Bottom Navigation Dots */}
+                <div className="absolute bottom-4 inset-x-0 z-30 flex justify-center items-center gap-2.5">
+                    {heroSlides.map((slide, index) => (
+                        <button
+                            key={slide.id}
+                            type="button"
+                            onClick={() => setPage([index, index > activeIndex ? 1 : -1])}
+                            aria-label={`Go to slide ${index + 1}`}
+                            className={`h-2.5 rounded-full transition-all duration-500 ${
+                                index === activeIndex
+                                    ? 'w-9 bg-amber-400 shadow-lg shadow-amber-400/50'
+                                    : 'w-2.5 bg-stone-700/80 hover:bg-stone-500 backdrop-blur-sm'
+                            }`}
                         />
-                    </div>
-                </motion.div>
+                    ))}
+                </div>
             </div>
         </section>
     );

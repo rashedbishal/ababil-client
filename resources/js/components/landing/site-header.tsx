@@ -55,13 +55,13 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
     }, []);
 
     return (
-        <div className="sticky top-0 z-40 px-3 pt-3 sm:px-4 sm:pt-4">
+        <div className="fixed top-0 inset-x-0 z-50 pointer-events-none px-3 pt-3 sm:px-4 sm:pt-4">
             <motion.div
                 initial={{ opacity: 0, y: -48 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 2.0, ease: [0.16, 1, 0.3, 1] }}
                 style={{ scale }}
-                className="relative mx-auto max-w-5xl rounded-full p-px"
+                className="pointer-events-auto relative mx-auto max-w-5xl rounded-full p-px"
             >
                 <div
                     aria-hidden
