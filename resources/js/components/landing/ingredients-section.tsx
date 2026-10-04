@@ -30,7 +30,7 @@ const ingredients = [
 ];
 
 const total = ingredients.length;
-const revolutionSeconds = 48;
+const revolutionSeconds = 20; // Faster 20s revolution cycle
 
 function circularOffset(index: number, progress: number) {
     const raw = index - progress;
@@ -49,12 +49,12 @@ function IngredientOrb({
     image: string | null;
 }) {
     const diff = useTransform(progress, (p) => circularOffset(index, p));
-    const x = useTransform(diff, (d) => `calc(-50% + ${d} * min(30vw, 190px))`);
+    const x = useTransform(diff, (d) => `calc(-50% + ${d} * min(40vw, 320px))`);
     const scale = useTransform(diff, (d) =>
-        Math.max(1.5 - Math.abs(d) * 0.2, 0.6),
+        Math.max(1.35 - Math.abs(d) * 0.2, 0.55),
     );
     const opacity = useTransform(diff, (d) =>
-        Math.max(1 - Math.abs(d) * 0.1, 0.45),
+        Math.max(1 - Math.abs(d) * 0.12, 0.45),
     );
     const rotateY = useTransform(diff, (d) => d * -14);
     const zIndex = useTransform(diff, (d) => Math.round(20 - Math.abs(d) * 2));
@@ -63,7 +63,7 @@ function IngredientOrb({
     return (
         <motion.div
             style={{ x, y: '-50%', scale, opacity, rotateY, zIndex }}
-            className="absolute top-1/2 left-1/2 flex w-20 shrink-0 flex-col items-center gap-2.5 sm:w-28 lg:w-32"
+            className="absolute top-1/2 left-1/2 flex w-28 shrink-0 flex-col items-center gap-3 sm:w-36 lg:w-44"
         >
             <div className="relative aspect-square w-full">
                 <motion.div
@@ -80,12 +80,12 @@ function IngredientOrb({
                         />
                     ) : (
                         <div className="flex size-full items-center justify-center text-amber-500">
-                            <Leaf className="size-9 lg:size-12" />
+                            <Leaf className="size-10 lg:size-14" />
                         </div>
                     )}
                 </div>
             </div>
-            <span className="text-center font-bengali text-xs leading-tight font-semibold text-nowrap text-stone-800 sm:text-sm">
+            <span className="text-center font-bengali text-xs leading-tight font-bold text-nowrap text-stone-800 sm:text-sm lg:text-base">
                 {name}
             </span>
         </motion.div>
@@ -120,7 +120,7 @@ export default function IngredientsSection() {
                 <Reveal delay={0.1} className="relative mt-12">
                     <div
                         style={{ perspective: '1600px' }}
-                        className="relative flex h-48 items-center justify-center overflow-x-hidden sm:h-60 lg:h-72"
+                        className="relative flex h-72 items-center justify-center overflow-x-hidden sm:h-88 lg:h-[400px]"
                     >
                         {ingredients.map(({ name, image }, i) => (
                             <IngredientOrb
