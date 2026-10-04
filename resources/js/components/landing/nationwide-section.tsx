@@ -108,11 +108,13 @@ export default function NationwideSection() {
                     >
                         <div
                             aria-hidden
-                            className="absolute inset-0 scale-90 rounded-full bg-white/25 blur-3xl"
+                            className="absolute inset-0 hidden scale-90 rounded-full bg-white/25 blur-3xl md:block"
                         />
                         <img
                             src={mapImage}
                             alt="সারা বাংলাদেশে আবাবিল হোম ডেলিভারি"
+                            loading="lazy"
+                            decoding="async"
                             className="relative w-full drop-shadow-[0_35px_45px_rgba(87,53,0,0.35)]"
                         />
                         {pins.map((pin, i) => (

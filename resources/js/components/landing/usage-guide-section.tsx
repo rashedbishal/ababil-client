@@ -131,6 +131,8 @@ export default function UsageGuideSection() {
                                         <img
                                             src={current.image}
                                             alt={current.title}
+                                            loading="lazy"
+                                            decoding="async"
                                             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
                                         <span className="absolute top-4 left-4 flex size-12 items-center justify-center rounded-2xl border border-amber-400/30 bg-stone-950/90 font-bengali text-xl font-bold text-amber-300 shadow-xl sm:size-14 sm:text-2xl">

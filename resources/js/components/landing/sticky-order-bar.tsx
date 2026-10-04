@@ -9,7 +9,7 @@ export default function StickyOrderBar({ price }: { price: string }) {
     return (
         <motion.div
             style={{ opacity, y }}
-            className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-amber-500/20 bg-stone-950/95 px-4 py-3 backdrop-blur-md sm:hidden"
+            className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-amber-500/20 bg-stone-950/95 px-4 py-3 sm:hidden"
         >
             <div className="font-bengali">
                 <p className="text-[11px] text-neutral-400">মূল্য</p>

@@ -6,7 +6,7 @@ export default function GuaranteeSection() {
         <section className="relative overflow-hidden bg-stone-950 py-14 sm:py-20">
             <div
                 aria-hidden
-                className="animate-float-slow absolute top-1/2 left-1/2 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/10 blur-3xl"
+                className="animate-float-slow absolute top-1/2 left-1/2 hidden size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/10 blur-3xl md:block"
             />
             <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
                 <Reveal>

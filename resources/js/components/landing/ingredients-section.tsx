@@ -69,13 +69,15 @@ function IngredientOrb({
                 <motion.div
                     aria-hidden
                     style={{ opacity: glow }}
-                    className="absolute -inset-6 rounded-full bg-gradient-to-br from-amber-400/50 via-yellow-300/20 to-transparent blur-2xl"
+                    className="absolute -inset-6 hidden rounded-full bg-gradient-to-br from-amber-400/50 via-yellow-300/20 to-transparent blur-2xl md:block"
                 />
                 <div className="relative size-full overflow-hidden rounded-full border-4 border-amber-300 bg-gradient-to-br from-amber-100 to-amber-50 shadow-2xl shadow-amber-900/20">
                     {image ? (
                         <img
                             src={image}
                             alt={name}
+                            loading="lazy"
+                            decoding="async"
                             className="size-full object-cover"
                         />
                     ) : (

@@ -229,7 +229,7 @@ export default function UspSection() {
                                             {/* Outer Circle Ambient Glow */}
                                             <div
                                                 aria-hidden
-                                                className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-amber-400/30 via-yellow-300/15 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
+                                                className="pointer-events-none absolute -inset-4 hidden rounded-full bg-gradient-to-br from-amber-400/30 via-yellow-300/15 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100 md:block"
                                             />
 
                                             {/* Issue 1 Fix: Full Container Image Fill Frame */}
@@ -237,6 +237,8 @@ export default function UspSection() {
                                                 <img
                                                     src={item.image}
                                                     alt={item.title}
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     className="size-full rounded-full object-cover"
                                                 />
                                             </div>

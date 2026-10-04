@@ -19,19 +19,9 @@ export default function OrderButton({
     return (
         <motion.a
             href={href}
-            whileHover={{ scale: 1.06, y: -2 }}
+            whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            animate={{
-                boxShadow: [
-                    '0 0 0 0 rgba(251,191,36,0.6), 0 10px 30px -8px rgba(217,119,6,0.6)',
-                    '0 0 0 16px rgba(251,191,36,0), 0 10px 40px -4px rgba(217,119,6,0.9)',
-                ],
-            }}
-            transition={{
-                boxShadow: { duration: 1.8, repeat: Infinity, ease: 'easeOut' },
-                scale: { type: 'spring', stiffness: 400, damping: 20 },
-            }}
-            className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 font-bengali font-bold text-stone-950 ring-2 ring-amber-200/80 ${
+            className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 font-bengali font-bold text-stone-950 shadow-xl ring-2 shadow-amber-500/25 ring-amber-200/80 transition-shadow hover:shadow-amber-500/40 ${
                 large ? 'px-10 py-4 text-lg sm:text-xl' : 'px-6 py-2.5 text-sm'
             } ${className}`}
         >

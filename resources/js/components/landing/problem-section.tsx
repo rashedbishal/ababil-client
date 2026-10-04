@@ -90,7 +90,7 @@ export default function ProblemSection() {
                                 <div className="relative w-full max-w-lg shrink-0 lg:w-[31rem]">
                                     <div
                                         aria-hidden
-                                        className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-amber-300/50 to-transparent opacity-80 blur-2xl transition-opacity duration-1000 group-hover:opacity-100"
+                                        className="absolute -inset-4 hidden rounded-[2.5rem] bg-gradient-to-br from-amber-300/50 to-transparent opacity-80 blur-2xl transition-opacity duration-1000 group-hover:opacity-100 md:block"
                                     />
                                     <TiltCard
                                         strength={7}
@@ -99,6 +99,8 @@ export default function ProblemSection() {
                                         <motion.img
                                             src={image}
                                             alt={label}
+                                            loading="lazy"
+                                            decoding="async"
                                             whileHover={{ scale: 1.08 }}
                                             transition={{
                                                 duration: 1.7,

@@ -8,6 +8,7 @@ import PriceReveal from './motion/price-reveal';
 interface HeroSlide {
     id: number;
     imageWebp: string;
+    imageWebpMobile: string;
     imageJpeg: string;
     alt: string;
     badge: string;
@@ -19,6 +20,7 @@ const heroSlides: HeroSlide[] = [
     {
         id: 1,
         imageWebp: '/images/hero/IMG_3612.webp',
+        imageWebpMobile: '/images/hero/IMG_3612_mobile.webp',
         imageJpeg: '/images/hero/IMG_3612.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ১',
         badge: '১০০% অর্গানিক · ৯টি ভেষজ উপাদান',
@@ -29,6 +31,7 @@ const heroSlides: HeroSlide[] = [
     {
         id: 2,
         imageWebp: '/images/hero/IMG_3613.webp',
+        imageWebpMobile: '/images/hero/IMG_3613_mobile.webp',
         imageJpeg: '/images/hero/IMG_3613.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ২',
         badge: 'প্রিমিয়াম ভেষজ ফর্মুলা',
@@ -39,6 +42,7 @@ const heroSlides: HeroSlide[] = [
     {
         id: 3,
         imageWebp: '/images/hero/IMG_3614.webp',
+        imageWebpMobile: '/images/hero/IMG_3614_mobile.webp',
         imageJpeg: '/images/hero/IMG_3614.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৩',
         badge: 'সারা বাংলাদেশে হোম ডেলিভারি',
@@ -49,6 +53,7 @@ const heroSlides: HeroSlide[] = [
     {
         id: 4,
         imageWebp: '/images/hero/IMG_3615.webp',
+        imageWebpMobile: '/images/hero/IMG_3615_mobile.webp',
         imageJpeg: '/images/hero/IMG_3615.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৪',
         badge: '৩ দিনের মানি-ব্যাক গ্যারান্টি',
@@ -59,6 +64,7 @@ const heroSlides: HeroSlide[] = [
     {
         id: 5,
         imageWebp: '/images/hero/IMG_3616.webp',
+        imageWebpMobile: '/images/hero/IMG_3616_mobile.webp',
         imageJpeg: '/images/hero/IMG_3616.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৫',
         badge: '৫০০০+ সন্তুষ্ট গ্রাহকের ভরসা',
@@ -138,7 +144,7 @@ export default function HeroSection({
             {/* Ambient Lighting */}
             <div
                 aria-hidden
-                className="pointer-events-none absolute -top-40 left-1/2 z-10 size-[700px] -translate-x-1/2 rounded-full bg-amber-500/15 blur-[160px]"
+                className="pointer-events-none absolute -top-40 left-1/2 z-10 hidden size-[700px] -translate-x-1/2 rounded-full bg-amber-500/15 blur-[160px] md:block"
             />
             <div
                 aria-hidden
@@ -183,12 +189,24 @@ export default function HeroSection({
                         >
                             <picture className="size-full">
                                 <source
+                                    media="(max-width: 767px)"
+                                    srcSet={currentSlide.imageWebpMobile}
+                                    type="image/webp"
+                                />
+                                <source
                                     srcSet={currentSlide.imageWebp}
                                     type="image/webp"
                                 />
                                 <img
                                     src={currentSlide.imageJpeg}
                                     alt={currentSlide.alt}
+                                    loading={
+                                        activeIndex === 0 ? 'eager' : 'lazy'
+                                    }
+                                    decoding="async"
+                                    fetchPriority={
+                                        activeIndex === 0 ? 'high' : 'auto'
+                                    }
                                     className="size-full object-cover object-center"
                                 />
                             </picture>

@@ -93,6 +93,9 @@ export default function TestimonialsSection() {
     const [visibleCount, setVisibleCount] = useState(3);
     const [isDragging, setIsDragging] = useState(false);
     const [dragDeltaX, setDragDeltaX] = useState(0);
+    const [activeVideos, setActiveVideos] = useState<Record<number, boolean>>(
+        {},
+    );
 
     const startXRef = useRef<number | null>(null);
     const sliderRef = useRef<HTMLDivElement>(null);
@@ -295,18 +298,49 @@ export default function TestimonialsSection() {
 
                                             {/* 1080x1080p Square Video Container (Aspect Ratio 1:1) */}
                                             <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner">
-                                                {/* Disables pointer events on iframe while dragging slider */}
-                                                <iframe
-                                                    src={embedUrl}
-                                                    title={`Testimonial video by ${item.name}`}
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                    allowFullScreen
-                                                    className={`h-full w-full rounded-2xl object-cover ${
-                                                        isDragging
-                                                            ? 'pointer-events-none'
-                                                            : ''
-                                                    }`}
-                                                />
+                                                {Math.abs(
+                                                    index - currentIndex,
+                                                ) <=
+                                                    visibleCount + 1 ||
+                                                activeVideos[index] ? (
+                                                    <iframe
+                                                        src={embedUrl}
+                                                        title={`Testimonial video by ${item.name}`}
+                                                        loading="lazy"
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                        allowFullScreen
+                                                        className={`h-full w-full rounded-2xl object-cover ${
+                                                            isDragging
+                                                                ? 'pointer-events-none'
+                                                                : ''
+                                                        }`}
+                                                    />
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setActiveVideos(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    [index]: true,
+                                                                }),
+                                                            )
+                                                        }
+                                                        aria-label={`Play testimonial video by ${item.name}`}
+                                                        className="relative flex size-full items-center justify-center bg-stone-900"
+                                                    >
+                                                        <img
+                                                            src={`https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`}
+                                                            alt={item.title}
+                                                            loading="lazy"
+                                                            decoding="async"
+                                                            className="size-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
+                                                        />
+                                                        <span className="absolute flex size-14 items-center justify-center rounded-full border border-amber-400/40 bg-stone-950/80 text-amber-400 shadow-xl backdrop-blur-sm transition-transform group-hover:scale-110">
+                                                            <Play className="size-6 fill-amber-400" />
+                                                        </span>
+                                                    </button>
+                                                )}
                                             </div>
 
                                             {/* Bottom Card Meta & Stars */}

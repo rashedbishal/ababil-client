@@ -74,7 +74,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
 
                 <motion.header
                     style={{ boxShadow: shadow }}
-                    className="relative flex items-center justify-between gap-2 rounded-full bg-stone-950/95 px-3 py-2 backdrop-blur-xl sm:gap-3 sm:px-5 sm:py-2.5"
+                    className="relative flex items-center justify-between gap-2 rounded-full bg-stone-950/95 px-3 py-2 sm:gap-3 sm:px-5 sm:py-2.5 sm:backdrop-blur-xl"
                 >
                     <a
                         href="#top"
