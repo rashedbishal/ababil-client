@@ -94,7 +94,7 @@ export default function ProblemSection() {
                                     />
                                     <TiltCard
                                         strength={7}
-                                        className="relative aspect-[4/5] overflow-hidden rounded-[2.25rem] border border-amber-200/80 bg-stone-950 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30"
+                                        className="relative overflow-hidden rounded-[2.25rem] border border-amber-200/80 bg-stone-950 shadow-2xl shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30"
                                     >
                                         <motion.img
                                             src={image}
@@ -106,9 +106,8 @@ export default function ProblemSection() {
                                                 duration: 1.7,
                                                 ease: [0.16, 1, 0.3, 1],
                                             }}
-                                            className="absolute inset-0 size-full object-cover"
+                                            className="block h-auto w-full object-contain"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/10 to-transparent" />
                                     </TiltCard>
                                     <span className="absolute -top-6 -left-6 flex size-[4.5rem] items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-2xl font-bold text-amber-300 shadow-lg">
                                         {bnDigits[i]}

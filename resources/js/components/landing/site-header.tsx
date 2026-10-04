@@ -65,10 +65,6 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
             >
                 <div
                     aria-hidden
-                    className="animate-border-spin absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(251,191,36,0.9)_8%,transparent_22%,transparent_100%)] opacity-70"
-                />
-                <div
-                    aria-hidden
                     className="absolute inset-0 rounded-full border border-amber-400/15"
                 />
 
