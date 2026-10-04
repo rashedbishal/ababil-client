@@ -1,18 +1,12 @@
-import {
-    motion,
-    type MotionValue,
-    useMotionValueEvent,
-    useScroll,
-    useTransform,
-} from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import warmingImg from '../../../images/landing/cards/usp-warming-original.webp';
 import nonstickyImg from '../../../images/landing/cards/usp-nonsticky-original.webp';
 import massageImg from '../../../images/landing/cards/usp-massage-original.webp';
 import skincareImg from '../../../images/landing/cards/usp-skincare-original.webp';
 import arnicaImg from '../../../images/landing/cards/usp-herbal-original.webp';
 import vitamineImg from '../../../images/landing/cards/usp-absorption-original.webp';
-import TiltCard from './motion/tilt-card';
+import Reveal from './motion/reveal';
 
 const bnDigits = ['১', '২', '৩', '৪', '৫', '৬'];
 
@@ -49,199 +43,235 @@ const usps = [
     },
 ];
 
-const titleSettleProgress = 0.02;
-// Negative start: the first card is already partly on screen at the top.
-const slidesStart = -0.06;
-// Scroll distance (in slot units) between one card and the next.
-const slideStep = (1 - slidesStart) / (usps.length - 1);
-const CARD_GAP = 16;
-const MAX_CARD = 448;
-
-// Distance between card centres: the circle's size plus a small gap, so cards
-// sit one right after another. Measured from the viewport, matching the
-// circle's min(70vw, 40svh) size with its max width.
-function getSpacing() {
-    if (typeof window === 'undefined') {
-        return 300;
-    }
-
-    const size = Math.min(
-        0.7 * window.innerWidth,
-        0.4 * window.innerHeight,
-        MAX_CARD,
-    );
-
-    return size + CARD_GAP;
-}
-
-function UspSlide({
-    item,
-    index,
-    position,
-    spacing,
-    active,
-}: {
-    item: (typeof usps)[number];
-    index: number;
-    position: MotionValue<number>;
-    spacing: number;
-    active: boolean;
-}) {
-    // position is the scroll position in card units; 0 means card 0 is centred.
-    const x = useTransform(position, (value) => (index - value) * spacing);
-    const scale = useTransform(position, (value) => {
-        const distance = Math.min(1, Math.abs(index - value));
-        return 1.2 - 0.5 * distance;
-    });
-    const opacity = useTransform(position, (value) => {
-        const distance = Math.abs(index - value);
-        return Math.max(0.3, 1 - 0.4 * distance);
-    });
-
-    return (
-        <motion.div
-            style={{
-                x,
-                scale,
-                opacity,
-                width: spacing - CARD_GAP,
-                left: '50%',
-                marginLeft: -(spacing - CARD_GAP) / 2,
-            }}
-            aria-hidden={!active}
-            className={`absolute inset-y-0 flex flex-col items-center justify-center pt-20 pb-8 text-center will-change-transform sm:pb-12 ${
-                active ? 'pointer-events-auto' : 'pointer-events-none'
-            }`}
-        >
-            <div className="group relative">
-                <div
-                    aria-hidden
-                    className="absolute -inset-7 hidden rounded-full bg-gradient-to-br from-amber-400/40 via-yellow-300/20 to-transparent opacity-80 blur-2xl transition-opacity duration-1000 group-hover:opacity-100 sm:block"
-                />
-                <div
-                    aria-hidden
-                    className="animate-border-spin absolute -inset-2 hidden rounded-full bg-[conic-gradient(from_0deg,transparent_0%,rgba(251,191,36,0.95)_10%,transparent_26%,transparent_100%)] opacity-0 transition-opacity duration-1000 group-hover:opacity-100 sm:block"
-                />
-                <TiltCard
-                    strength={8}
-                    glare={false}
-                    className="relative flex size-[min(70vw,40svh)] max-w-md items-center justify-center rounded-full border-4 border-amber-200 bg-white p-0 shadow-lg shadow-amber-900/20 transition-shadow duration-1000 group-hover:shadow-amber-500/30 sm:shadow-2xl"
-                >
-                    <motion.img
-                        src={item.image}
-                        alt=""
-                        className="size-[70%] rounded-xl object-contain"
-                    />
-                </TiltCard>
-                <span className="absolute right-0 bottom-0 flex size-11 items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-lg sm:size-14 sm:text-lg">
-                    {bnDigits[index]}
-                </span>
-            </div>
-
-            <h3 className="mt-8 font-bengali text-xl font-bold text-stone-900 sm:text-2xl">
-                {item.title}
-            </h3>
-            <p className="mt-2 max-w-xs font-bengali text-sm text-stone-600 sm:text-base">
-                {item.description}
-            </p>
-        </motion.div>
-    );
-}
+const TOTAL_USPS = usps.length; // 6 cards
+// Duplicate array 3 times for 100% seamless infinite looping
+const EXTENDED_USPS = [...usps, ...usps, ...usps];
+const AUTO_SLIDE_INTERVAL = 2000; // 2 seconds fast & frequent auto slide
 
 export default function UspSection() {
-    const sectionRef = useRef<HTMLElement>(null);
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [spacing, setSpacing] = useState(getSpacing);
-    const { scrollYProgress } = useScroll({
-        target: sectionRef,
-        offset: ['start start', 'end end'],
-    });
-    // Raw scroll progress, so the slide follows the finger one-to-one.
-    const progress = scrollYProgress;
-    // Scroll position in card units, shared by every card.
-    const position = useTransform(progress, (value) =>
-        Math.min(
-            usps.length - 1,
-            Math.max(0, (value - slidesStart) / slideStep),
-        ),
-    );
-    // Scale instead of animating font-size, which relayouts on every scroll frame.
-    const titleScale = useTransform(
-        progress,
-        [0, titleSettleProgress],
-        [1.3, 1],
-    );
-    const titleTop = useTransform(
-        progress,
-        [0, titleSettleProgress],
-        ['50%', '0%'],
-    );
-    const titleOffset = useTransform(
-        progress,
-        [0, titleSettleProgress],
-        ['-50%', '0%'],
-    );
-    const contentOpacity = useTransform(progress, (value) =>
-        Math.min(1, Math.max(0, value / titleSettleProgress)),
-    );
-    const contentY = useTransform(
-        progress,
-        (value) =>
-            36 * (1 - Math.min(1, Math.max(0, value / titleSettleProgress))),
-    );
+    // Start at middle loop set (index = TOTAL_USPS = 6)
+    const [currentIndex, setCurrentIndex] = useState(TOTAL_USPS);
+    const [isTransitioning, setIsTransitioning] = useState(true);
+    const [visibleCount, setVisibleCount] = useState(3);
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragDeltaX, setDragDeltaX] = useState(0);
 
-    useMotionValueEvent(position, 'change', (value) => {
-        setActiveIndex(Math.min(usps.length - 1, Math.round(value)));
-    });
+    const startXRef = useRef<number | null>(null);
 
+    // Dynamic responsive visible cards count
     useEffect(() => {
-        const onResize = () => setSpacing(getSpacing());
+        const updateVisibleCount = () => {
+            const width = window.innerWidth;
+            if (width >= 1024) {
+                setVisibleCount(3);
+            } else if (width >= 640) {
+                setVisibleCount(2);
+            } else {
+                setVisibleCount(1);
+            }
+        };
 
-        window.addEventListener('resize', onResize);
-
-        return () => window.removeEventListener('resize', onResize);
+        updateVisibleCount();
+        window.addEventListener('resize', updateVisibleCount);
+        return () => window.removeEventListener('resize', updateVisibleCount);
     }, []);
+
+    const slideNext = useCallback(() => {
+        if (!isTransitioning) setIsTransitioning(true);
+        setCurrentIndex((prev) => prev + 1);
+    }, [isTransitioning]);
+
+    const slidePrev = useCallback(() => {
+        if (!isTransitioning) setIsTransitioning(true);
+        setCurrentIndex((prev) => prev - 1);
+    }, [isTransitioning]);
+
+    // Fast, continuous auto-slide effect (never paused by mouse hover)
+    useEffect(() => {
+        if (isDragging) return;
+
+        const timer = setInterval(() => {
+            slideNext();
+        }, AUTO_SLIDE_INTERVAL);
+
+        return () => clearInterval(timer);
+    }, [isDragging, slideNext]);
+
+    // Seamless infinite loop jump when transition finishes
+    const handleTransitionEnd = () => {
+        if (currentIndex >= TOTAL_USPS * 2) {
+            setIsTransitioning(false);
+            setCurrentIndex(currentIndex - TOTAL_USPS);
+        } else if (currentIndex < TOTAL_USPS) {
+            setIsTransitioning(false);
+            setCurrentIndex(currentIndex + TOTAL_USPS);
+        }
+    };
+
+    // Pointer / Touch / Mouse Drag handlers
+    const handlePointerDown = (e: React.PointerEvent) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        startXRef.current = e.clientX;
+        setIsDragging(true);
+        setDragDeltaX(0);
+    };
+
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!isDragging || startXRef.current === null) return;
+        const deltaX = e.clientX - startXRef.current;
+        setDragDeltaX(deltaX);
+    };
+
+    const handlePointerUp = () => {
+        if (!isDragging) return;
+        setIsDragging(false);
+
+        const threshold = 40;
+        if (dragDeltaX < -threshold) {
+            slideNext();
+        } else if (dragDeltaX > threshold) {
+            slidePrev();
+        }
+
+        setDragDeltaX(0);
+        startXRef.current = null;
+    };
+
+    const handleDotClick = (index: number) => {
+        setIsTransitioning(true);
+        const currentMod = ((currentIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
+        const diff = index - currentMod;
+        setCurrentIndex((prev) => prev + diff);
+    };
+
+    // Exact active dot index (0 to 5)
+    const activeDotIndex = ((currentIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
 
     return (
         <section
-            ref={sectionRef}
             id="usp"
-            className="relative h-[700svh] scroll-mt-24 bg-gradient-to-b from-amber-50 to-amber-100/60"
+            className="relative scroll-mt-24 bg-gradient-to-b from-amber-50 via-white to-amber-100/60 py-14 sm:py-20 overflow-hidden select-none"
         >
+            {/* Background Ambient Glow */}
             <div
                 aria-hidden
-                className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(217,161,65,0.15),transparent_50%)]"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(217,161,65,0.12),transparent_60%)]"
             />
-            <div className="relative sticky top-24 flex h-[calc(100svh-6rem)] flex-col overflow-hidden px-4 sm:px-6">
-                <motion.h2
-                    style={{
-                        top: titleTop,
-                        y: titleOffset,
-                        scale: titleScale,
-                    }}
-                    className="absolute inset-x-4 z-10 mx-auto w-auto max-w-5xl text-center font-bengali text-[clamp(2rem,4vw,3rem)] leading-tight font-bold text-stone-900"
-                >
-                    কেন আবাবিল বেছে নেবেন
-                </motion.h2>
 
-                <motion.div
-                    style={{ opacity: contentOpacity, y: contentY }}
-                    className="relative mx-auto flex w-full max-w-none flex-1 items-center justify-center overflow-hidden"
-                >
-                    {/* Only cards near the centre are mounted; the rest are off-screen. */}
-                    {usps.map((item, index) =>
-                        Math.abs(index - activeIndex) <= 2 ? (
-                            <UspSlide
-                                key={item.title}
-                                item={item}
-                                index={index}
-                                position={position}
-                                spacing={spacing}
-                                active={index === activeIndex}
+            <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+                {/* Static Compact Narrow Header */}
+                <Reveal className="text-center">
+                    <span className="mx-auto inline-block rounded-full border border-amber-300/60 bg-amber-100/60 px-4 py-1 font-bengali text-xs font-semibold tracking-wide text-amber-800">
+                        বিশেষ বৈশিষ্ট্যসমূহ
+                    </span>
+                    <h2 className="mx-auto mt-3 max-w-xs sm:max-w-md text-center font-bengali text-2xl font-bold leading-tight text-stone-900 sm:text-3xl lg:text-4xl">
+                        কেন আবাবিল বেছে নেবেন
+                    </h2>
+                </Reveal>
+
+                {/* Infinite Loop Auto-Slider Container */}
+                <div className="relative mt-10 sm:mt-14">
+                    {/* Navigation Buttons */}
+                    <button
+                        type="button"
+                        onClick={slidePrev}
+                        aria-label="Previous feature"
+                        className="group absolute -left-2 sm:-left-5 top-1/3 z-20 -translate-y-1/2 flex size-11 sm:size-13 items-center justify-center rounded-full border border-amber-300/80 bg-white text-stone-800 shadow-xl transition-all hover:scale-110 hover:bg-amber-500 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    >
+                        <ChevronLeft className="size-6 transition-transform group-hover:-translate-x-0.5" />
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={slideNext}
+                        aria-label="Next feature"
+                        className="group absolute -right-2 sm:-right-5 top-1/3 z-20 -translate-y-1/2 flex size-11 sm:size-13 items-center justify-center rounded-full border border-amber-300/80 bg-white text-stone-800 shadow-xl transition-all hover:scale-110 hover:bg-amber-500 hover:text-stone-950 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    >
+                        <ChevronRight className="size-6 transition-transform group-hover:translate-x-0.5" />
+                    </button>
+
+                    {/* Touch & Mouse Drag Track */}
+                    <div
+                        className="overflow-hidden py-4 touch-pan-y cursor-grab active:cursor-grabbing"
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerLeave={handlePointerUp}
+                        onPointerCancel={handlePointerUp}
+                    >
+                        <div
+                            className={`flex ${
+                                isTransitioning && !isDragging
+                                    ? 'transition-transform duration-500 ease-out'
+                                    : ''
+                            }`}
+                            onTransitionEnd={handleTransitionEnd}
+                            style={{
+                                transform: `translateX(calc(-${
+                                    currentIndex * (100 / visibleCount)
+                                }% + ${dragDeltaX}px))`,
+                            }}
+                        >
+                            {EXTENDED_USPS.map((item, index) => {
+                                const realIndex = index % TOTAL_USPS;
+
+                                return (
+                                    <div
+                                        key={`${item.title}-${index}`}
+                                        className="px-3 shrink-0 flex flex-col items-center text-center"
+                                        style={{ width: `${100 / visibleCount}%` }}
+                                    >
+                                        <div className="group relative">
+                                            {/* Outer Circle Ambient Glow */}
+                                            <div
+                                                aria-hidden
+                                                className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-amber-400/30 via-yellow-300/15 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
+                                            />
+
+                                            {/* Issue 1 Fix: Full Container Image Fill Frame */}
+                                            <div className="relative flex size-56 sm:size-64 md:size-72 items-center justify-center overflow-hidden rounded-full border-4 border-amber-300 bg-stone-900 shadow-xl shadow-amber-900/10 transition-transform duration-300 group-hover:scale-105">
+                                                <img
+                                                    src={item.image}
+                                                    alt={item.title}
+                                                    className="size-full rounded-full object-cover"
+                                                />
+                                            </div>
+
+                                            {/* Number Badge */}
+                                            <span className="absolute bottom-1 right-1 flex size-10 sm:size-12 items-center justify-center rounded-full border-3 border-amber-50 bg-stone-950 font-bengali text-sm sm:text-base font-bold text-amber-300 shadow-md">
+                                                {bnDigits[realIndex]}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="mt-6 font-bengali text-lg sm:text-xl font-bold text-stone-900">
+                                            {item.title}
+                                        </h3>
+                                        <p className="mt-2 max-w-xs font-bengali text-sm text-stone-600 leading-relaxed">
+                                            {item.description}
+                                        </p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Issue 3 Fix: Exactly 6 Indicator Dots matching card count */}
+                    <div className="mt-8 flex justify-center items-center gap-2">
+                        {usps.map((_, index) => (
+                            <button
+                                key={index}
+                                type="button"
+                                onClick={() => handleDotClick(index)}
+                                aria-label={`Go to slide ${index + 1}`}
+                                className={`h-2.5 rounded-full transition-all duration-300 ${
+                                    index === activeDotIndex
+                                        ? 'w-8 bg-amber-500 shadow-md shadow-amber-500/40'
+                                        : 'w-2.5 bg-amber-200 hover:bg-amber-300'
+                                }`}
                             />
-                        ) : null,
-                    )}
-                </motion.div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </section>
     );
