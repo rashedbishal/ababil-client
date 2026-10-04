@@ -53,27 +53,10 @@ export default function PriceReveal({
     return (
         <span
             ref={ref}
-            className={`relative inline-block overflow-hidden tabular-nums ${className ?? ''}`}
+            className={`relative inline-block tabular-nums ${className ?? ''}`}
         >
             {prefix}
             {display}
-
-            {settled && (
-                <motion.span
-                    aria-hidden
-                    initial={{ x: '-130%', opacity: 0 }}
-                    animate={{ x: ['-130%', '230%'], opacity: [0, 1, 1, 0] }}
-                    transition={{
-                        duration: 2.7,
-                        times: [0, 0.2, 0.8, 1],
-                        delay: 0.3,
-                        repeat: Infinity,
-                        repeatDelay: 4.8,
-                        ease: [0.16, 1, 0.3, 1],
-                    }}
-                    className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/80 to-transparent mix-blend-overlay"
-                />
-            )}
         </span>
     );
 }

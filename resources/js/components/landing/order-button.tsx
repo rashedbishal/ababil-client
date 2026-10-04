@@ -37,7 +37,7 @@ export default function OrderButton({
         >
             <motion.span
                 aria-hidden
-                className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/70 to-transparent"
+                className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/35 to-transparent"
                 initial={{ x: '-150%' }}
                 animate={{ x: '350%' }}
                 transition={{

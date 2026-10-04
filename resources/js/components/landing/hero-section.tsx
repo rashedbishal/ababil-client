@@ -1,6 +1,6 @@
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Truck } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Magnetic from './motion/magnetic';
 import OrderButton from './order-button';
 import PriceReveal from './motion/price-reveal';
@@ -12,6 +12,7 @@ interface HeroSlide {
     alt: string;
     badge: string;
     tagline: string;
+    positionClass: string;
 }
 
 const heroSlides: HeroSlide[] = [
@@ -20,8 +21,9 @@ const heroSlides: HeroSlide[] = [
         imageWebp: '/images/hero/IMG_3612.webp',
         imageJpeg: '/images/hero/IMG_3612.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ১',
-        badge: '১০০% অর্গানিক · ৯টি প্রাকৃতিক উপাদান',
-        tagline: 'হাঁটু, কোমর ও ঘাড় ব্যথায় দ্রত আরামদায়ক উপশম',
+        badge: '১০০% অর্গানিক · ৯টি ভেষজ উপাদান',
+        tagline: 'হাঁটু, কোমর ও ঘাড় ব্যথায় দ্রুত আরামদায়ক উপশম',
+        positionClass: 'bottom-10 right-16 sm:bottom-14 sm:right-24 lg:right-32',
     },
     {
         id: 2,
@@ -30,14 +32,16 @@ const heroSlides: HeroSlide[] = [
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ২',
         badge: 'প্রিমিয়াম ভেষজ ফর্মুলা',
         tagline: 'মহাঔষধী ভেষজের বিশেষ গুণসম্পন্ন ম্যাসাজ তেল',
+        positionClass: 'top-16 sm:top-20 lg:top-24 right-14 sm:right-24 lg:right-32',
     },
     {
         id: 3,
         imageWebp: '/images/hero/IMG_3614.webp',
         imageJpeg: '/images/hero/IMG_3614.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৩',
-        badge: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি',
+        badge: 'সারা বাংলাদেশে হোম ডেলিভারি',
         tagline: 'ঘরে বসেই অর্ডার করুন, হাতে পেয়ে মূল্য পরিশোধ করুন',
+        positionClass: 'bottom-10 right-16 sm:bottom-16 sm:right-24 lg:right-32',
     },
     {
         id: 4,
@@ -46,6 +50,7 @@ const heroSlides: HeroSlide[] = [
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৪',
         badge: '৩ দিনের মানি-ব্যাক গ্যারান্টি',
         tagline: '১০০% ঝুঁকিমুক্ত কেনাকাটার নিশ্চয়তা',
+        positionClass: 'bottom-12 right-16 sm:bottom-16 sm:right-24 lg:right-32',
     },
     {
         id: 5,
@@ -54,6 +59,7 @@ const heroSlides: HeroSlide[] = [
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৫',
         badge: '৫০০০+ সন্তুষ্ট গ্রাহকের ভরসা',
         tagline: 'নিয়মিত ব্যবহারে জীবনের স্বাভাবিক গতি ফিরে পান',
+        positionClass: 'bottom-10 right-16 sm:bottom-14 sm:right-24 lg:right-32',
     },
 ];
 
@@ -187,7 +193,7 @@ export default function HeroSection({
                     </motion.div>
                 </AnimatePresence>
 
-                {/* Top-Left Counter Badge (Positioned below floating header) */}
+                {/* Top-Left Counter Badge */}
                 <div className="absolute top-20 left-4 sm:top-24 sm:left-8 z-30 flex items-center gap-2 rounded-full border border-amber-400/30 bg-stone-950/80 px-4 py-1.5 backdrop-blur-md shadow-lg">
                     <span className="font-bengali text-sm font-bold text-amber-400">
                         {BENGALI_NUMERALS[activeIndex]}
@@ -217,53 +223,60 @@ export default function HeroSection({
                     <ChevronRight className="size-6 sm:size-8 transition-transform group-hover:translate-x-0.5" />
                 </button>
 
-                {/* Floating CTA & Pricing Glassmorphic Overlay Box */}
-                <div className="absolute right-4 sm:right-10 lg:right-16 bottom-10 sm:bottom-14 lg:bottom-16 z-30 max-w-[92%] sm:max-w-md">
+                {/* Un-boxed Space-Efficient Floating CTA & Pricing Overlay */}
+                <div className={`absolute z-30 max-w-[calc(100vw-4.5rem)] sm:max-w-sm lg:max-w-md ${currentSlide.positionClass}`}>
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={currentSlide.id}
-                            initial={{ opacity: 0, y: 15, scale: 0.96 }}
+                            initial={{ opacity: 0, y: 12, scale: 0.96 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -10, scale: 0.96 }}
-                            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                            className="rounded-2xl sm:rounded-3xl border border-amber-400/30 bg-stone-950/85 p-4 sm:p-6 shadow-2xl shadow-black/90 backdrop-blur-xl ring-1 ring-white/10"
+                            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                            className="flex flex-col items-start gap-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.95)]"
                         >
-                            <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 font-bengali text-xs font-semibold text-amber-300">
+                            {/* Sleek Top Badges Row */}
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-stone-950/85 px-3 py-1 font-bengali text-[11px] sm:text-xs font-semibold text-amber-300 backdrop-blur-md shadow-md">
                                     <Sparkles className="size-3 text-amber-400" />
                                     {currentSlide.badge}
                                 </span>
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-950/85 px-3 py-1 font-bengali text-[11px] sm:text-xs font-semibold text-emerald-300 backdrop-blur-md shadow-md">
+                                    <span className="relative flex size-2">
+                                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                                        <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                                    </span>
+                                    <Truck className="size-3.5 text-emerald-400" />
+                                    ক্যাশ অন ডেলিভারি
+                                </span>
                             </div>
 
-                            <div className="mt-3 flex items-baseline gap-3 font-bengali">
-                                <span className="text-xs sm:text-sm text-stone-400">মূল্য:</span>
+                            {/* Clean Price Line */}
+                            <div className="flex items-baseline gap-3 font-bengali drop-shadow-lg">
                                 {salePrice && (
-                                    <span className="text-lg sm:text-xl text-stone-500 line-through">
+                                    <span className="text-base sm:text-xl text-stone-300 line-through opacity-85">
                                         ৳{regularPrice}
                                     </span>
                                 )}
-                                <span className="text-2xl sm:text-4xl font-extrabold text-amber-400 tracking-tight drop-shadow">
+                                <span className="text-3xl sm:text-5xl font-black text-amber-400 tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
                                     <PriceReveal
                                         prefix="৳"
                                         from={Number(regularPrice)}
                                         to={Number(salePrice ?? regularPrice)}
                                     />
                                 </span>
-                                <span className="text-xs text-amber-300/80 font-medium">
-                                    (ক্যাশ অন ডেলিভারি)
-                                </span>
+                                <span className="text-xs text-stone-300 font-medium">মাত্র</span>
                             </div>
 
-                            <p className="mt-2 font-bengali text-xs sm:text-sm font-medium text-neutral-300 leading-snug">
+                            <p className="font-bengali text-xs sm:text-sm font-medium text-neutral-100 max-w-xs sm:max-w-sm drop-shadow-md leading-snug">
                                 {currentSlide.tagline}
                             </p>
 
-                            <div className="mt-4 pt-1">
-                                <Magnetic className="w-full">
+                            <div className="mt-1">
+                                <Magnetic>
                                     <OrderButton
                                         href="#order"
-                                        size="lg"
-                                        className="w-full shadow-xl shadow-amber-500/20"
+                                        size="sm"
+                                        className="sm:px-8 sm:py-3.5 sm:text-lg shadow-lg shadow-amber-500/20"
                                     >
                                         এখনই অর্ডার করুন
                                     </OrderButton>
