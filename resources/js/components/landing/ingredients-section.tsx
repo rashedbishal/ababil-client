@@ -9,6 +9,9 @@ import { Leaf } from 'lucide-react';
 import angelicaImg from '../../../images/landing/cards/ing-angelica.webp';
 import arnicaImg from '../../../images/landing/cards/ing-arnica.webp';
 import boswelliaImg from '../../../images/landing/cards/ing-boswellia.webp';
+import chuanxiongImg from '../../../images/landing/cards/ing-chuanxiong.webp';
+import eucalyptusImg from '../../../images/landing/cards/ing-eucalyptus.webp';
+import laurocapramImg from '../../../images/landing/cards/ing-laurocapram.webp';
 import neroliImg from '../../../images/landing/cards/ing-neroli.webp';
 import teatreeImg from '../../../images/landing/cards/ing-teatree.webp';
 import vitamineImg from '../../../images/landing/cards/ing-vitamine.webp';
@@ -18,11 +21,11 @@ const ingredients = [
     { name: 'বোসওয়েলিয়া তেল', image: boswelliaImg },
     { name: 'আর্নিকা তেল', image: arnicaImg },
     { name: 'নেরোলি তেল', image: neroliImg },
-    { name: 'চুয়ানক্সিয়ং তেল', image: null },
+    { name: 'চুয়ানক্সিয়ং তেল', image: chuanxiongImg },
     { name: 'অ্যাঞ্জেলিকা তেল', image: angelicaImg },
-    { name: 'লরোক্যাপ্রাম', image: null },
+    { name: 'লরোক্যাপ্রাম', image: laurocapramImg },
     { name: 'টি ট্রি তেল', image: teatreeImg },
-    { name: 'ইউক্যালিপটাস তেল', image: null },
+    { name: 'ইউক্যালিপটাস তেল', image: eucalyptusImg },
     { name: 'ভিটামিন-ই তেল', image: vitamineImg },
 ];
 
