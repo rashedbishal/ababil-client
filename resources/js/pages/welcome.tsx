@@ -13,6 +13,7 @@ import MarqueeStrip from '@/components/landing/marquee-strip';
 import NationwideSection from '@/components/landing/nationwide-section';
 import OrderCtaBand from '@/components/landing/order-cta-band';
 import ProblemSection from '@/components/landing/problem-section';
+import ProductHighlightSection from '@/components/landing/product-highlight-section';
 import SafetySection from '@/components/landing/safety-section';
 import ScrollProgress from '@/components/landing/scroll-progress';
 import SiteFooter from '@/components/landing/site-footer';
@@ -240,11 +241,12 @@ export default function Welcome({
                 <SiteHeader phone={contact.phone} />
 
                 <main>
-                    <HeroSection
+                    <HeroSection />
+                    <MarqueeStrip />
+                    <ProductHighlightSection
                         regularPrice={product.regular_price}
                         salePrice={product.sale_price}
                     />
-                    <MarqueeStrip />
                     <ProblemSection />
                     <OrderCtaBand
                         title="ব্যথা যেখানেই হোক, আজই অর্ডার করুন"

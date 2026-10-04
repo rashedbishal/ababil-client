@@ -12,27 +12,27 @@ export default function QuantityStepper({
     max?: number;
 }) {
     return (
-        <div className="inline-flex items-center rounded-md border border-amber-200 bg-amber-50">
+        <div className="inline-flex w-fit items-center rounded-xl border border-amber-300 bg-amber-50/80 p-0.5 shadow-sm">
             <button
                 type="button"
                 onClick={() => onChange(Math.max(min, value - 1))}
                 disabled={value <= min}
-                className="flex size-9 items-center justify-center text-stone-600 transition hover:text-amber-700 disabled:pointer-events-none disabled:opacity-40"
+                className="flex size-8 items-center justify-center rounded-lg text-stone-700 transition hover:bg-amber-200/60 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
                 aria-label="পরিমাণ কমান"
             >
-                <Minus className="size-4" />
+                <Minus className="size-3.5" />
             </button>
-            <span className="w-10 text-center font-bengali text-sm font-semibold text-stone-900">
+            <span className="w-8 text-center font-bengali text-sm font-bold text-stone-900">
                 {value}
             </span>
             <button
                 type="button"
                 onClick={() => onChange(Math.min(max, value + 1))}
                 disabled={value >= max}
-                className="flex size-9 items-center justify-center text-stone-600 transition hover:text-amber-700 disabled:pointer-events-none disabled:opacity-40"
+                className="flex size-8 items-center justify-center rounded-lg text-stone-700 transition hover:bg-amber-200/60 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
                 aria-label="পরিমাণ বাড়ান"
             >
-                <Plus className="size-4" />
+                <Plus className="size-3.5" />
             </button>
         </div>
     );

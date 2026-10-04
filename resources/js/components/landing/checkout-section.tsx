@@ -1,6 +1,6 @@
-import { ShieldCheck } from 'lucide-react';
-import type { FormEvent } from 'react';
-import heroImage from '../../../images/landing/ababil-oil.webp';
+import { Sparkles, Star, Truck } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { type FormEvent, useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,8 +16,20 @@ import { Textarea } from '@/components/ui/textarea';
 import Reveal from './motion/reveal';
 import QuantityStepper from './quantity-stepper';
 
+import product1 from '../../../images/landing/product/product-1.webp';
+import product2 from '../../../images/landing/product/product-2.webp';
+import product3 from '../../../images/landing/product/product-3.webp';
+import product4 from '../../../images/landing/product/product-4.webp';
+
 const fieldClass =
     'border-amber-200 focus-visible:border-amber-400 focus-visible:ring-amber-400/30';
+
+const galleryImages = [
+    { id: 1, src: product1, alt: 'আবাবিল অয়েল ফ্রন্ট ভিউ' },
+    { id: 2, src: product2, alt: 'আবাবিল অয়েল এঙ্গেল ভিউ' },
+    { id: 3, src: product3, alt: 'আবাবিল অয়েল প্রফেশনাল ভিউ' },
+    { id: 4, src: product4, alt: 'আবাবিল অয়েল প্যাক ভিউ' },
+];
 
 type ShippingArea = {
     id: number;
@@ -72,122 +84,207 @@ export default function CheckoutSection({
     processing: boolean;
     onSubmit: (e: FormEvent) => void;
 }) {
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    const activeImage = galleryImages[selectedImageIndex];
+
     return (
         <section
-            id="order"
-            className="scroll-mt-16 bg-gradient-to-b from-amber-100 to-amber-50 py-14 sm:py-20"
+            id="checkout"
+            className="scroll-mt-16 bg-gradient-to-b from-amber-100 via-amber-50 to-amber-100 py-14 select-none sm:py-20"
         >
-            <div className="mx-auto max-w-5xl px-4 sm:px-6">
+            <div className="mx-auto max-w-6xl px-4 sm:px-6">
                 <Reveal>
-                    <h2 className="text-center font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
-                        অর্ডার করুন
-                    </h2>
-                    <p className="mt-2 text-center font-bengali text-sm text-stone-600">
-                        {productName}
-                    </p>
+                    <div className="text-center">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-amber-500/15 px-4 py-1 font-bengali text-xs font-semibold text-amber-800 shadow-sm">
+                            <Sparkles className="size-3.5 text-amber-600" />
+                            নিরাপদ অর্ডারিং
+                        </span>
+                        <h2 className="mt-3 font-bengali text-3xl font-extrabold text-stone-900 sm:text-4xl">
+                            পণ্য নির্বাচন ও অর্ডার ফরম
+                        </h2>
+                        <p className="mt-2 font-bengali text-sm text-stone-600 sm:text-base">
+                            {productName} — ছবি দেখে সহজেই নিচে অর্ডার সম্পন্ন করুন
+                        </p>
+                    </div>
                 </Reveal>
 
-                <Reveal delay={0.1}>
-                    <form
-                        onSubmit={onSubmit}
-                        className="mt-8 font-bengali lg:grid lg:grid-cols-[1fr_22rem] lg:items-start lg:gap-6"
-                    >
-                        {/* Honeypot: hidden off-screen from real visitors and
-                            unreachable by keyboard/screen readers. Bots that
-                            blindly autofill every field trip it. */}
-                        <div
-                            className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
-                            aria-hidden="true"
-                        >
-                            <input
-                                type="text"
-                                name="website"
-                                value={honeypotValue}
-                                onChange={(e) =>
-                                    onHoneypotChange(e.target.value)
-                                }
-                                tabIndex={-1}
-                                autoComplete="off"
-                            />
-                        </div>
+                {/* 2-Column Integrated Layout: Big Product Selection & Order Form */}
+                <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-start">
+                    {/* Left Column: Big Product Viewer Window */}
+                    <div className="flex flex-col space-y-6 lg:col-span-6">
+                        <Reveal>
+                            {/* Big Product Image Window */}
+                            <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-300/80 bg-stone-950 p-6 shadow-2xl shadow-amber-900/20">
+                                <div
+                                    aria-hidden
+                                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.18),transparent_70%)]"
+                                />
 
-                        <div className="space-y-5 rounded-2xl border border-amber-200 bg-white p-6 shadow-xl shadow-amber-900/5 sm:p-8">
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div className="grid gap-2">
-                                    <Label
-                                        htmlFor="customer_name"
-                                        className="text-stone-700"
-                                    >
-                                        পূর্ণ নাম
-                                    </Label>
-                                    <Input
-                                        id="customer_name"
-                                        value={customerName}
-                                        onChange={(e) =>
-                                            onCustomerNameChange(e.target.value)
+                                <AnimatePresence mode="wait">
+                                    <motion.img
+                                        key={activeImage.id}
+                                        src={activeImage.src}
+                                        alt={activeImage.alt}
+                                        initial={{ opacity: 0, scale: 0.94 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.94 }}
+                                        transition={{
+                                            duration: 0.35,
+                                            ease: [0.16, 1, 0.3, 1],
+                                        }}
+                                        className="relative max-h-full w-auto object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)]"
+                                    />
+                                </AnimatePresence>
+
+                                {/* Rating Badge */}
+                                <div className="absolute top-4 left-4 flex items-center gap-1 rounded-full border border-amber-400/40 bg-stone-950/85 px-3 py-1 font-bengali text-xs font-semibold text-amber-300 shadow-md backdrop-blur-md">
+                                    <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                                    <span>১০০% প্রিমিয়াম কোয়ালিটি</span>
+                                </div>
+                            </div>
+
+                            {/* Smaller Thumbnail Selection Windows */}
+                            <div className="mt-4 grid grid-cols-4 gap-3">
+                                {galleryImages.map((img, idx) => (
+                                    <button
+                                        key={img.id}
+                                        type="button"
+                                        onClick={() =>
+                                            setSelectedImageIndex(idx)
                                         }
-                                        placeholder="আপনার নাম লিখুন"
-                                        className={fieldClass}
-                                        required
+                                        className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border-2 p-1.5 transition-all duration-300 ${
+                                            idx === selectedImageIndex
+                                                ? 'scale-105 border-amber-500 bg-amber-500/10 shadow-md ring-2 ring-amber-400/50'
+                                                : 'border-amber-200 bg-white opacity-75 hover:border-amber-400 hover:opacity-100'
+                                        }`}
+                                    >
+                                        <img
+                                            src={img.src}
+                                            alt={img.alt}
+                                            className="size-full object-contain"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        </Reveal>
+                    </div>
+
+                    {/* Right Column: Integrated Order Form & Checkout Summary */}
+                    <div className="lg:col-span-6">
+                        <Reveal delay={0.1}>
+                            <form
+                                onSubmit={onSubmit}
+                                className="space-y-5 rounded-3xl border border-amber-200 bg-white p-6 font-bengali shadow-xl shadow-amber-900/10 sm:p-8"
+                            >
+                                {/* Anti-Spam Honeypot */}
+                                <div
+                                    className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+                                    aria-hidden="true"
+                                >
+                                    <input
+                                        type="text"
+                                        name="website"
+                                        value={honeypotValue}
+                                        onChange={(e) =>
+                                            onHoneypotChange(e.target.value)
+                                        }
+                                        tabIndex={-1}
+                                        autoComplete="off"
                                     />
-                                    <InputError
-                                        message={errors.customer_name}
-                                    />
+                                </div>
+
+                                <div className="border-b border-amber-100 pb-3">
+                                    <h3 className="text-xl font-bold text-stone-900">
+                                        ডেলিভারি তথ্য প্রদান করুন
+                                    </h3>
+                                    <p className="text-xs text-stone-500">
+                                        ক্যাশ অন ডেলিভারি — পণ্য হাতে পেয়ে মূল্য পরিশোধ
+                                        করবেন
+                                    </p>
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <Label
+                                            htmlFor="customer_name"
+                                            className="font-semibold text-stone-700"
+                                        >
+                                            পূর্ণ নাম
+                                        </Label>
+                                        <Input
+                                            id="customer_name"
+                                            value={customerName}
+                                            onChange={(e) =>
+                                                onCustomerNameChange(
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder="আপনার নাম লিখুন"
+                                            className={fieldClass}
+                                            required
+                                        />
+                                        <InputError
+                                            message={errors.customer_name}
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label
+                                            htmlFor="customer_phone"
+                                            className="font-semibold text-stone-700"
+                                        >
+                                            মোবাইল নম্বর
+                                        </Label>
+                                        <Input
+                                            id="customer_phone"
+                                            type="tel"
+                                            inputMode="numeric"
+                                            pattern="01[3-9][0-9]{8}"
+                                            value={customerPhone}
+                                            onChange={(e) =>
+                                                onCustomerPhoneChange(
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder="01XXXXXXXXX"
+                                            className={fieldClass}
+                                            required
+                                        />
+                                        <InputError
+                                            message={errors.customer_phone}
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="grid gap-2">
                                     <Label
-                                        htmlFor="customer_phone"
-                                        className="text-stone-700"
+                                        htmlFor="delivery_address"
+                                        className="font-semibold text-stone-700"
                                     >
-                                        মোবাইল নম্বর
+                                        সম্পূর্ণ ঠিকানা
                                     </Label>
-                                    <Input
-                                        id="customer_phone"
-                                        type="tel"
-                                        inputMode="numeric"
-                                        pattern="01[3-9][0-9]{8}"
-                                        value={customerPhone}
+                                    <Textarea
+                                        id="delivery_address"
+                                        rows={2}
+                                        value={deliveryAddress}
                                         onChange={(e) =>
-                                            onCustomerPhoneChange(
+                                            onDeliveryAddressChange(
                                                 e.target.value,
                                             )
                                         }
-                                        placeholder="01XXXXXXXXX"
+                                        placeholder="বাসা/হোল্ডিং, রোড, এলাকা, জেলা"
                                         className={fieldClass}
                                         required
+                                        minLength={10}
                                     />
                                     <InputError
-                                        message={errors.customer_phone}
+                                        message={errors.delivery_address}
                                     />
                                 </div>
-                            </div>
 
-                            <div className="grid gap-2">
-                                <Label
-                                    htmlFor="delivery_address"
-                                    className="text-stone-700"
-                                >
-                                    সম্পূর্ণ ঠিকানা
-                                </Label>
-                                <Textarea
-                                    id="delivery_address"
-                                    rows={2}
-                                    value={deliveryAddress}
-                                    onChange={(e) =>
-                                        onDeliveryAddressChange(e.target.value)
-                                    }
-                                    placeholder="বাসা/হোল্ডিং, রোড, এলাকা, জেলা"
-                                    className={fieldClass}
-                                    required
-                                    minLength={10}
-                                />
-                                <InputError message={errors.delivery_address} />
-                            </div>
-
-                            <div className="grid gap-4 sm:grid-cols-2">
+                                {/* Full Width Delivery Area Select Box */}
                                 <div className="grid gap-2">
-                                    <Label className="text-stone-700">
+                                    <Label className="font-semibold text-stone-700">
                                         ডেলিভারি এলাকা
                                     </Label>
                                     <Select
@@ -222,88 +319,98 @@ export default function CheckoutSection({
                                     />
                                 </div>
 
+                                {/* Dedicated Compact Quantity Stepper Row */}
                                 <div className="grid gap-2">
                                     <Label
                                         htmlFor="quantity"
-                                        className="text-stone-700"
+                                        className="font-semibold text-stone-700"
                                     >
-                                        পরিমাণ
+                                        বোতলের সংখ্যা (পরিমাণ)
                                     </Label>
-                                    <QuantityStepper
-                                        value={quantity}
-                                        onChange={onQuantityChange}
-                                    />
+                                    <div className="flex items-center gap-3">
+                                        <QuantityStepper
+                                            value={quantity}
+                                            onChange={onQuantityChange}
+                                        />
+                                        <span className="text-xs font-medium text-stone-500">
+                                            (প্রতি বোতল ৳
+                                            {subtotal > 0 && quantity > 0
+                                                ? (subtotal / quantity).toFixed(
+                                                      0,
+                                                  )
+                                                : '791'}
+                                            )
+                                        </span>
+                                    </div>
                                     <InputError message={errors.quantity} />
                                 </div>
-                            </div>
 
-                            <div className="grid gap-2">
-                                <Label
-                                    htmlFor="customer_note"
-                                    className="text-stone-700"
-                                >
-                                    অর্ডার নোট (ঐচ্ছিক)
-                                </Label>
-                                <Textarea
-                                    id="customer_note"
-                                    rows={2}
-                                    value={customerNote}
-                                    onChange={(e) =>
-                                        onCustomerNoteChange(e.target.value)
-                                    }
-                                    className={fieldClass}
-                                />
-                                <InputError message={errors.customer_note} />
-                            </div>
-                        </div>
-
-                        <div className="mt-6 space-y-4 rounded-2xl border border-amber-200 bg-stone-950 p-6 shadow-xl shadow-amber-900/10 lg:sticky lg:top-24 lg:mt-0">
-                            <div className="flex items-center gap-3">
-                                <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/5">
-                                    <img
-                                        src={heroImage}
-                                        alt=""
-                                        className="size-full object-contain"
+                                <div className="grid gap-2">
+                                    <Label
+                                        htmlFor="customer_note"
+                                        className="text-xs font-medium text-stone-700"
+                                    >
+                                        অর্ডার নোট (ঐচ্ছিক)
+                                    </Label>
+                                    <Textarea
+                                        id="customer_note"
+                                        rows={2}
+                                        value={customerNote}
+                                        onChange={(e) =>
+                                            onCustomerNoteChange(e.target.value)
+                                        }
+                                        placeholder="বিশেষ কোনো নির্দেশনা থাকলে লিখুন"
+                                        className={fieldClass}
+                                    />
+                                    <InputError
+                                        message={errors.customer_note}
                                     />
                                 </div>
-                                <p className="text-sm font-medium text-white">
-                                    {productName}
-                                </p>
-                            </div>
 
-                            <div className="space-y-1.5 border-t border-white/10 pt-4 text-sm">
-                                <div className="flex justify-between text-neutral-400">
-                                    <span>সাবটোটাল</span>
-                                    <span>৳{subtotal.toFixed(2)}</span>
+                                {/* Order Calculation Summary Box */}
+                                <div className="space-y-3 rounded-2xl border border-stone-800 bg-stone-950 p-5 text-white shadow-lg">
+                                    <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300">
+                                        <span>পণ্য ({quantity}টি বোতল)</span>
+                                        <span>৳{subtotal.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300">
+                                        <span>ডেলিভারি চার্জ</span>
+                                        <span>
+                                            ৳{shippingCharge.toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between pt-1 text-base font-bold text-amber-400">
+                                        <span>সর্বমোট প্রদেয় মূল্য</span>
+                                        <span className="text-xl font-extrabold">
+                                            ৳{grandTotal.toFixed(2)}
+                                        </span>
+                                    </div>
+
+                                    <InputError message={errors.order} />
+
+                                    <Button
+                                        type="submit"
+                                        size="lg"
+                                        disabled={processing}
+                                        className="mt-2 w-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] text-base font-bold text-stone-950 shadow-xl transition-[background-position] duration-1000 hover:bg-right"
+                                    >
+                                        {processing
+                                            ? 'অর্ডার হচ্ছে...'
+                                            : 'অর্ডার কনফার্ম করুন'}
+                                    </Button>
+
+                                    <p className="flex items-center justify-center gap-1.5 pt-1 text-xs text-neutral-400">
+                                        <Truck className="size-3.5 text-emerald-400" />
+                                        <span>
+                                            ক্যাশ অন ডেলিভারি — হাতে পেয়ে মূল্য পরিশোধ
+                                            করুন
+                                        </span>
+                                    </p>
                                 </div>
-                                <div className="flex justify-between text-neutral-400">
-                                    <span>ডেলিভারি চার্জ</span>
-                                    <span>৳{shippingCharge.toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between border-t border-white/10 pt-1.5 text-base font-semibold text-white">
-                                    <span>সর্বমোট</span>
-                                    <span>৳{grandTotal.toFixed(2)}</span>
-                                </div>
-                            </div>
-
-                            <InputError message={errors.order} />
-
-                            <Button
-                                type="submit"
-                                size="lg"
-                                disabled={processing}
-                                className="w-full bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 bg-[length:200%_auto] text-base font-semibold text-stone-950 transition-[background-position] duration-1000 hover:bg-right"
-                            >
-                                {processing ? 'অর্ডার হচ্ছে...' : 'অর্ডার কনফার্ম করুন'}
-                            </Button>
-
-                            <p className="flex items-center justify-center gap-1.5 text-xs text-neutral-500">
-                                <ShieldCheck className="size-3.5 text-amber-500" />
-                                ক্যাশ অন ডেলিভারি — পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন
-                            </p>
-                        </div>
-                    </form>
-                </Reveal>
+                            </form>
+                        </Reveal>
+                    </div>
+                </div>
             </div>
         </section>
     );

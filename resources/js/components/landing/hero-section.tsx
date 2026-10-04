@@ -1,9 +1,6 @@
-import { ChevronLeft, ChevronRight, Sparkles, Truck } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import Magnetic from './motion/magnetic';
-import OrderButton from './order-button';
-import PriceReveal from './motion/price-reveal';
 
 interface HeroSlide {
     id: number;
@@ -77,13 +74,7 @@ const heroSlides: HeroSlide[] = [
 const BENGALI_NUMERALS = ['০১', '০২', '০৩', '০৪', '০৫'];
 const AUTO_PLAY_DURATION = 7000;
 
-export default function HeroSection({
-    regularPrice,
-    salePrice,
-}: {
-    regularPrice: string;
-    salePrice: string | null;
-}) {
+export default function HeroSection() {
     const [[page, direction], setPage] = useState([0, 0]);
     const [isPaused, setIsPaused] = useState(false);
 
@@ -137,7 +128,7 @@ export default function HeroSection({
         <section
             id="top"
             aria-label="Hero Wallpaper Slider"
-            className="relative flex min-h-[70vh] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none sm:min-h-[85vh] lg:min-h-screen"
+            className="relative flex h-[calc(100svh-4.5rem)] min-h-[520px] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none sm:aspect-[8000/2500] sm:h-auto sm:min-h-0"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
@@ -166,7 +157,7 @@ export default function HeroSection({
             </div>
 
             {/* Full Screen Viewport Slider Container */}
-            <div className="relative h-[70vh] w-full overflow-hidden sm:h-[85vh] lg:h-screen">
+            <div className="relative h-[calc(100svh-4.5rem)] min-h-[520px] w-full overflow-hidden sm:aspect-[8000/2500] sm:h-auto">
                 <AnimatePresence initial={false} custom={direction} mode="sync">
                     <motion.div
                         key={page}
@@ -246,76 +237,6 @@ export default function HeroSection({
                 >
                     <ChevronRight className="size-6 transition-transform group-hover:translate-x-0.5 sm:size-8" />
                 </button>
-
-                {/* Un-boxed Space-Efficient Floating CTA & Pricing Overlay */}
-                <div
-                    className={`absolute z-30 max-w-[calc(100vw-4.5rem)] sm:max-w-sm lg:max-w-md ${currentSlide.positionClass}`}
-                >
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={currentSlide.id}
-                            initial={{ opacity: 0, y: 12, scale: 0.96 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                            transition={{
-                                duration: 0.45,
-                                ease: [0.16, 1, 0.3, 1],
-                            }}
-                            className="flex flex-col items-start gap-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.95)]"
-                        >
-                            {/* Sleek Top Badges Row */}
-                            <div className="flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-stone-950/85 px-3 py-1 font-bengali text-[11px] font-semibold text-amber-300 shadow-md backdrop-blur-md sm:text-xs">
-                                    <Sparkles className="size-3 text-amber-400" />
-                                    {currentSlide.badge}
-                                </span>
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-950/85 px-3 py-1 font-bengali text-[11px] font-semibold text-emerald-300 shadow-md backdrop-blur-md sm:text-xs">
-                                    <span className="relative flex size-2">
-                                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                                        <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-                                    </span>
-                                    <Truck className="size-3.5 text-emerald-400" />
-                                    ক্যাশ অন ডেলিভারি
-                                </span>
-                            </div>
-
-                            {/* Clean Price Line */}
-                            <div className="flex items-baseline gap-3 font-bengali drop-shadow-lg">
-                                {salePrice && (
-                                    <span className="text-base text-stone-300 line-through opacity-85 sm:text-xl">
-                                        ৳{regularPrice}
-                                    </span>
-                                )}
-                                <span className="text-3xl font-black tracking-tight text-amber-400 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] sm:text-5xl">
-                                    <PriceReveal
-                                        prefix="৳"
-                                        from={Number(regularPrice)}
-                                        to={Number(salePrice ?? regularPrice)}
-                                    />
-                                </span>
-                                <span className="text-xs font-medium text-stone-300">
-                                    মাত্র
-                                </span>
-                            </div>
-
-                            <p className="max-w-xs font-bengali text-xs leading-snug font-medium text-neutral-100 drop-shadow-md sm:max-w-sm sm:text-sm">
-                                {currentSlide.tagline}
-                            </p>
-
-                            <div className="mt-1">
-                                <Magnetic>
-                                    <OrderButton
-                                        href="#order"
-                                        size="sm"
-                                        className="shadow-lg shadow-amber-500/20 sm:px-8 sm:py-3.5 sm:text-lg"
-                                    >
-                                        এখনই অর্ডার করুন
-                                    </OrderButton>
-                                </Magnetic>
-                            </div>
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
 
                 {/* Bottom Navigation Dots */}
                 <div className="absolute inset-x-0 bottom-4 z-30 flex items-center justify-center gap-2.5">
