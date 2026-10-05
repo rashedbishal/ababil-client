@@ -27,6 +27,12 @@ class OrderUpdateRequest extends FormRequest
             'status' => ['sometimes', new Enum(OrderStatus::class)],
             'courier_status' => ['sometimes', 'nullable', new Enum(CourierStatus::class)],
             'admin_note' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            // Matches PlaceOrderRequest's own rules for these same fields -
+            // an admin correction shouldn't be allowed to save something
+            // the original checkout form would have rejected.
+            'customer_phone' => ['sometimes', 'string', 'regex:/^01[3-9][0-9]{8}$/'],
+            'delivery_address' => ['sometimes', 'string', 'min:10', 'max:1000'],
+            'customer_note' => ['sometimes', 'nullable', 'string', 'max:1000'],
         ];
     }
 

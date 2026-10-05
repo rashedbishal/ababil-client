@@ -1,10 +1,11 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import InputError from '@/components/input-error';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -87,6 +88,39 @@ export default function OrderShow({
     function submit(e: React.FormEvent) {
         e.preventDefault();
         form.patch(orders.update(order.id).url, { preserveScroll: true });
+    }
+
+    const [editingCustomer, setEditingCustomer] = useState(false);
+    const customerForm = useForm({
+        customer_phone: order.customer_phone,
+        delivery_address: order.delivery_address,
+        customer_note: order.customer_note ?? '',
+    });
+
+    useEffect(() => {
+        customerForm.setData({
+            customer_phone: order.customer_phone,
+            delivery_address: order.delivery_address,
+            customer_note: order.customer_note ?? '',
+        });
+    }, [order.customer_phone, order.delivery_address, order.customer_note]);
+
+    function submitCustomer(e: React.FormEvent) {
+        e.preventDefault();
+        customerForm.patch(orders.update(order.id).url, {
+            preserveScroll: true,
+            onSuccess: () => setEditingCustomer(false),
+        });
+    }
+
+    function cancelEditCustomer() {
+        customerForm.setData({
+            customer_phone: order.customer_phone,
+            delivery_address: order.delivery_address,
+            customer_note: order.customer_note ?? '',
+        });
+        customerForm.clearErrors();
+        setEditingCustomer(false);
     }
 
     function submitToCourier() {
@@ -208,8 +242,18 @@ export default function OrderShow({
                     </Card>
 
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="flex-row items-center justify-between">
                             <CardTitle>Customer</CardTitle>
+                            {!editingCustomer && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setEditingCustomer(true)}
+                                >
+                                    Edit
+                                </Button>
+                            )}
                         </CardHeader>
                         <CardContent className="space-y-2 text-sm">
                             <p>
@@ -218,25 +262,125 @@ export default function OrderShow({
                                 </span>{' '}
                                 {order.customer_name}
                             </p>
-                            <p>
-                                <span className="text-muted-foreground">
-                                    Phone:
-                                </span>{' '}
-                                {order.customer_phone}
-                            </p>
-                            <p>
-                                <span className="text-muted-foreground">
-                                    Address:
-                                </span>{' '}
-                                {order.delivery_address}
-                            </p>
-                            {order.customer_note && (
-                                <p>
-                                    <span className="text-muted-foreground">
-                                        Note:
-                                    </span>{' '}
-                                    {order.customer_note}
-                                </p>
+
+                            {editingCustomer ? (
+                                <form
+                                    onSubmit={submitCustomer}
+                                    className="space-y-4"
+                                >
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="customer_phone">
+                                            Phone
+                                        </Label>
+                                        <Input
+                                            id="customer_phone"
+                                            value={
+                                                customerForm.data.customer_phone
+                                            }
+                                            onChange={(e) =>
+                                                customerForm.setData(
+                                                    'customer_phone',
+                                                    e.target.value,
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={
+                                                customerForm.errors
+                                                    .customer_phone
+                                            }
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="delivery_address">
+                                            Address
+                                        </Label>
+                                        <Textarea
+                                            id="delivery_address"
+                                            rows={3}
+                                            value={
+                                                customerForm.data
+                                                    .delivery_address
+                                            }
+                                            onChange={(e) =>
+                                                customerForm.setData(
+                                                    'delivery_address',
+                                                    e.target.value,
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={
+                                                customerForm.errors
+                                                    .delivery_address
+                                            }
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="customer_note">
+                                            Note
+                                        </Label>
+                                        <Textarea
+                                            id="customer_note"
+                                            rows={3}
+                                            value={
+                                                customerForm.data.customer_note
+                                            }
+                                            onChange={(e) =>
+                                                customerForm.setData(
+                                                    'customer_note',
+                                                    e.target.value,
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={
+                                                customerForm.errors
+                                                    .customer_note
+                                            }
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            type="submit"
+                                            size="sm"
+                                            disabled={customerForm.processing}
+                                        >
+                                            Save
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={cancelEditCustomer}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <>
+                                    <p>
+                                        <span className="text-muted-foreground">
+                                            Phone:
+                                        </span>{' '}
+                                        {order.customer_phone}
+                                    </p>
+                                    <p>
+                                        <span className="text-muted-foreground">
+                                            Address:
+                                        </span>{' '}
+                                        {order.delivery_address}
+                                    </p>
+                                    {order.customer_note && (
+                                        <p>
+                                            <span className="text-muted-foreground">
+                                                Note:
+                                            </span>{' '}
+                                            {order.customer_note}
+                                        </p>
+                                    )}
+                                </>
                             )}
                         </CardContent>
                     </Card>
