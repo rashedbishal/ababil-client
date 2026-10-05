@@ -16,11 +16,17 @@ type Settings = {
     order_prefix: string | null;
     facebook_pixel_id: string | null;
     google_analytics_id: string | null;
+    google_tag_manager_id: string | null;
     whatsapp_number: string | null;
     facebook_page_url: string | null;
 };
 
-const fields: { name: keyof Settings; label: string; type?: string }[] = [
+const fields: {
+    name: keyof Settings;
+    label: string;
+    type?: string;
+    placeholder?: string;
+}[] = [
     { name: 'site_name', label: 'Website name' },
     { name: 'site_phone', label: 'Phone' },
     { name: 'site_email', label: 'Email', type: 'email' },
@@ -30,6 +36,11 @@ const fields: { name: keyof Settings; label: string; type?: string }[] = [
     { name: 'facebook_page_url', label: 'Facebook Page URL' },
     { name: 'facebook_pixel_id', label: 'Facebook Pixel ID' },
     { name: 'google_analytics_id', label: 'Google Analytics ID' },
+    {
+        name: 'google_tag_manager_id',
+        label: 'Google Tag Manager container ID',
+        placeholder: 'GTM-XXXXXXX',
+    },
 ];
 
 export default function SettingsEdit({
@@ -61,6 +72,7 @@ export default function SettingsEdit({
                                     id={field.name}
                                     name={field.name}
                                     type={field.type ?? 'text'}
+                                    placeholder={field.placeholder}
                                     defaultValue={values[field.name] ?? ''}
                                 />
                                 <InputError message={errors[field.name]} />

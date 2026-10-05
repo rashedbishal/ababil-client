@@ -110,6 +110,7 @@ class DatabaseSeeder extends Seeder
             'order_prefix' => 'ORD',
             'facebook_pixel_id' => null,
             'google_analytics_id' => null,
+            'google_tag_manager_id' => null,
             'whatsapp_number' => '+8801633331333',
             'facebook_page_url' => 'https://www.facebook.com/AbabilPainReliefOil',
         ];

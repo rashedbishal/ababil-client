@@ -19,6 +19,7 @@ class SettingController extends Controller
         'order_prefix',
         'facebook_pixel_id',
         'google_analytics_id',
+        'google_tag_manager_id',
         'whatsapp_number',
         'facebook_page_url',
     ];

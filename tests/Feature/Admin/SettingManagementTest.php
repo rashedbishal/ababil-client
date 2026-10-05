@@ -30,6 +30,17 @@ test('settings reflect updated values on the edit page', function () {
     $response->assertInertia(fn ($page) => $page->where('settings.site_name', 'Previous Name'));
 });
 
+test('an admin can set a google tag manager container id', function () {
+    $this->actingAsAdmin();
+
+    $response = $this->patch(route('admin.settings.update'), [
+        'google_tag_manager_id' => 'GTM-ABC1234',
+    ]);
+
+    $response->assertRedirect();
+    expect(Setting::get('google_tag_manager_id'))->toBe('GTM-ABC1234');
+});
+
 test('an invalid facebook page url is rejected', function () {
     $this->actingAsAdmin();
 
