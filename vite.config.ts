@@ -31,19 +31,19 @@ export default defineConfig({
             formVariants: true,
         }),
     ]),
-    server: {
-        host: '192.168.0.113',
-        port: 5173,
-        watch: {
-            ignored: [
-                '**/.agents/**',
-                '**/.claude/**',
-                '**/.cursor/**',
-                '**/.junie/**',
-                '**/vendor/**',
-            ],
-        },
-    },
+    // server: {
+    //     host: '0.0.0.0',
+    //     port: 5173,
+    //     watch: {
+    //         ignored: [
+    //             '**/.agents/**',
+    //             '**/.claude/**',
+    //             '**/.cursor/**',
+    //             '**/.junie/**',
+    //             '**/vendor/**',
+    //         ],
+    //     },
+    // },
     lint: {
         ignorePatterns: [
             'vendor/**',
