@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 import Heading from '@/components/heading';
 import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
@@ -92,6 +93,19 @@ export default function OrdersIndex({
         setTo('');
     }
 
+    const [pendingDelete, setPendingDelete] = useState<OrderRow | null>(null);
+
+    function confirmDelete() {
+        if (!pendingDelete) {
+            return;
+        }
+
+        router.delete(orders.destroy(pendingDelete.id).url, {
+            preserveScroll: true,
+            onFinish: () => setPendingDelete(null),
+        });
+    }
+
     return (
         <>
             <Head title="Orders" />
@@ -168,39 +182,49 @@ export default function OrdersIndex({
             {/* Mobile: card list */}
             <div className="grid gap-3 md:hidden">
                 {paginated.data.map((order) => (
-                    <Link
-                        key={order.id}
-                        href={orders.show(order.id)}
-                        className="block rounded-lg border p-4"
-                    >
-                        <div className="flex items-start justify-between gap-2">
-                            <span
-                                className={`text-primary ${order.is_new ? 'font-bold' : 'font-medium'}`}
-                            >
-                                {order.order_number}
-                            </span>
-                            <Badge variant="outline">
-                                {order.status_label}
-                            </Badge>
-                        </div>
-                        <p
-                            className={`mt-1 text-sm ${order.is_new ? 'font-bold' : ''}`}
+                    <div key={order.id} className="rounded-lg border">
+                        <Link
+                            href={orders.show(order.id)}
+                            className="block p-4"
                         >
-                            {order.customer_name} · {order.customer_phone}
-                        </p>
-                        <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
-                            <span>
-                                {order.created_at
-                                    ? new Date(
-                                          order.created_at,
-                                      ).toLocaleString()
-                                    : '—'}
-                            </span>
-                            <span className="font-medium text-foreground">
-                                ৳{order.grand_total}
-                            </span>
+                            <div className="flex items-start justify-between gap-2">
+                                <span
+                                    className={`text-primary ${order.is_new ? 'font-bold' : 'font-medium'}`}
+                                >
+                                    {order.order_number}
+                                </span>
+                                <Badge variant="outline">
+                                    {order.status_label}
+                                </Badge>
+                            </div>
+                            <p
+                                className={`mt-1 text-sm ${order.is_new ? 'font-bold' : ''}`}
+                            >
+                                {order.customer_name} · {order.customer_phone}
+                            </p>
+                            <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
+                                <span>
+                                    {order.created_at
+                                        ? new Date(
+                                              order.created_at,
+                                          ).toLocaleString()
+                                        : '—'}
+                                </span>
+                                <span className="font-medium text-foreground">
+                                    ৳{order.grand_total}
+                                </span>
+                            </div>
+                        </Link>
+                        <div className="flex justify-end border-t px-4 py-2">
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => setPendingDelete(order)}
+                            >
+                                Delete
+                            </Button>
                         </div>
-                    </Link>
+                    </div>
                 ))}
             </div>
 
@@ -210,11 +234,16 @@ export default function OrdersIndex({
                     <TableHeader>
                         <TableRow>
                             <TableHead>Order #</TableHead>
-                            <TableHead>Customer</TableHead>
+                            <TableHead className="max-w-[140px]">
+                                Customer
+                            </TableHead>
                             <TableHead>Phone</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Total</TableHead>
                             <TableHead>Placed</TableHead>
+                            <TableHead className="text-right">
+                                Actions
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -235,7 +264,12 @@ export default function OrdersIndex({
                                         {order.order_number}
                                     </Link>
                                 </TableCell>
-                                <TableCell>{order.customer_name}</TableCell>
+                                <TableCell
+                                    className="max-w-[140px] truncate"
+                                    title={order.customer_name}
+                                >
+                                    {order.customer_name}
+                                </TableCell>
                                 <TableCell>{order.customer_phone}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline">
@@ -250,6 +284,18 @@ export default function OrdersIndex({
                                           ).toLocaleString()
                                         : '—'}
                                 </TableCell>
+                                <TableCell className="text-right">
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setPendingDelete(order);
+                                        }}
+                                    >
+                                        Delete
+                                    </Button>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -257,6 +303,19 @@ export default function OrdersIndex({
             </div>
 
             <Pagination links={paginated.links} />
+
+            <ConfirmDialog
+                open={pendingDelete !== null}
+                onOpenChange={(open) => !open && setPendingDelete(null)}
+                title="Move order to trash?"
+                description={
+                    pendingDelete
+                        ? `Order "${pendingDelete.order_number}" will be moved to trash. You can restore it later from Trashed Orders.`
+                        : undefined
+                }
+                confirmLabel="Move to trash"
+                onConfirm={confirmDelete}
+            />
         </>
     );
 }

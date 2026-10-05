@@ -166,4 +166,71 @@ class OrderController extends Controller
 
         return back();
     }
+
+    public function destroy(Order $order): RedirectResponse
+    {
+        $order->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Order moved to trash.']);
+
+        return back();
+    }
+
+    public function trashed(Request $request): Response
+    {
+        $orders = Order::onlyTrashed()
+            ->latest('deleted_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        return Inertia::render('admin/orders/trashed', [
+            'orders' => $orders->through(fn (Order $order) => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_name' => $order->customer_name,
+                'customer_phone' => $order->customer_phone,
+                'status' => $order->status->value,
+                'status_label' => $order->status->label(),
+                'grand_total' => (string) $order->grand_total,
+                'deleted_at' => $order->deleted_at?->toIso8601String(),
+            ]),
+        ]);
+    }
+
+    public function restore(int $order): RedirectResponse
+    {
+        Order::onlyTrashed()->findOrFail($order)->restore();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Order restored.']);
+
+        return back();
+    }
+
+    public function forceDelete(int $order): RedirectResponse
+    {
+        // order_items and order_status_histories cascade-delete at the
+        // database level (their order_id foreign key is
+        // cascadeOnDelete()); incomplete_orders.order_id nulls out
+        // (nullOnDelete()) - both only fire on this real, hard DELETE, not
+        // on the soft-delete above.
+        Order::onlyTrashed()->findOrFail($order)->forceDelete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Order permanently deleted.']);
+
+        return back();
+    }
+
+    public function clearTrash(): RedirectResponse
+    {
+        // A query-level forceDelete() (not a per-model loop) still issues a
+        // real SQL DELETE per row, so the same cascade/null-out foreign
+        // keys noted in forceDelete() above still apply here.
+        $count = Order::onlyTrashed()->count();
+
+        Order::onlyTrashed()->forceDelete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => $count === 1 ? '1 order permanently deleted.' : "{$count} orders permanently deleted."]);
+
+        return back();
+    }
 }

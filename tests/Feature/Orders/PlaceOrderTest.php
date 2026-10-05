@@ -227,6 +227,114 @@ test('a delivery address shorter than 10 characters is rejected', function () {
     expect(Order::count())->toBe(0);
 });
 
+test('a customer name in bangla script is accepted', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_name' => 'রাশেদ বিশাল',
+    ]));
+
+    $response->assertSessionDoesntHaveErrors('customer_name');
+    expect(Order::count())->toBe(1);
+});
+
+test('a customer name with a dot and hyphen is accepted', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_name' => 'Mohammad A.K. Rahman-Khan',
+    ]));
+
+    $response->assertSessionDoesntHaveErrors('customer_name');
+    expect(Order::count())->toBe(1);
+});
+
+test('a customer name with a digit is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_name' => 'John123',
+    ]));
+
+    $response->assertSessionHasErrors(['customer_name']);
+    expect(Order::count())->toBe(0);
+});
+
+test('a customer name longer than 60 characters is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_name' => str_repeat('A', 61),
+    ]));
+
+    $response->assertSessionHasErrors(['customer_name']);
+    expect(Order::count())->toBe(0);
+});
+
+test('a customer name containing a url is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_name' => 'spam example.com',
+    ]));
+
+    $response->assertSessionHasErrors(['customer_name']);
+    expect(Order::count())->toBe(0);
+});
+
+test('a delivery address longer than 200 characters is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'delivery_address' => str_repeat('A', 201),
+    ]));
+
+    $response->assertSessionHasErrors(['delivery_address']);
+    expect(Order::count())->toBe(0);
+});
+
+test('a delivery address containing a url is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'delivery_address' => 'Visit https://spam.example for directions to my house',
+    ]));
+
+    $response->assertSessionHasErrors(['delivery_address']);
+    expect(Order::count())->toBe(0);
+});
+
+test('an order note longer than 100 characters is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_note' => str_repeat('A', 101),
+    ]));
+
+    $response->assertSessionHasErrors(['customer_note']);
+    expect(Order::count())->toBe(0);
+});
+
+test('an order note containing a url is rejected', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_note' => 'check www.spam-site.xyz',
+    ]));
+
+    $response->assertSessionHasErrors(['customer_note']);
+    expect(Order::count())->toBe(0);
+});
+
 test('a filled-in honeypot field rejects the order with a generic, visible error', function () {
     $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
     $shippingArea = ShippingArea::factory()->create();
@@ -291,6 +399,18 @@ test('a phone number that does not match the Bangladeshi mobile format is reject
     expect(Order::count())->toBe(0);
 });
 
+test('a phone number typed in bangla digits is normalized and accepted', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_phone' => '০১৭১১১১১১১১',
+    ]));
+
+    $response->assertSessionDoesntHaveErrors('customer_phone');
+    expect(Order::query()->first()->customer_phone)->toBe('01711111111');
+});
+
 test('a phone number is blocked from placing more than the daily order cap', function () {
     $product = Product::factory()->create(['track_stock' => true, 'stock' => 100]);
     $shippingArea = ShippingArea::factory()->create();
@@ -319,7 +439,10 @@ test('a near-duplicate order from the same phone is flagged for admin review ins
 
     expect(Order::count())->toBe(2);
 
-    $latest = Order::query()->latest()->first();
+    // orderByDesc('id') rather than latest() (created_at): both orders can
+    // land in the same second, and created_at alone doesn't break that tie
+    // deterministically - id does, since it's strictly creation-ordered.
+    $latest = Order::query()->orderByDesc('id')->first();
     expect($latest->admin_note)->toContain('Possible duplicate');
 });
 
@@ -367,6 +490,48 @@ test('completing checkout converts the matching incomplete order for the same se
     $incomplete->refresh();
     expect($incomplete->conversion_status)->toBe(IncompleteOrderConversionStatus::Converted)
         ->and($incomplete->order_id)->toBe($order->id);
+});
+
+test('completing checkout converts a pending incomplete order with the same phone even under a different session', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+    $staleAttempt = IncompleteOrder::query()->create([
+        'session_token' => 'an-earlier-abandoned-session',
+        'customer_phone' => '01711111111',
+        'conversion_status' => IncompleteOrderConversionStatus::Pending,
+    ]);
+
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_phone' => '01711111111',
+        'session_token' => 'a-completely-different-session',
+    ]));
+
+    $order = Order::first();
+    expect($order)->not->toBeNull();
+
+    $staleAttempt->refresh();
+    expect($staleAttempt->conversion_status)->toBe(IncompleteOrderConversionStatus::Converted)
+        ->and($staleAttempt->order_id)->toBe($order->id);
+});
+
+test('completing checkout does not touch an already-converted incomplete order from a previous, separate purchase with the same phone', function () {
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create();
+    $previousOrder = Order::factory()->create(['customer_phone' => '01711111111']);
+    $previouslyConverted = IncompleteOrder::query()->create([
+        'session_token' => 'a-previous-completed-session',
+        'customer_phone' => '01711111111',
+        'conversion_status' => IncompleteOrderConversionStatus::Converted,
+        'order_id' => $previousOrder->id,
+    ]);
+
+    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+        'customer_phone' => '01711111111',
+        'session_token' => 'a-new-session-for-a-second-order',
+    ]));
+
+    $previouslyConverted->refresh();
+    expect($previouslyConverted->order_id)->toBe($previousOrder->id);
 });
 
 test('completing checkout does not convert an incomplete order from a different session', function () {

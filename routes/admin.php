@@ -30,7 +30,14 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::resource('sizes', SizeController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 
-    Route::resource('orders', OrderController::class)->only(['index', 'show', 'update']);
+    // Must come before the orders resource below, or GET orders/{order}
+    // (show) would swallow this as a request for an order with id "trashed".
+    Route::get('orders/trashed', [OrderController::class, 'trashed'])->name('orders.trashed');
+    Route::delete('orders/trashed', [OrderController::class, 'clearTrash'])->name('orders.clear-trash');
+    Route::post('orders/trashed/{order}/restore', [OrderController::class, 'restore'])->name('orders.restore');
+    Route::delete('orders/trashed/{order}', [OrderController::class, 'forceDelete'])->name('orders.force-delete');
+
+    Route::resource('orders', OrderController::class)->only(['index', 'show', 'update', 'destroy']);
     Route::patch('orders/{order}/status-sync-mode', [OrderController::class, 'updateStatusSyncMode'])->name('orders.status-sync-mode');
     Route::post('orders/{order}/courier/submit', [OrderCourierController::class, 'submit'])->name('orders.courier.submit');
     Route::post('orders/{order}/courier/refresh', [OrderCourierController::class, 'refresh'])->name('orders.courier.refresh');
