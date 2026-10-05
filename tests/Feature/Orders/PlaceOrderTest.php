@@ -163,6 +163,19 @@ test('a blocked ip cannot place an order', function () {
     expect(Order::count())->toBe(0);
 });
 
+test('a blocked ip placing an order via inertia gets a redirect-with-errors, not a raw 403 page', function () {
+    BlockedIp::factory()->create(['ip_address' => '127.0.0.1', 'is_active' => true]);
+
+    $product = Product::factory()->create();
+    $shippingArea = ShippingArea::factory()->create();
+
+    $response = $this->withHeaders(['X-Inertia' => 'true'])
+        ->post(route('orders.store'), validOrderPayload($product, $shippingArea));
+
+    $response->assertSessionHasErrors('order');
+    expect(Order::count())->toBe(0);
+});
+
 test('a blocked ip still blocks when the request arrives as its IPv4-mapped IPv6 form', function () {
     BlockedIp::factory()->create(['ip_address' => '127.0.0.1', 'is_active' => true]);
 
