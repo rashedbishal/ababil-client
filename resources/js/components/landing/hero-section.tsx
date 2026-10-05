@@ -128,7 +128,7 @@ export default function HeroSection() {
         <section
             id="top"
             aria-label="Hero Wallpaper Slider"
-            className="relative flex h-[calc(100svh-4.5rem)] min-h-[520px] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none sm:aspect-[8000/2500] sm:h-auto sm:min-h-0"
+            className="relative flex h-[calc(100svh-4.5rem)] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
@@ -157,7 +157,7 @@ export default function HeroSection() {
             </div>
 
             {/* Full Screen Viewport Slider Container */}
-            <div className="relative h-[calc(100svh-4.5rem)] min-h-[520px] w-full overflow-hidden sm:aspect-[8000/2500] sm:h-auto">
+            <div className="relative h-[calc(100svh-4.5rem)] w-full overflow-hidden">
                 <AnimatePresence initial={false} custom={direction} mode="sync">
                     <motion.div
                         key={page}
@@ -217,6 +217,17 @@ export default function HeroSection() {
                     <span className="font-bengali text-xs text-stone-400 sm:text-sm">
                         ০৫
                     </span>
+                </div>
+
+                <div
+                    className={`absolute bottom-6 z-30 max-w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-amber-300/30 bg-stone-950/75 px-2.5 py-2 shadow-xl shadow-black/25 backdrop-blur-md ${currentSlide.positionClass}`}
+                >
+                    <span className="inline-block rounded-full border border-amber-400/30 bg-amber-500/10 px-2 py-0.5 font-bengali text-[8px] font-semibold tracking-[0.12em] text-amber-300 uppercase sm:text-[9px]">
+                        {currentSlide.badge}
+                    </span>
+                    <p className="mt-1 font-bengali text-[11px] font-medium leading-snug text-white sm:text-xs">
+                        {currentSlide.tagline}
+                    </p>
                 </div>
 
                 {/* Left & Right Slider Arrow Buttons */}
