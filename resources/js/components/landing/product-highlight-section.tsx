@@ -1,4 +1,4 @@
-import { ShieldCheck, Sparkles, Star, Truck } from 'lucide-react';
+import { ShieldCheck, Star } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import Magnetic from './motion/magnetic';
@@ -125,21 +125,41 @@ export default function ProductHighlightSection({
                     {/* Right Column: Pricing & Product Details */}
                     <div className="flex flex-col items-start text-left lg:col-span-6">
                         <Reveal>
-                            {/* Badges Row */}
-                            <div className="flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-stone-900/90 px-3 py-1 font-bengali text-xs font-semibold text-amber-300 shadow-md">
-                                    <Sparkles className="size-3.5 text-amber-400" />
-                                    ১০০% অর্গানিক · ৯টি ভেষজ উপাদান
-                                </span>
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-950/80 px-3 py-1 font-bengali text-xs font-semibold text-emerald-300 shadow-md">
-                                    <span className="relative flex size-2">
-                                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                                        <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-                                    </span>
-                                    <Truck className="size-3.5 text-emerald-400" />
-                                    ক্যাশ অন ডেলিভারি
-                                </span>
-                            </div>
+                            {/* Prominent 3-Day Return Policy Highlight Banner */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="relative overflow-hidden rounded-2xl border-2 border-amber-400/60 bg-gradient-to-r from-amber-500/20 via-stone-900/90 to-amber-500/15 p-4 shadow-xl shadow-amber-500/15 backdrop-blur-md sm:p-5"
+                            >
+                                <div
+                                    aria-hidden
+                                    className="pointer-events-none absolute -top-12 -right-12 size-36 rounded-full bg-amber-400/20 blur-2xl"
+                                />
+                                <div className="flex items-center gap-3.5">
+                                    <div className="relative flex size-12 shrink-0 items-center justify-center rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 text-stone-950 shadow-md shadow-amber-500/30">
+                                        <ShieldCheck className="size-7 text-stone-950" />
+                                        <span className="absolute -top-1 -right-1 flex size-3">
+                                            <span className="absolute inline-flex size-full animate-ping rounded-full bg-amber-300 opacity-75" />
+                                            <span className="relative inline-flex size-3 rounded-full bg-amber-400" />
+                                        </span>
+                                    </div>
+                                    <div className="font-bengali">
+                                        <div className="flex items-center gap-2">
+                                            <span className="rounded-md border border-amber-400/40 bg-amber-400/20 px-2 py-0.5 text-[10px] font-extrabold tracking-wider text-amber-300 uppercase">
+                                                ১০০% ঝুঁকিমুক্ত কেনাকাটা
+                                            </span>
+                                        </div>
+                                        <h3 className="mt-1 text-base font-extrabold text-amber-300 sm:text-lg">
+                                            ৩ দিনের রিটার্ন ও মানি-ব্যাক পলিসি
+                                        </h3>
+                                        <p className="mt-0.5 text-xs leading-snug text-stone-300 sm:text-sm">
+                                            পণ্য হাতে পেয়ে ব্যবহার করে সন্তুষ্ট না হলে ৩
+                                            দিনের মধ্যে সম্পূর্ণ টাকা ফেরতের নিশ্চয়তা!
+                                        </p>
+                                    </div>
+                                </div>
+                            </motion.div>
 
                             {/* Section Title & Description */}
                             <h2 className="mt-4 font-bengali text-3xl leading-tight font-extrabold text-white sm:text-4xl lg:text-5xl">
