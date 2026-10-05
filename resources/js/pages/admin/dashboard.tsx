@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     Activity,
     AlertCircle,
@@ -96,6 +97,22 @@ export default function AdminDashboard({
     range: Range;
     recentOrders: RecentOrder[];
 }) {
+    const [rangeFrom, setRangeFrom] = useState(range.from);
+    const [rangeTo, setRangeTo] = useState(range.to);
+
+    function applyRange(e: React.FormEvent) {
+        e.preventDefault();
+
+        // A plain GET <form> does a full browser navigation, which resets
+        // scroll position and loses focus - router.get() keeps this an
+        // in-place Inertia visit instead.
+        router.get(
+            dashboard().url,
+            { from: rangeFrom, to: rangeTo },
+            { preserveState: true, preserveScroll: true, replace: true },
+        );
+    }
+
     const primaryCards = [
         {
             label: 'Total Revenue',
@@ -222,26 +239,26 @@ export default function AdminDashboard({
             </div>
 
             {/* Primary Elevated KPI Cards */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                 {primaryCards.map((card) => (
                     <Card
                         key={card.label}
                         className={`group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${card.cardBorder}`}
                     >
                         <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-br from-primary/5 to-transparent blur-xl transition-all group-hover:scale-125" />
-                        <CardContent className="p-5">
+                        <CardContent className="p-3.5 sm:p-5">
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                                <span className="truncate text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                     {card.label}
                                 </span>
                                 <div
-                                    className={`flex size-10 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} shadow-2xs ring-1 transition-transform duration-300 group-hover:scale-110`}
+                                    className={`flex size-8 items-center justify-center rounded-xl bg-gradient-to-br sm:size-10 ${card.gradient} shadow-2xs ring-1 transition-transform duration-300 group-hover:scale-110`}
                                 >
-                                    <card.icon className="size-5" />
+                                    <card.icon className="size-4 sm:size-5" />
                                 </div>
                             </div>
-                            <div className="mt-4 flex items-baseline justify-between">
-                                <span className="text-3xl font-extrabold tracking-tight">
+                            <div className="mt-2 flex items-baseline justify-between sm:mt-4">
+                                <span className="text-2xl font-extrabold tracking-tight sm:text-3xl">
                                     {card.value}
                                 </span>
                                 {card.badge && (
@@ -250,7 +267,7 @@ export default function AdminDashboard({
                                     </span>
                                 )}
                             </div>
-                            <p className="mt-1 text-xs text-muted-foreground">
+                            <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
                                 {card.subtitle}
                             </p>
                         </CardContent>
@@ -288,15 +305,15 @@ export default function AdminDashboard({
 
             {/* Sales Report Filter & Range Summary */}
             <Card className="overflow-hidden border-border/80 shadow-xs">
-                <CardHeader className="border-b border-border/60 bg-muted/30 py-4">
+                <CardHeader className="border-b border-border/60 bg-muted/30 py-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary">
-                                <Filter className="size-4" />
+                            <div className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+                                <Filter className="size-3.5" />
                             </div>
                             <div>
-                                <CardTitle className="text-base font-bold">
-                                    Sales Performance Report
+                                <CardTitle className="text-sm font-bold">
+                                    Sales Performance
                                 </CardTitle>
                                 <p className="text-xs text-muted-foreground">
                                     Analyze revenue and orders within custom
@@ -306,12 +323,12 @@ export default function AdminDashboard({
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-6 pt-5">
+                <CardContent className="space-y-3 pt-3">
                     <form
-                        method="get"
-                        className="flex flex-wrap items-end gap-4 rounded-xl border bg-muted/20 p-4"
+                        onSubmit={applyRange}
+                        className="flex flex-wrap items-end gap-3 rounded-lg border bg-muted/20 p-3"
                     >
-                        <div className="grid gap-1.5">
+                        <div className="grid gap-1">
                             <Label
                                 htmlFor="from"
                                 className="text-xs font-semibold text-muted-foreground"
@@ -321,12 +338,12 @@ export default function AdminDashboard({
                             <Input
                                 id="from"
                                 type="date"
-                                name="from"
-                                defaultValue={range.from}
-                                className="h-9 w-44 text-xs font-medium shadow-2xs"
+                                value={rangeFrom}
+                                onChange={(e) => setRangeFrom(e.target.value)}
+                                className="h-8 w-40 text-xs font-medium shadow-2xs"
                             />
                         </div>
-                        <div className="grid gap-1.5">
+                        <div className="grid gap-1">
                             <Label
                                 htmlFor="to"
                                 className="text-xs font-semibold text-muted-foreground"
@@ -336,43 +353,43 @@ export default function AdminDashboard({
                             <Input
                                 id="to"
                                 type="date"
-                                name="to"
-                                defaultValue={range.to}
-                                className="h-9 w-44 text-xs font-medium shadow-2xs"
+                                value={rangeTo}
+                                onChange={(e) => setRangeTo(e.target.value)}
+                                className="h-8 w-40 text-xs font-medium shadow-2xs"
                             />
                         </div>
                         <Button
                             type="submit"
                             size="sm"
-                            className="h-9 gap-1.5 font-medium"
+                            className="h-8 gap-1.5 font-medium"
                         >
                             <Calendar className="size-3.5" />
                             Apply Range Filter
                         </Button>
                     </form>
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <div className="relative overflow-hidden rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-transparent p-4 shadow-2xs">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div className="relative overflow-hidden rounded-lg border border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-transparent p-3 shadow-2xs">
                             <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
                                 Orders in Selected Range
                             </p>
-                            <p className="mt-1 text-3xl font-extrabold tracking-tight">
+                            <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
                                 {range.order_count}
                             </p>
                         </div>
-                        <div className="relative overflow-hidden rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent p-4 shadow-2xs">
+                        <div className="relative overflow-hidden rounded-lg border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent p-3 shadow-2xs">
                             <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                                 Gross Order Value
                             </p>
-                            <p className="mt-1 text-3xl font-extrabold tracking-tight">
+                            <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
                                 ৳ {range.order_total}
                             </p>
                         </div>
-                        <div className="relative overflow-hidden rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent p-4 shadow-2xs">
+                        <div className="relative overflow-hidden rounded-lg border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent p-3 shadow-2xs">
                             <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                                 Net Revenue Collected
                             </p>
-                            <p className="mt-1 text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">
+                            <p className="mt-0.5 text-2xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">
                                 ৳ {range.amount_received}
                             </p>
                         </div>
