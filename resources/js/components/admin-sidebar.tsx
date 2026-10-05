@@ -1,4 +1,5 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 import {
     AlertTriangle,
     ExternalLink,
@@ -25,6 +26,7 @@ import {
     SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import ababilLogo from '../../images/landing/ababil-logo.webp';
@@ -138,6 +140,18 @@ export function AdminSidebar() {
     const { isCurrentUrl } = useCurrentUrl();
     const { pendingOrdersCount, sizeManagementEnabled, name } = usePage().props;
     const groups = buildGroups(pendingOrdersCount, sizeManagementEnabled);
+    const { isMobile, setOpenMobile } = useSidebar();
+
+    // On mobile the sidebar is a slide-over sheet, not a persistent rail -
+    // picking a destination should close it like any other mobile nav
+    // drawer, instead of leaving it open over the page that just loaded.
+    useEffect(() => {
+        return router.on('navigate', () => {
+            if (isMobile) {
+                setOpenMobile(false);
+            }
+        });
+    }, [isMobile, setOpenMobile]);
 
     return (
         <Sidebar collapsible="icon" variant="inset">
