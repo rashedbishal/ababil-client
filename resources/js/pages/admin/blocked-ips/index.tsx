@@ -2,6 +2,7 @@ import { Head, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/table';
 import { dashboard } from '@/routes/admin';
 import blockedIps from '@/routes/admin/blocked-ips';
+import type { Paginated } from '@/types';
 
 type BlockedIp = {
     id: number;
@@ -50,10 +52,11 @@ const emptyForm: FormValues = {
 };
 
 export default function BlockedIpsIndex({
-    blockedIps: list,
+    blockedIps: paginated,
 }: {
-    blockedIps: BlockedIp[];
+    blockedIps: Paginated<BlockedIp>;
 }) {
+    const list = paginated.data;
     const [editing, setEditing] = useState<BlockedIp | 'new' | null>(null);
     const form = useForm<FormValues>(emptyForm);
 
@@ -237,6 +240,8 @@ export default function BlockedIpsIndex({
                     </TableBody>
                 </Table>
             </div>
+
+            <Pagination links={paginated.links} />
 
             <Dialog
                 open={editing !== null}

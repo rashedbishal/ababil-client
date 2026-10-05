@@ -13,19 +13,21 @@ class BlockedIpController extends Controller
 {
     public function index(): Response
     {
+        $blockedIps = BlockedIp::query()
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
         return Inertia::render('admin/blocked-ips/index', [
-            'blockedIps' => BlockedIp::query()
-                ->latest()
-                ->get()
-                ->map(fn (BlockedIp $blockedIp) => [
-                    'id' => $blockedIp->id,
-                    'ip_address' => $blockedIp->ip_address,
-                    'reason' => $blockedIp->reason,
-                    'blocked_at' => $blockedIp->blocked_at->toIso8601String(),
-                    'expires_at' => $blockedIp->expires_at?->toIso8601String(),
-                    'is_active' => $blockedIp->is_active,
-                    'is_currently_blocking' => $blockedIp->isCurrentlyBlocking(),
-                ]),
+            'blockedIps' => $blockedIps->through(fn (BlockedIp $blockedIp) => [
+                'id' => $blockedIp->id,
+                'ip_address' => $blockedIp->ip_address,
+                'reason' => $blockedIp->reason,
+                'blocked_at' => $blockedIp->blocked_at->toIso8601String(),
+                'expires_at' => $blockedIp->expires_at?->toIso8601String(),
+                'is_active' => $blockedIp->is_active,
+                'is_currently_blocking' => $blockedIp->isCurrentlyBlocking(),
+            ]),
         ]);
     }
 

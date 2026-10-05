@@ -31,7 +31,7 @@ function ShippingAreaCard({ area }: { area: ShippingArea }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{area.name}</CardTitle>
+                <CardTitle className="min-h-12">{area.name}</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={submit} className="flex items-end gap-3">

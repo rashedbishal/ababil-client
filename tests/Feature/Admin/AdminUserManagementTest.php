@@ -13,9 +13,9 @@ test('an admin sees themselves and other admins but not the mother admin', funct
 
     $response->assertInertia(fn ($page) => $page
         ->where('viewerId', $viewer->id)
-        ->has('admins', 2));
+        ->has('admins.data', 2));
 
-    $ids = collect($response->inertiaPage()['props']['admins'])->pluck('id');
+    $ids = collect($response->inertiaPage()['props']['admins']['data'])->pluck('id');
 
     expect($ids)
         ->toContain($viewer->id)
@@ -31,8 +31,8 @@ test('the mother admin sees regular admins but never herself', function () {
     $response = $this->get(route('admin.admins.index'));
 
     $response->assertInertia(fn ($page) => $page
-        ->has('admins', 1)
-        ->where('admins.0.id', $regularAdmin->id));
+        ->has('admins.data', 1)
+        ->where('admins.data.0.id', $regularAdmin->id));
 });
 
 test('an admin can create a new admin account', function () {

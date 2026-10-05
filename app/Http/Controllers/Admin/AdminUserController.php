@@ -23,11 +23,12 @@ class AdminUserController extends Controller
             ->where('is_admin', true)
             ->where('is_mother_admin', false)
             ->orderBy('name')
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         return Inertia::render('admin/admins/index', [
             'viewerId' => $viewer->id,
-            'admins' => $admins->map(fn (User $admin) => [
+            'admins' => $admins->through(fn (User $admin) => [
                 'id' => $admin->id,
                 'name' => $admin->name,
                 'email' => $admin->email,

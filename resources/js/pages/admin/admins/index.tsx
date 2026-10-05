@@ -2,6 +2,7 @@ import { Head, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { Pagination } from '@/components/pagination';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +24,7 @@ import {
 } from '@/components/ui/table';
 import admins from '@/routes/admin/admins';
 import { dashboard } from '@/routes/admin';
+import type { Paginated } from '@/types';
 
 type AdminUser = {
     id: number;
@@ -46,12 +48,13 @@ const emptyForm: FormValues = {
 };
 
 export default function AdminsIndex({
-    admins: list,
+    admins: paginated,
     viewerId,
 }: {
-    admins: AdminUser[];
+    admins: Paginated<AdminUser>;
     viewerId: number;
 }) {
+    const list = paginated.data;
     const [editing, setEditing] = useState<AdminUser | 'new' | null>(null);
     const form = useForm<FormValues>(emptyForm);
 
@@ -212,6 +215,8 @@ export default function AdminsIndex({
                     </TableBody>
                 </Table>
             </div>
+
+            <Pagination links={paginated.links} />
 
             <Dialog
                 open={editing !== null}
