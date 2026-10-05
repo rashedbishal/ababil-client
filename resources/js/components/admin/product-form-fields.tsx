@@ -5,8 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-export type MediaOption = { id: number; url: string; filename: string };
-
 export type ProductFormValues = {
     name: string;
     slug: string;
@@ -15,7 +13,6 @@ export type ProductFormValues = {
     description: string | null;
     regular_price: string;
     sale_price: string | null;
-    featured_image_id: number | null;
     track_stock: boolean;
     stock: number;
     weight: string;
@@ -28,12 +25,10 @@ export type ProductFormValues = {
 
 export function ProductFormFields({
     defaults,
-    media,
     errors,
     canSetVisibility,
 }: {
     defaults: ProductFormValues;
-    media: MediaOption[];
     errors: Partial<Record<string, string>>;
     canSetVisibility: boolean;
 }) {
@@ -265,29 +260,6 @@ export function ProductFormFields({
                         regardless of the selected area.
                     </p>
                     <InputError message={errors.free_delivery} />
-                </fieldset>
-
-                <fieldset className="grid gap-4 rounded-lg border p-4">
-                    <legend className="px-1 text-sm font-medium">
-                        Featured image
-                    </legend>
-                    <select
-                        name="featured_image_id"
-                        defaultValue={defaults.featured_image_id ?? ''}
-                        className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
-                    >
-                        <option value="">None</option>
-                        {media.map((item) => (
-                            <option key={item.id} value={item.id}>
-                                {item.filename}
-                            </option>
-                        ))}
-                    </select>
-                    <p className="text-xs text-muted-foreground">
-                        Upload images from the Media library first, then pick
-                        one here.
-                    </p>
-                    <InputError message={errors.featured_image_id} />
                 </fieldset>
             </div>
         </div>

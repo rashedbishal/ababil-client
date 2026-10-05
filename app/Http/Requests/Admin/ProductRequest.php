@@ -30,7 +30,6 @@ class ProductRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'regular_price' => ['required', 'numeric', 'min:0'],
             'sale_price' => ['nullable', 'numeric', 'min:0', 'lt:regular_price'],
-            'featured_image_id' => ['nullable', 'integer', 'exists:media,id'],
             'track_stock' => ['boolean'],
             'stock' => ['required_if:track_stock,true', 'integer', 'min:0'],
             'weight' => ['required', 'numeric', 'min:0.05', 'max:1000'],

@@ -16,17 +16,17 @@ class AdminUserController extends Controller
     {
         $viewer = $request->user();
 
+        // The mother admin is never listed or manageable here, even by
+        // herself - her credentials are reset only via the
+        // `ababil:mother-admin` CLI command.
         $admins = User::query()
             ->where('is_admin', true)
-            ->where('id', '!=', $viewer->id)
-            // The mother admin is invisible to every other admin - only she
-            // can see herself, and even then not through this "other admins"
-            // list (she's already excluded above by the self check).
-            ->when(! $viewer->is_mother_admin, fn ($query) => $query->where('is_mother_admin', false))
+            ->where('is_mother_admin', false)
             ->orderBy('name')
             ->get();
 
         return Inertia::render('admin/admins/index', [
+            'viewerId' => $viewer->id,
             'admins' => $admins->map(fn (User $admin) => [
                 'id' => $admin->id,
                 'name' => $admin->name,
@@ -58,7 +58,7 @@ class AdminUserController extends Controller
 
     public function update(AdminUserRequest $request, User $admin): RedirectResponse
     {
-        $this->guardAgainstManagingSelfOrMotherAdmin($request, $admin);
+        $this->guardAgainstManagingMotherAdmin($admin);
 
         $admin->update([
             'name' => $request->string('name')->toString(),
@@ -88,7 +88,13 @@ class AdminUserController extends Controller
     private function guardAgainstManagingSelfOrMotherAdmin(Request $request, User $admin): void
     {
         abort_unless($admin->is_admin, 404);
-        abort_if($admin->id === $request->user()->id, 403, "You can't manage your own account here - use Settings instead.");
+        abort_if($admin->id === $request->user()->id, 403, "You can't remove your own account.");
+        abort_if($admin->is_mother_admin, 403, 'This account cannot be managed.');
+    }
+
+    private function guardAgainstManagingMotherAdmin(User $admin): void
+    {
+        abort_unless($admin->is_admin, 404);
         abort_if($admin->is_mother_admin, 403, 'This account cannot be managed.');
     }
 }

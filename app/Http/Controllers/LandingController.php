@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\ShippingArea;
@@ -24,8 +23,6 @@ class LandingController extends Controller
         $product = Product::query()
             ->where('is_active', true)
             ->with([
-                'featuredImage',
-                'images.media',
                 'variants' => fn ($query) => $query->where('is_active', true)->with('size'),
             ])
             ->orderBy('sort_order')
@@ -65,8 +62,6 @@ class LandingController extends Controller
             'sku' => $product->sku,
             'free_delivery' => $product->free_delivery,
             'in_stock' => ! $product->track_stock || $product->stock > 0 || $product->hasVariants(),
-            'featured_image_url' => $product->featuredImage?->url(),
-            'gallery_urls' => $product->images->map(fn (ProductImage $image) => $image->media->url())->values(),
             'variants' => $product->variants->map(fn (ProductVariant $variant) => [
                 'id' => $variant->id,
                 'size' => $variant->size?->name,

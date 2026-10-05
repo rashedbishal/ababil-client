@@ -1,9 +1,6 @@
 import { Form, Head } from '@inertiajs/react';
 import ProductController from '@/actions/App/Http/Controllers/Admin/ProductController';
-import {
-    ProductFormFields,
-    type MediaOption,
-} from '@/components/admin/product-form-fields';
+import { ProductFormFields } from '@/components/admin/product-form-fields';
 import {
     VariantsManager,
     type Variant,
@@ -23,8 +20,6 @@ type ProductDetail = {
     description: string | null;
     regular_price: string;
     sale_price: string | null;
-    featured_image_id: number | null;
-    featured_image_url: string | null;
     track_stock: boolean;
     stock: number;
     weight: string;
@@ -38,13 +33,11 @@ type ProductDetail = {
 
 export default function ProductEdit({
     product,
-    media,
     sizes,
     canSetVisibility,
     sizeManagementEnabled,
 }: {
     product: ProductDetail;
-    media: MediaOption[];
     sizes: { id: number; name: string }[];
     canSetVisibility: boolean;
     sizeManagementEnabled: boolean;
@@ -66,7 +59,6 @@ export default function ProductEdit({
                     <>
                         <ProductFormFields
                             defaults={product}
-                            media={media}
                             errors={errors}
                             canSetVisibility={canSetVisibility}
                         />

@@ -45,7 +45,13 @@ const emptyForm: FormValues = {
     password_confirmation: '',
 };
 
-export default function AdminsIndex({ admins: list }: { admins: AdminUser[] }) {
+export default function AdminsIndex({
+    admins: list,
+    viewerId,
+}: {
+    admins: AdminUser[];
+    viewerId: number;
+}) {
     const [editing, setEditing] = useState<AdminUser | 'new' | null>(null);
     const form = useForm<FormValues>(emptyForm);
 
@@ -95,7 +101,7 @@ export default function AdminsIndex({ admins: list }: { admins: AdminUser[] }) {
             <div className="flex items-center justify-between">
                 <Heading
                     title="Admin Management"
-                    description="Create and manage other admin accounts."
+                    description="Create and manage admin accounts, including your own password."
                 />
                 <Button onClick={openCreate}>Create admin</Button>
             </div>
@@ -116,7 +122,7 @@ export default function AdminsIndex({ admins: list }: { admins: AdminUser[] }) {
                                 colSpan={4}
                                 className="text-center text-muted-foreground"
                             >
-                                No other admin accounts yet.
+                                No admin accounts yet.
                             </TableCell>
                         </TableRow>
                     )}
@@ -124,6 +130,11 @@ export default function AdminsIndex({ admins: list }: { admins: AdminUser[] }) {
                         <TableRow key={item.id}>
                             <TableCell className="font-medium">
                                 {item.name}
+                                {item.id === viewerId && (
+                                    <span className="ml-2 text-xs text-muted-foreground">
+                                        (You)
+                                    </span>
+                                )}
                             </TableCell>
                             <TableCell>{item.email}</TableCell>
                             <TableCell>
@@ -142,13 +153,15 @@ export default function AdminsIndex({ admins: list }: { admins: AdminUser[] }) {
                                     >
                                         Edit
                                     </Button>
-                                    <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => remove(item)}
-                                    >
-                                        Remove
-                                    </Button>
+                                    {item.id !== viewerId && (
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => remove(item)}
+                                        >
+                                            Remove
+                                        </Button>
+                                    )}
                                 </div>
                             </TableCell>
                         </TableRow>

@@ -7,8 +7,9 @@ import { cn } from '@/lib/utils';
 
 export default function AppearanceToggleTab({
     className = '',
+    compact = false,
     ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & { compact?: boolean }) {
     const { appearance, updateAppearance } = useAppearance();
 
     const tabs: { value: Appearance; icon: LucideIcon; label: string }[] = [
@@ -28,16 +29,24 @@ export default function AppearanceToggleTab({
             {tabs.map(({ value, icon: Icon, label }) => (
                 <button
                     key={value}
+                    type="button"
+                    title={label}
+                    aria-label={label}
                     onClick={() => updateAppearance(value)}
                     className={cn(
-                        'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
+                        'flex items-center rounded-md transition-colors',
+                        compact
+                            ? 'flex-1 justify-center p-1.5'
+                            : 'px-3.5 py-1.5',
                         appearance === value
                             ? 'bg-white shadow-xs dark:bg-neutral-700 dark:text-neutral-100'
                             : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60',
                     )}
                 >
-                    <Icon className="-ml-1 h-4 w-4" />
-                    <span className="ml-1.5 text-sm">{label}</span>
+                    <Icon className={cn('h-4 w-4', !compact && '-ml-1')} />
+                    {!compact && (
+                        <span className="ml-1.5 text-sm">{label}</span>
+                    )}
                 </button>
             ))}
         </div>

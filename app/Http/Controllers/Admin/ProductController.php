@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
-use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Size;
@@ -19,7 +18,6 @@ class ProductController extends Controller
     {
         $products = Product::query()
             ->withCount('variants')
-            ->with('featuredImage')
             // Deliberately a substring search (not prefix-only): admins
             // reasonably search by a partial product name or a fragment of
             // a SKU. The catalog here is tiny by design (a single-product
@@ -58,7 +56,6 @@ class ProductController extends Controller
                 'variants_count' => $product->variants_count,
                 'is_active' => $product->is_active,
                 'is_archived' => $product->trashed(),
-                'featured_image_url' => $product->featuredImage?->url(),
             ]),
             'filters' => $request->only(['search', 'status']),
             'canCreateProducts' => (bool) config('catalog.product_lock'),
@@ -68,7 +65,6 @@ class ProductController extends Controller
     public function create(): Response
     {
         return Inertia::render('admin/products/create', [
-            'media' => $this->mediaOptions(),
             // A brand-new product only gets a visibility choice if it won't
             // be the sole product in the catalog - the storefront needs at
             // least one active product to show.
@@ -93,7 +89,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): Response
     {
-        $product->load(['variants.size', 'featuredImage']);
+        $product->load('variants.size');
 
         return Inertia::render('admin/products/edit', [
             'product' => [
@@ -105,8 +101,6 @@ class ProductController extends Controller
                 'description' => $product->description,
                 'regular_price' => (string) $product->regular_price,
                 'sale_price' => $product->sale_price !== null ? (string) $product->sale_price : null,
-                'featured_image_id' => $product->featured_image_id,
-                'featured_image_url' => $product->featuredImage?->url(),
                 'track_stock' => $product->track_stock,
                 'stock' => $product->stock,
                 'weight' => (string) $product->weight,
@@ -125,7 +119,6 @@ class ProductController extends Controller
                     'is_active' => $variant->is_active,
                 ]),
             ],
-            'media' => $this->mediaOptions(),
             'sizes' => Size::query()->where('is_active', true)->orderBy('sort_order')->get(['id', 'name']),
             // If this is the only product in the whole catalog, it must stay
             // active - there'd otherwise be nothing for the storefront to show.
@@ -165,22 +158,5 @@ class ProductController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Product restored.']);
 
         return back();
-    }
-
-    /**
-     * @return array<int, array{id: int, url: string, filename: string}>
-     */
-    private function mediaOptions(): array
-    {
-        return Media::query()
-            ->latest()
-            ->limit(100)
-            ->get()
-            ->map(fn (Media $media) => [
-                'id' => $media->id,
-                'url' => $media->url(),
-                'filename' => $media->original_filename,
-            ])
-            ->all();
     }
 }

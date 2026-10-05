@@ -38,8 +38,6 @@ type Product = {
     sku: string;
     free_delivery: boolean;
     in_stock: boolean;
-    featured_image_url: string | null;
-    gallery_urls: string[];
     variants: {
         id: number;
         size: string | null;

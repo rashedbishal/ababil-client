@@ -1,7 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
-    Images,
     LayoutGrid,
     ListOrdered,
     Package,
@@ -33,7 +32,6 @@ import blockedIps from '@/routes/admin/blocked-ips';
 import courier from '@/routes/admin/courier';
 import { dashboard } from '@/routes/admin';
 import incompleteOrders from '@/routes/admin/incomplete-orders';
-import media from '@/routes/admin/media';
 import orders from '@/routes/admin/orders';
 import products from '@/routes/admin/products';
 import settings from '@/routes/admin/settings';
@@ -100,10 +98,6 @@ function buildGroups(
                     icon: Undo2,
                 },
             ],
-        },
-        {
-            label: 'Content',
-            items: [{ title: 'Media', href: media.index(), icon: Images }],
         },
         {
             label: 'Security',
@@ -205,7 +199,7 @@ export function AdminSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
-                <NavUser />
+                <NavUser showSettingsLink={false} showAppearanceToggle />
             </SidebarFooter>
         </Sidebar>
     );

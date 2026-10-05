@@ -26,7 +26,6 @@ type ProductRow = {
     variants_count: number;
     is_active: boolean;
     is_archived: boolean;
-    featured_image_url: string | null;
 };
 
 export default function ProductsIndex({

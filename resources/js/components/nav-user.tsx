@@ -15,7 +15,15 @@ import { UserInfo } from '@/components/user-info';
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-export function NavUser() {
+type Props = {
+    showSettingsLink?: boolean;
+    showAppearanceToggle?: boolean;
+};
+
+export function NavUser({
+    showSettingsLink = true,
+    showAppearanceToggle = false,
+}: Props = {}) {
     const { auth } = usePage().props;
     const { state } = useSidebar();
     const isMobile = useIsMobile();
@@ -49,7 +57,11 @@ export function NavUser() {
                                   : 'bottom'
                         }
                     >
-                        <UserMenuContent user={auth.user} />
+                        <UserMenuContent
+                            user={auth.user}
+                            showSettingsLink={showSettingsLink}
+                            showAppearanceToggle={showAppearanceToggle}
+                        />
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

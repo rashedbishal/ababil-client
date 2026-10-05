@@ -1,19 +1,14 @@
 import { Form, Head } from '@inertiajs/react';
 import ProductController from '@/actions/App/Http/Controllers/Admin/ProductController';
-import {
-    ProductFormFields,
-    type MediaOption,
-} from '@/components/admin/product-form-fields';
+import { ProductFormFields } from '@/components/admin/product-form-fields';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { dashboard } from '@/routes/admin';
 import products from '@/routes/admin/products';
 
 export default function ProductCreate({
-    media,
     canSetVisibility,
 }: {
-    media: MediaOption[];
     canSetVisibility: boolean;
 }) {
     return (
@@ -37,7 +32,6 @@ export default function ProductCreate({
                                 description: '',
                                 regular_price: '',
                                 sale_price: '',
-                                featured_image_id: null,
                                 track_stock: true,
                                 stock: 0,
                                 weight: '0.5',
@@ -47,7 +41,6 @@ export default function ProductCreate({
                                 meta_description: '',
                                 sort_order: 0,
                             }}
-                            media={media}
                             errors={errors}
                             canSetVisibility={canSetVisibility}
                         />

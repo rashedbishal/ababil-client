@@ -3,7 +3,7 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-test('an admin sees other admins but not themselves or the mother admin', function () {
+test('an admin sees themselves and other admins but not the mother admin', function () {
     $viewer = $this->actingAsAdmin();
     $otherAdmin = User::factory()->create(['is_admin' => true, 'name' => 'Other Admin']);
     $motherAdmin = User::factory()->create(['is_admin' => true, 'is_mother_admin' => true, 'name' => 'Mother Admin']);
@@ -12,11 +12,14 @@ test('an admin sees other admins but not themselves or the mother admin', functi
     $response = $this->get(route('admin.admins.index'));
 
     $response->assertInertia(fn ($page) => $page
-        ->has('admins', 1)
-        ->where('admins.0.id', $otherAdmin->id));
+        ->where('viewerId', $viewer->id)
+        ->has('admins', 2));
 
-    expect(collect($response->inertiaPage()['props']['admins'])->pluck('id'))
-        ->not->toContain($viewer->id)
+    $ids = collect($response->inertiaPage()['props']['admins'])->pluck('id');
+
+    expect($ids)
+        ->toContain($viewer->id)
+        ->toContain($otherAdmin->id)
         ->not->toContain($motherAdmin->id)
         ->not->toContain($nonAdmin->id);
 });
@@ -140,16 +143,22 @@ test('an admin cannot delete their own account through admin management', functi
     expect(User::query()->find($admin->id))->not->toBeNull();
 });
 
-test('an admin cannot edit their own account through admin management', function () {
+test('an admin can edit their own name, email, and password through admin management', function () {
     $admin = $this->actingAsAdmin();
 
     $response = $this->put(route('admin.admins.update', $admin), [
-        'name' => 'Hacked Name',
-        'email' => $admin->email,
+        'name' => 'Renamed Self',
+        'email' => 'renamed-self@example.com',
+        'password' => 'brand-new-password',
+        'password_confirmation' => 'brand-new-password',
     ]);
 
-    $response->assertForbidden();
-    expect($admin->fresh()->name)->not->toBe('Hacked Name');
+    $response->assertRedirect();
+    $admin->refresh();
+
+    expect($admin->name)->toBe('Renamed Self')
+        ->and($admin->email)->toBe('renamed-self@example.com')
+        ->and(Hash::check('brand-new-password', $admin->password))->toBeTrue();
 });
 
 test('no admin can delete the mother admin', function () {

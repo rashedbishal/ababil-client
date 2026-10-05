@@ -6,7 +6,6 @@ use App\Support\Decimal;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -20,7 +19,6 @@ use Illuminate\Support\Carbon;
  * @property string|null $description
  * @property string $regular_price
  * @property string|null $sale_price
- * @property int|null $featured_image_id
  * @property bool $track_stock
  * @property int $stock
  * @property string $weight
@@ -46,7 +44,6 @@ class Product extends Model
         'description',
         'regular_price',
         'sale_price',
-        'featured_image_id',
         'track_stock',
         'stock',
         'weight',
@@ -69,14 +66,6 @@ class Product extends Model
             'is_active' => 'boolean',
             'sort_order' => 'integer',
         ];
-    }
-
-    /**
-     * @return BelongsTo<Media, $this>
-     */
-    public function featuredImage(): BelongsTo
-    {
-        return $this->belongsTo(Media::class, 'featured_image_id');
     }
 
     /**

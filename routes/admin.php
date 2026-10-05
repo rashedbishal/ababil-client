@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\BlockedIpController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\IncompleteOrderController;
-use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderCourierController;
 use App\Http\Controllers\Admin\ProductController;
@@ -50,8 +49,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('courier/{provider}', [CourierController::class, 'update'])
         ->whereIn('provider', ['pathao', 'steadfast', 'redx'])
         ->name('courier.update');
-
-    Route::resource('media', MediaController::class)->parameters(['media' => 'media'])->only(['index', 'store', 'destroy']);
 
     Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::patch('settings', [SettingController::class, 'update'])->name('settings.update');
