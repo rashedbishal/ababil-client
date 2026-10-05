@@ -17,6 +17,21 @@ test('the incomplete orders index lists tracked checkout sessions', function () 
             ->where('incompleteOrders.data.0.customer_name', 'Jane Doe'));
 });
 
+test('a converted incomplete order is excluded from the index', function () {
+    $this->actingAsAdmin();
+
+    IncompleteOrder::query()->create([
+        'session_token' => 'session-1',
+        'customer_name' => 'Jane Doe',
+        'conversion_status' => 'converted',
+        'last_activity_at' => now(),
+    ]);
+
+    $this->get(route('admin.incomplete-orders.index'))
+        ->assertInertia(fn ($page) => $page
+            ->where('incompleteOrders.data', []));
+});
+
 test('an admin can delete an incomplete order', function () {
     $this->actingAsAdmin();
 

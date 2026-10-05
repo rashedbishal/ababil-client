@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\IncompleteOrderConversionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\IncompleteOrder;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +14,11 @@ class IncompleteOrderController extends Controller
     public function index(): Response
     {
         $incompleteOrders = IncompleteOrder::query()
-            ->with(['product', 'variant.size', 'shippingArea', 'order'])
+            // Once a session's checkout actually goes through, it's an
+            // order now - PlaceOrderAction already marks it Converted, so
+            // it belongs in the orders list, not cluttering this one.
+            ->where('conversion_status', '!=', IncompleteOrderConversionStatus::Converted)
+            ->with(['product', 'variant.size', 'shippingArea'])
             ->latest('last_activity_at')
             ->paginate(20)
             ->withQueryString();
@@ -29,7 +34,6 @@ class IncompleteOrderController extends Controller
                 'shipping_area_name' => $incomplete->shippingArea?->name,
                 'customer_ip' => $incomplete->customer_ip,
                 'conversion_status' => $incomplete->conversion_status->label(),
-                'order_number' => $incomplete->order?->order_number,
                 'last_activity_at' => $incomplete->last_activity_at?->toIso8601String(),
             ]),
         ]);

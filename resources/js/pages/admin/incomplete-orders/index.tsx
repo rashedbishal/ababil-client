@@ -25,7 +25,6 @@ type Row = {
     shipping_area_name: string | null;
     customer_ip: string | null;
     conversion_status: string;
-    order_number: string | null;
     last_activity_at: string | null;
 };
 

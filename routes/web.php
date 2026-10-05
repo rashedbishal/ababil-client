@@ -18,7 +18,7 @@ Route::post('site-visits', [SiteVisitController::class, 'store'])
 
 Route::middleware(['blocked-ip'])->group(function (): void {
     Route::post('orders', [OrderController::class, 'store'])
-        ->middleware('throttle:10,1')
+        ->middleware('throttle:5,1')
         ->name('orders.store');
 
     Route::post('incomplete-orders', [IncompleteOrderController::class, 'store'])
