@@ -126,14 +126,28 @@ class PlaceOrderAction
                 'note' => 'Order placed by customer.',
             ]);
 
-            if (! empty($data['session_token'])) {
-                IncompleteOrder::query()
-                    ->where('session_token', $data['session_token'])
-                    ->update([
-                        'conversion_status' => IncompleteOrderConversionStatus::Converted,
-                        'order_id' => $order->id,
-                    ]);
-            }
+            // Convert every still-pending incomplete-order row this
+            // purchase accounts for - not just the one matching this
+            // browser's own session token. A shopper can abandon checkout
+            // on one device/session and come back to complete it on
+            // another (or after a session token rotated), leaving an
+            // older row under the same phone number stuck as "incomplete"
+            // forever even though they did, in fact, order. Already-
+            // converted rows (a *previous*, separate order) are left
+            // untouched.
+            IncompleteOrder::query()
+                ->where('conversion_status', IncompleteOrderConversionStatus::Pending)
+                ->where(function ($query) use ($data): void {
+                    $query->where('customer_phone', $data['customer_phone']);
+
+                    if (! empty($data['session_token'])) {
+                        $query->orWhere('session_token', $data['session_token']);
+                    }
+                })
+                ->update([
+                    'conversion_status' => IncompleteOrderConversionStatus::Converted,
+                    'order_id' => $order->id,
+                ]);
 
             return $order;
         });

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { toEnglishDigits } from '@/lib/bangla-digits';
 import { shippingAreaLabel } from '@/lib/shipping-area';
 import Reveal from './motion/reveal';
 import QuantityStepper from './quantity-stepper';
@@ -220,13 +221,32 @@ export default function CheckoutSection({
                                         <Input
                                             id="customer_name"
                                             value={customerName}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
+                                                try {
+                                                    e.target.setCustomValidity(
+                                                        '',
+                                                    );
+                                                } catch {
+                                                    // Ignore - see the
+                                                    // phone field's onChange
+                                                    // for why this must
+                                                    // never block the
+                                                    // actual state update.
+                                                }
+
                                                 onCustomerNameChange(
                                                     e.target.value,
+                                                );
+                                            }}
+                                            onInvalid={(e) =>
+                                                e.currentTarget.setCustomValidity(
+                                                    'Name may only contain letters, spaces, dots, and hyphens (no numbers or links).',
                                                 )
                                             }
                                             placeholder="আপনার নাম লিখুন"
                                             className={fieldClass}
+                                            maxLength={60}
+                                            pattern="[\p{Script=Bengali}\p{Script=Latin} .\-]+"
                                             required
                                         />
                                         <InputError
@@ -247,9 +267,32 @@ export default function CheckoutSection({
                                             inputMode="numeric"
                                             pattern="01[3-9][0-9]{8}"
                                             value={customerPhone}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
+                                                // The actual state update
+                                                // (and the abandoned-checkout
+                                                // tracking it triggers) must
+                                                // never be blocked by this -
+                                                // it's just resetting the
+                                                // native validation message,
+                                                // not core to the field
+                                                // working.
+                                                try {
+                                                    e.target.setCustomValidity(
+                                                        '',
+                                                    );
+                                                } catch {
+                                                    // Ignore - see above.
+                                                }
+
                                                 onCustomerPhoneChange(
-                                                    e.target.value,
+                                                    toEnglishDigits(
+                                                        e.target.value,
+                                                    ),
+                                                );
+                                            }}
+                                            onInvalid={(e) =>
+                                                e.currentTarget.setCustomValidity(
+                                                    'Please provide a 11 digit valid Bangladesh phone number starts with 01',
                                                 )
                                             }
                                             placeholder="01XXXXXXXXX"
@@ -282,6 +325,7 @@ export default function CheckoutSection({
                                         className={fieldClass}
                                         required
                                         minLength={10}
+                                        maxLength={200}
                                     />
                                     <InputError
                                         message={errors.delivery_address}
@@ -377,6 +421,7 @@ export default function CheckoutSection({
                                         }
                                         placeholder="বিশেষ কোনো নির্দেশনা থাকলে লিখুন"
                                         className={fieldClass}
+                                        maxLength={100}
                                     />
                                     <InputError
                                         message={errors.customer_note}

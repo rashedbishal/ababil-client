@@ -14,8 +14,8 @@ class IncompleteOrderController extends Controller
         $sessionToken = $data['session_token'];
         unset($data['session_token']);
 
-        $action->execute($sessionToken, $data, $request->ip(), $request->userAgent());
+        $usedSessionToken = $action->execute($sessionToken, $data, $request->ip(), $request->userAgent());
 
-        return response()->json(['status' => 'ok']);
+        return response()->json(['status' => 'ok', 'session_token' => $usedSessionToken]);
     }
 }

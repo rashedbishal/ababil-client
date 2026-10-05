@@ -107,7 +107,7 @@ export default function Welcome({
         website: '',
     });
 
-    const sessionToken = useCheckoutSession();
+    const [sessionToken, rotateCheckoutSession] = useCheckoutSession();
     const tracker = useHttp({
         session_token: sessionToken,
         product_id: product?.id ?? null,
@@ -163,6 +163,29 @@ export default function Welcome({
                 'delivery_address',
                 'customer_note',
             );
+
+            // A debounced tracking call from just before submit can still
+            // be waiting to fire - left alone, it lands *after* this order
+            // already exists, creating a fresh "incomplete" row for a
+            // phone number that literally just finished checkout, which
+            // nothing afterward will ever convert. Cancel it.
+            if (trackTimeout.current) {
+                clearTimeout(trackTimeout.current);
+                trackTimeout.current = null;
+            }
+
+            // The form above resets so the shopper can place another order
+            // without reloading - start a fresh checkout session too, or
+            // tracking a next attempt would keep upserting the row that was
+            // just marked Converted instead of a new one.
+            const freshSessionToken = rotateCheckoutSession();
+            tracker.setData((data) => ({
+                ...data,
+                session_token: freshSessionToken,
+                customer_name: '',
+                customer_phone: '',
+                delivery_address: '',
+            }));
         });
     }, []);
 
@@ -171,10 +194,38 @@ export default function Welcome({
 
         if (trackTimeout.current) {
             clearTimeout(trackTimeout.current);
+            trackTimeout.current = null;
+        }
+
+        // updateAndTrack() always forwards the full current value of every
+        // tracked field (not just whichever one changed), so this reflects
+        // what's actually in the phone field right now, regardless of
+        // which field triggered this call.
+        const phone = partial.customer_phone ?? '';
+
+        if (!/^01[3-9]\d{8}$/.test(phone)) {
+            return;
         }
 
         trackTimeout.current = setTimeout(() => {
-            void tracker.post(incompleteOrders.store().url);
+            void tracker.post(incompleteOrders.store().url, {
+                onSuccess: (response) => {
+                    const usedSessionToken = (
+                        response as { session_token?: string } | null
+                    )?.session_token;
+
+                    // The backend rotates the token itself if the one we
+                    // sent already belonged to a converted order (e.g. a
+                    // stale value saved before this rotation logic
+                    // existed) - adopt whatever it actually used so the
+                    // next tracking call (and a placed order's own
+                    // session_token) stays in sync with it.
+                    if (usedSessionToken && usedSessionToken !== sessionToken) {
+                        rotateCheckoutSession(usedSessionToken);
+                        tracker.setData('session_token', usedSessionToken);
+                    }
+                },
+            });
         }, 2000);
     }
 

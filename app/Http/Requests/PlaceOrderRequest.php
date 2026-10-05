@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\NoUrl;
+use App\Support\BanglaDigits;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -22,6 +24,21 @@ class PlaceOrderRequest extends FormRequest
     }
 
     /**
+     * The checkout form converts Bangla-Indic digits to English as the
+     * customer types, but that's client-side only - normalize here too so
+     * a phone number typed in Bangla still passes the format rule below
+     * even if JS never ran.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('customer_phone')) {
+            $this->merge([
+                'customer_phone' => BanglaDigits::toEnglish($this->string('customer_phone')->toString()),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * Only identifiers and customer-supplied information are accepted here.
@@ -36,19 +53,40 @@ class PlaceOrderRequest extends FormRequest
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:50'],
-            'customer_name' => ['required', 'string', 'max:255'],
+            // Latin or Bangla letters (covering English and Bangla names,
+            // the two scripts this storefront actually sees), spaces,
+            // dots, and hyphens only: no digits, and nothing a URL needs
+            // (:, /, @) can even be typed here. NoUrl still applies - a
+            // bare domain like "example.com" is just letters and a dot.
+            //
+            // \p{L} (the general "any letter" category) is deliberately
+            // NOT used here - on this PHP/PCRE build it fails to match
+            // Bangla script at all (verified: \p{Bengali} and explicit
+            // script names work, \p{L} does not), which would silently
+            // reject every Bangla name in production.
+            'customer_name' => ['required', 'string', 'max:60', 'regex:/^[\p{Latin}\p{Bengali} .\-]+$/u', new NoUrl],
             // Matches the Bangladeshi mobile format the frontend's own
             // input pattern already enforces - the backend must not be
             // looser than what the form claims to require.
             'customer_phone' => ['required', 'string', 'regex:/^01[3-9][0-9]{8}$/'],
-            'delivery_address' => ['required', 'string', 'min:10', 'max:1000'],
+            'delivery_address' => ['required', 'string', 'min:10', 'max:200', new NoUrl],
             'shipping_area_id' => ['required', 'integer', 'exists:shipping_areas,id'],
-            'customer_note' => ['nullable', 'string', 'max:1000'],
+            'customer_note' => ['nullable', 'string', 'max:100', new NoUrl],
             'session_token' => ['nullable', 'string', 'max:100'],
             'form_token' => ['required', 'string'],
             // Honeypot: real visitors never see or fill this field. Bots
             // that blindly autofill every input trip it.
             'website' => ['prohibited'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'customer_name.regex' => 'The name field may only contain letters, spaces, dots, and hyphens.',
         ];
     }
 
