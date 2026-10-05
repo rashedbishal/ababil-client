@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 import Heading from '@/components/heading';
 import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
@@ -45,20 +46,66 @@ export default function OrdersIndex({
     filters: Filters;
     statuses: { value: string; label: string }[];
 }) {
+    const [orderNumber, setOrderNumber] = useState(filters.order_number ?? '');
+    const [phone, setPhone] = useState(filters.phone ?? '');
+    const [status, setStatus] = useState(filters.status ?? '');
+    const [from, setFrom] = useState(filters.from ?? '');
+    const [to, setTo] = useState(filters.to ?? '');
+
+    // Skip the effect on mount - the page already rendered with these
+    // filters applied server-side, so re-requesting the same query on load
+    // would just be a wasted round trip.
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            router.get(
+                orders.index().url,
+                {
+                    order_number: orderNumber || undefined,
+                    phone: phone || undefined,
+                    status: status || undefined,
+                    from: from || undefined,
+                    to: to || undefined,
+                },
+                { preserveState: true, preserveScroll: true, replace: true },
+            );
+            // Short debounce so free-text typing doesn't fire a request per
+            // keystroke; a status/date change settles into it just as fast
+            // since there's nothing further to type.
+        }, 350);
+
+        return () => clearTimeout(timeout);
+    }, [orderNumber, phone, status, from, to]);
+
+    function reset() {
+        setOrderNumber('');
+        setPhone('');
+        setStatus('');
+        setFrom('');
+        setTo('');
+    }
+
     return (
         <>
             <Head title="Orders" />
 
             <Heading title="Orders" description="All customer orders." />
 
-            <form method="get" className="flex flex-wrap items-end gap-2">
+            <div className="flex flex-wrap items-end gap-2">
                 <div className="grid gap-1">
                     <label className="text-xs text-muted-foreground">
                         Order #
                     </label>
                     <Input
-                        name="order_number"
-                        defaultValue={filters.order_number ?? ''}
+                        value={orderNumber}
+                        onChange={(e) => setOrderNumber(e.target.value)}
                         className="w-40"
                     />
                 </div>
@@ -67,8 +114,8 @@ export default function OrdersIndex({
                         Phone
                     </label>
                     <Input
-                        name="phone"
-                        defaultValue={filters.phone ?? ''}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                         className="w-40"
                     />
                 </div>
@@ -77,14 +124,14 @@ export default function OrdersIndex({
                         Status
                     </label>
                     <select
-                        name="status"
-                        defaultValue={filters.status ?? ''}
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
                         className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
                     >
                         <option value="">All statuses</option>
-                        {statuses.map((status) => (
-                            <option key={status.value} value={status.value}>
-                                {status.label}
+                        {statuses.map((s) => (
+                            <option key={s.value} value={s.value}>
+                                {s.label}
                             </option>
                         ))}
                     </select>
@@ -95,25 +142,22 @@ export default function OrdersIndex({
                     </label>
                     <Input
                         type="date"
-                        name="from"
-                        defaultValue={filters.from ?? ''}
+                        value={from}
+                        onChange={(e) => setFrom(e.target.value)}
                     />
                 </div>
                 <div className="grid gap-1">
                     <label className="text-xs text-muted-foreground">To</label>
                     <Input
                         type="date"
-                        name="to"
-                        defaultValue={filters.to ?? ''}
+                        value={to}
+                        onChange={(e) => setTo(e.target.value)}
                     />
                 </div>
-                <Button type="submit" variant="secondary">
-                    Filter
+                <Button type="button" variant="ghost" onClick={reset}>
+                    Reset
                 </Button>
-                <Button type="button" variant="ghost" asChild>
-                    <Link href={orders.index()}>Reset</Link>
-                </Button>
-            </form>
+            </div>
 
             <Table>
                 <TableHeader>
@@ -140,11 +184,15 @@ export default function OrdersIndex({
                     {paginated.data.map((order) => (
                         <TableRow
                             key={order.id}
-                            className={order.is_new ? 'font-bold' : undefined}
+                            onClick={() =>
+                                router.visit(orders.show(order.id).url)
+                            }
+                            className={`cursor-pointer ${order.is_new ? 'font-bold' : ''}`}
                         >
                             <TableCell>
                                 <Link
                                     href={orders.show(order.id)}
+                                    onClick={(e) => e.stopPropagation()}
                                     className={`text-primary hover:underline ${order.is_new ? 'font-bold' : 'font-medium'}`}
                                 >
                                     {order.order_number}
