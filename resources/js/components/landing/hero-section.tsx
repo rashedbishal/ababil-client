@@ -67,7 +67,6 @@ const heroSlides: HeroSlide[] = [
     },
 ];
 
-const BENGALI_NUMERALS = ['০১', '০২', '০৩', '০৪', '০৫'];
 const AUTO_PLAY_DURATION = 7000;
 
 export default function HeroSection() {
@@ -124,7 +123,7 @@ export default function HeroSection() {
         <section
             id="top"
             aria-label="Hero Wallpaper Slider"
-            className="relative flex h-[calc(100svh-4.5rem)] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none"
+            className="relative flex h-[calc(100svh-4.5rem)] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none lg:aspect-[2560/800] lg:h-auto"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
@@ -152,8 +151,8 @@ export default function HeroSection() {
                 />
             </div>
 
-            {/* Full Screen Viewport Slider Container */}
-            <div className="relative h-[calc(100svh-4.5rem)] w-full overflow-hidden">
+            {/* Viewport Slider Container for Mobile/Tab & Aspect Ratio for Desktop */}
+            <div className="relative h-[calc(100svh-4.5rem)] w-full overflow-hidden lg:aspect-[2560/800] lg:h-full">
                 <AnimatePresence initial={false} custom={direction} mode="sync">
                     <motion.div
                         key={page}
@@ -203,17 +202,6 @@ export default function HeroSection() {
                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-black/40" />
                     </motion.div>
                 </AnimatePresence>
-
-                {/* Top-Left Counter Badge */}
-                <div className="absolute top-20 left-4 z-30 flex items-center gap-2 rounded-full border border-amber-400/30 bg-stone-950/80 px-4 py-1.5 shadow-lg backdrop-blur-md sm:top-24 sm:left-8">
-                    <span className="font-bengali text-sm font-bold text-amber-400">
-                        {BENGALI_NUMERALS[activeIndex]}
-                    </span>
-                    <span className="text-xs text-stone-600">/</span>
-                    <span className="font-bengali text-xs text-stone-400 sm:text-sm">
-                        ০৫
-                    </span>
-                </div>
 
                 <div
                     className={`absolute z-30 max-w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-amber-300/30 bg-stone-950/75 px-3 py-2.5 shadow-xl shadow-black/25 backdrop-blur-md ${currentSlide.positionClass}`}
