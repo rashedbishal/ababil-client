@@ -157,55 +157,93 @@ export default function AdminDashboard({
                     <CardTitle>Recent Orders</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Order #</TableHead>
-                                <TableHead>Customer</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Total</TableHead>
-                                <TableHead>Placed</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {recentOrders.length === 0 && (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={5}
-                                        className="text-center text-muted-foreground"
-                                    >
-                                        No orders yet.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                            {recentOrders.map((order) => (
-                                <TableRow key={order.id}>
-                                    <TableCell>
-                                        <Link
-                                            href={orders.show(order.id)}
-                                            className="font-medium text-primary hover:underline"
-                                        >
-                                            {order.order_number}
-                                        </Link>
-                                    </TableCell>
-                                    <TableCell>{order.customer_name}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline">
-                                            {order.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>৳ {order.grand_total}</TableCell>
-                                    <TableCell>
+                    {recentOrders.length === 0 && (
+                        <p className="text-center text-sm text-muted-foreground">
+                            No orders yet.
+                        </p>
+                    )}
+
+                    {/* Mobile: card list */}
+                    <div className="grid gap-3 md:hidden">
+                        {recentOrders.map((order) => (
+                            <Link
+                                key={order.id}
+                                href={orders.show(order.id)}
+                                className="block rounded-lg border p-4"
+                            >
+                                <div className="flex items-start justify-between gap-2">
+                                    <span className="font-medium text-primary">
+                                        {order.order_number}
+                                    </span>
+                                    <Badge variant="outline">
+                                        {order.status}
+                                    </Badge>
+                                </div>
+                                <p className="mt-1 text-sm">
+                                    {order.customer_name}
+                                </p>
+                                <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
+                                    <span>
                                         {order.created_at
                                             ? new Date(
                                                   order.created_at,
                                               ).toLocaleString()
                                             : '—'}
-                                    </TableCell>
+                                    </span>
+                                    <span className="font-medium text-foreground">
+                                        ৳ {order.grand_total}
+                                    </span>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+
+                    {/* Desktop: table */}
+                    <div className="hidden md:block">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Order #</TableHead>
+                                    <TableHead>Customer</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Total</TableHead>
+                                    <TableHead>Placed</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {recentOrders.map((order) => (
+                                    <TableRow key={order.id}>
+                                        <TableCell>
+                                            <Link
+                                                href={orders.show(order.id)}
+                                                className="font-medium text-primary hover:underline"
+                                            >
+                                                {order.order_number}
+                                            </Link>
+                                        </TableCell>
+                                        <TableCell>
+                                            {order.customer_name}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant="outline">
+                                                {order.status}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            ৳ {order.grand_total}
+                                        </TableCell>
+                                        <TableCell>
+                                            {order.created_at
+                                                ? new Date(
+                                                      order.created_at,
+                                                  ).toLocaleString()
+                                                : '—'}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
         </>

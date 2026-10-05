@@ -108,77 +108,135 @@ export default function BlockedIpsIndex({
                 <Button onClick={openCreate}>Block an IP</Button>
             </div>
 
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>IP Address</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead>Blocked at</TableHead>
-                        <TableHead>Expires</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {list.length === 0 && (
-                        <TableRow>
-                            <TableCell
-                                colSpan={6}
-                                className="text-center text-muted-foreground"
-                            >
-                                No IPs blocked.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                    {list.map((item) => (
-                        <TableRow key={item.id}>
-                            <TableCell className="font-mono text-sm">
+            {list.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground">
+                    No IPs blocked.
+                </p>
+            )}
+
+            {/* Mobile: card list */}
+            <div className="grid gap-3 md:hidden">
+                {list.map((item) => (
+                    <div key={item.id} className="rounded-lg border p-4">
+                        <div className="flex items-start justify-between gap-2">
+                            <span className="font-mono text-sm font-medium">
                                 {item.ip_address}
-                            </TableCell>
-                            <TableCell className="max-w-xs truncate">
-                                {item.reason ?? '—'}
-                            </TableCell>
-                            <TableCell>
-                                {item.blocked_at
-                                    ? new Date(item.blocked_at).toLocaleString()
-                                    : '—'}
-                            </TableCell>
-                            <TableCell>
-                                {item.expires_at
-                                    ? new Date(item.expires_at).toLocaleString()
-                                    : 'Never'}
-                            </TableCell>
-                            <TableCell>
-                                {item.is_currently_blocking ? (
-                                    <Badge variant="destructive">
-                                        Blocking
-                                    </Badge>
-                                ) : (
-                                    <Badge variant="secondary">Inactive</Badge>
-                                )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                                <div className="flex justify-end gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => openEdit(item)}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => remove(item)}
-                                    >
-                                        Unblock
-                                    </Button>
-                                </div>
-                            </TableCell>
+                            </span>
+                            {item.is_currently_blocking ? (
+                                <Badge variant="destructive">Blocking</Badge>
+                            ) : (
+                                <Badge variant="secondary">Inactive</Badge>
+                            )}
+                        </div>
+                        {item.reason && (
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                {item.reason}
+                            </p>
+                        )}
+                        <p className="mt-2 text-sm text-muted-foreground">
+                            Blocked:{' '}
+                            {item.blocked_at
+                                ? new Date(item.blocked_at).toLocaleString()
+                                : '—'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            Expires:{' '}
+                            {item.expires_at
+                                ? new Date(item.expires_at).toLocaleString()
+                                : 'Never'}
+                        </p>
+                        <div className="mt-3 flex justify-end gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEdit(item)}
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => remove(item)}
+                            >
+                                Unblock
+                            </Button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden md:block">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>IP Address</TableHead>
+                            <TableHead>Reason</TableHead>
+                            <TableHead>Blocked at</TableHead>
+                            <TableHead>Expires</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">
+                                Actions
+                            </TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {list.map((item) => (
+                            <TableRow key={item.id}>
+                                <TableCell className="font-mono text-sm">
+                                    {item.ip_address}
+                                </TableCell>
+                                <TableCell className="max-w-xs truncate">
+                                    {item.reason ?? '—'}
+                                </TableCell>
+                                <TableCell>
+                                    {item.blocked_at
+                                        ? new Date(
+                                              item.blocked_at,
+                                          ).toLocaleString()
+                                        : '—'}
+                                </TableCell>
+                                <TableCell>
+                                    {item.expires_at
+                                        ? new Date(
+                                              item.expires_at,
+                                          ).toLocaleString()
+                                        : 'Never'}
+                                </TableCell>
+                                <TableCell>
+                                    {item.is_currently_blocking ? (
+                                        <Badge variant="destructive">
+                                            Blocking
+                                        </Badge>
+                                    ) : (
+                                        <Badge variant="secondary">
+                                            Inactive
+                                        </Badge>
+                                    )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => openEdit(item)}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => remove(item)}
+                                        >
+                                            Unblock
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
 
             <Dialog
                 open={editing !== null}

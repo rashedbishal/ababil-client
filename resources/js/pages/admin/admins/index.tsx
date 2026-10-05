@@ -106,68 +106,112 @@ export default function AdminsIndex({
                 <Button onClick={openCreate}>Create admin</Button>
             </div>
 
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Created</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {list.length === 0 && (
-                        <TableRow>
-                            <TableCell
-                                colSpan={4}
-                                className="text-center text-muted-foreground"
+            {list.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground">
+                    No admin accounts yet.
+                </p>
+            )}
+
+            {/* Mobile: card list */}
+            <div className="grid gap-3 md:hidden">
+                {list.map((item) => (
+                    <div key={item.id} className="rounded-lg border p-4">
+                        <p className="font-medium">
+                            {item.name}
+                            {item.id === viewerId && (
+                                <span className="ml-2 text-xs text-muted-foreground">
+                                    (You)
+                                </span>
+                            )}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            {item.email}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Created:{' '}
+                            {item.created_at
+                                ? new Date(item.created_at).toLocaleDateString()
+                                : '—'}
+                        </p>
+                        <div className="mt-3 flex justify-end gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEdit(item)}
                             >
-                                No admin accounts yet.
-                            </TableCell>
+                                Edit
+                            </Button>
+                            {item.id !== viewerId && (
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => remove(item)}
+                                >
+                                    Remove
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden md:block">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Created</TableHead>
+                            <TableHead className="text-right">
+                                Actions
+                            </TableHead>
                         </TableRow>
-                    )}
-                    {list.map((item) => (
-                        <TableRow key={item.id}>
-                            <TableCell className="font-medium">
-                                {item.name}
-                                {item.id === viewerId && (
-                                    <span className="ml-2 text-xs text-muted-foreground">
-                                        (You)
-                                    </span>
-                                )}
-                            </TableCell>
-                            <TableCell>{item.email}</TableCell>
-                            <TableCell>
-                                {item.created_at
-                                    ? new Date(
-                                          item.created_at,
-                                      ).toLocaleDateString()
-                                    : '—'}
-                            </TableCell>
-                            <TableCell className="text-right">
-                                <div className="flex justify-end gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => openEdit(item)}
-                                    >
-                                        Edit
-                                    </Button>
-                                    {item.id !== viewerId && (
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() => remove(item)}
-                                        >
-                                            Remove
-                                        </Button>
+                    </TableHeader>
+                    <TableBody>
+                        {list.map((item) => (
+                            <TableRow key={item.id}>
+                                <TableCell className="font-medium">
+                                    {item.name}
+                                    {item.id === viewerId && (
+                                        <span className="ml-2 text-xs text-muted-foreground">
+                                            (You)
+                                        </span>
                                     )}
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                                </TableCell>
+                                <TableCell>{item.email}</TableCell>
+                                <TableCell>
+                                    {item.created_at
+                                        ? new Date(
+                                              item.created_at,
+                                          ).toLocaleDateString()
+                                        : '—'}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => openEdit(item)}
+                                        >
+                                            Edit
+                                        </Button>
+                                        {item.id !== viewerId && (
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => remove(item)}
+                                            >
+                                                Remove
+                                            </Button>
+                                        )}
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
 
             <Dialog
                 open={editing !== null}

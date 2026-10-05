@@ -159,64 +159,102 @@ export default function OrdersIndex({
                 </Button>
             </div>
 
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Order #</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Total</TableHead>
-                        <TableHead>Placed</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {paginated.data.length === 0 && (
-                        <TableRow>
-                            <TableCell
-                                colSpan={6}
-                                className="text-center text-muted-foreground"
+            {paginated.data.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground">
+                    No orders found.
+                </p>
+            )}
+
+            {/* Mobile: card list */}
+            <div className="grid gap-3 md:hidden">
+                {paginated.data.map((order) => (
+                    <Link
+                        key={order.id}
+                        href={orders.show(order.id)}
+                        className="block rounded-lg border p-4"
+                    >
+                        <div className="flex items-start justify-between gap-2">
+                            <span
+                                className={`text-primary ${order.is_new ? 'font-bold' : 'font-medium'}`}
                             >
-                                No orders found.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                    {paginated.data.map((order) => (
-                        <TableRow
-                            key={order.id}
-                            onClick={() =>
-                                router.visit(orders.show(order.id).url)
-                            }
-                            className={`cursor-pointer ${order.is_new ? 'font-bold' : ''}`}
+                                {order.order_number}
+                            </span>
+                            <Badge variant="outline">
+                                {order.status_label}
+                            </Badge>
+                        </div>
+                        <p
+                            className={`mt-1 text-sm ${order.is_new ? 'font-bold' : ''}`}
                         >
-                            <TableCell>
-                                <Link
-                                    href={orders.show(order.id)}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className={`text-primary hover:underline ${order.is_new ? 'font-bold' : 'font-medium'}`}
-                                >
-                                    {order.order_number}
-                                </Link>
-                            </TableCell>
-                            <TableCell>{order.customer_name}</TableCell>
-                            <TableCell>{order.customer_phone}</TableCell>
-                            <TableCell>
-                                <Badge variant="outline">
-                                    {order.status_label}
-                                </Badge>
-                            </TableCell>
-                            <TableCell>৳{order.grand_total}</TableCell>
-                            <TableCell>
+                            {order.customer_name} · {order.customer_phone}
+                        </p>
+                        <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
+                            <span>
                                 {order.created_at
                                     ? new Date(
                                           order.created_at,
                                       ).toLocaleString()
                                     : '—'}
-                            </TableCell>
+                            </span>
+                            <span className="font-medium text-foreground">
+                                ৳{order.grand_total}
+                            </span>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden md:block">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Order #</TableHead>
+                            <TableHead>Customer</TableHead>
+                            <TableHead>Phone</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Total</TableHead>
+                            <TableHead>Placed</TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {paginated.data.map((order) => (
+                            <TableRow
+                                key={order.id}
+                                onClick={() =>
+                                    router.visit(orders.show(order.id).url)
+                                }
+                                className={`cursor-pointer ${order.is_new ? 'font-bold' : ''}`}
+                            >
+                                <TableCell>
+                                    <Link
+                                        href={orders.show(order.id)}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className={`text-primary hover:underline ${order.is_new ? 'font-bold' : 'font-medium'}`}
+                                    >
+                                        {order.order_number}
+                                    </Link>
+                                </TableCell>
+                                <TableCell>{order.customer_name}</TableCell>
+                                <TableCell>{order.customer_phone}</TableCell>
+                                <TableCell>
+                                    <Badge variant="outline">
+                                        {order.status_label}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>৳{order.grand_total}</TableCell>
+                                <TableCell>
+                                    {order.created_at
+                                        ? new Date(
+                                              order.created_at,
+                                          ).toLocaleString()
+                                        : '—'}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
 
             <Pagination links={paginated.links} />
         </>
