@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import CheckoutSection from './checkout-section';
 
@@ -49,15 +49,33 @@ describe('CheckoutSection', () => {
             grandTotal: 1080,
         });
 
-        expect(screen.getByText('৳1000.00')).toBeInTheDocument();
-        expect(screen.getByText('৳80.00')).toBeInTheDocument();
-        expect(screen.getByText('৳1080.00')).toBeInTheDocument();
+        const summary = screen
+            .getByText('সর্বমোট প্রদেয় মূল্য')
+            .closest<HTMLElement>('div.space-y-3')!;
+
+        expect(within(summary).getByText('৳1000.00')).toBeInTheDocument();
+        expect(within(summary).getByText('৳80.00')).toBeInTheDocument();
+        expect(within(summary).getByText('৳1080.00')).toBeInTheDocument();
+    });
+
+    it('shows a radio option per shipping area and selects the chosen one', () => {
+        const props = renderCheckout({ shippingAreaId: 2 });
+
+        const options = screen.getAllByRole('radio');
+        expect(options).toHaveLength(2);
+        expect(options[0]).not.toBeChecked();
+        expect(options[1]).toBeChecked();
+
+        fireEvent.click(options[0]);
+        expect(props.onShippingAreaChange).toHaveBeenCalledWith(1);
     });
 
     it('the honeypot field is present but hidden from real visitors', () => {
         renderCheckout();
 
-        const honeypot = document.querySelector('input[name="website"]');
+        const honeypot = document.querySelector(
+            'input[name="hp_confirm_entry"]',
+        );
         expect(honeypot).not.toBeNull();
         expect(honeypot).toHaveAttribute('tabIndex', '-1');
         expect(honeypot?.parentElement).toHaveAttribute('aria-hidden', 'true');
@@ -66,7 +84,9 @@ describe('CheckoutSection', () => {
     it('typing into the honeypot field reports it back to the parent', () => {
         const props = renderCheckout();
 
-        const honeypot = document.querySelector('input[name="website"]')!;
+        const honeypot = document.querySelector(
+            'input[name="hp_confirm_entry"]',
+        )!;
         fireEvent.change(honeypot, {
             target: { value: 'https://spammer.example' },
         });

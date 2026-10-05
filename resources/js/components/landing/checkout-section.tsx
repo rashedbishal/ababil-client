@@ -5,14 +5,8 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { shippingAreaLabel } from '@/lib/shipping-area';
 import Reveal from './motion/reveal';
 import QuantityStepper from './quantity-stepper';
 
@@ -176,20 +170,32 @@ export default function CheckoutSection({
                                 onSubmit={onSubmit}
                                 className="space-y-5 rounded-3xl border border-amber-200 bg-white p-6 font-bengali shadow-xl shadow-amber-900/10 sm:p-8"
                             >
-                                {/* Anti-Spam Honeypot */}
+                                {/* Anti-Spam Honeypot. The input's `name`
+                                deliberately avoids words like "website" or
+                                "url" - those are exactly what browser/
+                                extension autofill (address-form heuristics,
+                                password managers) key off of, and an
+                                autofilled honeypot rejects a real shopper's
+                                order, not a bot's. `readOnly` blocks native
+                                browser/extension autofill entirely (they
+                                respect it) while leaving the honeypot just
+                                as effective against bots, which set the
+                                value directly via script rather than
+                                through the browser's own autofill. */}
                                 <div
                                     className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
                                     aria-hidden="true"
                                 >
                                     <input
                                         type="text"
-                                        name="website"
+                                        name="hp_confirm_entry"
                                         value={honeypotValue}
                                         onChange={(e) =>
                                             onHoneypotChange(e.target.value)
                                         }
                                         tabIndex={-1}
                                         autoComplete="off"
+                                        readOnly
                                     />
                                 </div>
 
@@ -282,38 +288,48 @@ export default function CheckoutSection({
                                     />
                                 </div>
 
-                                {/* Full Width Delivery Area Select Box */}
+                                {/* Delivery Area Radio Group */}
                                 <div className="grid gap-2">
                                     <Label className="font-semibold text-stone-700">
                                         ডেলিভারি এলাকা
                                     </Label>
-                                    <Select
-                                        value={
-                                            shippingAreaId
-                                                ? String(shippingAreaId)
-                                                : undefined
-                                        }
-                                        onValueChange={(value) =>
-                                            onShippingAreaChange(Number(value))
-                                        }
-                                    >
-                                        <SelectTrigger
-                                            className={`w-full ${fieldClass}`}
-                                        >
-                                            <SelectValue placeholder="এলাকা নির্বাচন করুন" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {shippingAreas.map((area) => (
-                                                <SelectItem
+                                    <div className="grid gap-2 sm:grid-cols-2">
+                                        {shippingAreas.map((area) => {
+                                            const checked =
+                                                shippingAreaId === area.id;
+
+                                            return (
+                                                <label
                                                     key={area.id}
-                                                    value={String(area.id)}
+                                                    className={`flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-2.5 text-sm transition-colors ${
+                                                        checked
+                                                            ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
+                                                            : 'border-amber-200 hover:border-amber-300'
+                                                    }`}
                                                 >
-                                                    {area.name} (৳
-                                                    {area.charge})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                                    <span className="flex items-center gap-2">
+                                                        <input
+                                                            type="radio"
+                                                            name="shipping_area_id"
+                                                            checked={checked}
+                                                            onChange={() =>
+                                                                onShippingAreaChange(
+                                                                    area.id,
+                                                                )
+                                                            }
+                                                            className="size-4 accent-amber-600"
+                                                        />
+                                                        {shippingAreaLabel(
+                                                            area.name,
+                                                        )}
+                                                    </span>
+                                                    <span className="text-xs text-stone-500">
+                                                        ৳{area.charge}
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
                                     <InputError
                                         message={errors.shipping_area_id}
                                     />

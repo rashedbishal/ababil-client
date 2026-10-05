@@ -55,6 +55,19 @@ class PlaceOrderRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
+            // The honeypot's own `prohibited` rule also fails validation,
+            // but under the `website` field - which the frontend never
+            // displays. Surfacing it under `order` too, with the same
+            // non-revealing message as the timing check below, is what
+            // actually gets a real visitor (tripped by browser/extension
+            // autofill, not a bot) a visible, actionable error instead of a
+            // click that silently does nothing.
+            if ($this->filled('website')) {
+                $validator->errors()->add('order', self::BOT_REJECTION_MESSAGE);
+
+                return;
+            }
+
             if (! $this->filled('form_token')) {
                 return;
             }

@@ -214,14 +214,19 @@ test('a delivery address shorter than 10 characters is rejected', function () {
     expect(Order::count())->toBe(0);
 });
 
-test('a filled-in honeypot field silently rejects the order', function () {
+test('a filled-in honeypot field rejects the order with a generic, visible error', function () {
     $product = Product::factory()->create(['track_stock' => true, 'stock' => 10]);
     $shippingArea = ShippingArea::factory()->create();
 
-    $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, [
         'website' => 'https://spammer.example',
     ]));
 
+    // Surfaced under 'order' - the same field the frontend's checkout form
+    // actually displays - not just under 'website', which nothing renders.
+    // A honeypot trips just as easily from browser/extension autofill as
+    // from a bot, so a real shopper must still see why their order failed.
+    $response->assertSessionHasErrors('order');
     expect(Order::count())->toBe(0);
 });
 

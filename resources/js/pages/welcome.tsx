@@ -24,6 +24,7 @@ import TrustSection from '@/components/landing/trust-section';
 import UsageGuideSection from '@/components/landing/usage-guide-section';
 import UspSection from '@/components/landing/usp-section';
 import { useCheckoutSession } from '@/hooks/use-checkout-session';
+import { shippingAreaLabel } from '@/lib/shipping-area';
 import incompleteOrders from '@/routes/incomplete-orders';
 import orders from '@/routes/orders';
 import siteVisits from '@/routes/site-visits';
@@ -59,6 +60,18 @@ type Contact = {
     facebookUrl: string | null;
 };
 
+// Checkout form fields that already render their own inline <InputError> -
+// any validation error on a field outside this set would otherwise have no
+// visible effect on the page at all.
+const INLINE_ERROR_FIELDS = new Set([
+    'customer_name',
+    'customer_phone',
+    'delivery_address',
+    'shipping_area_id',
+    'quantity',
+    'customer_note',
+]);
+
 export default function Welcome({
     product,
     shippingAreas,
@@ -70,6 +83,15 @@ export default function Welcome({
     contact: Contact;
     formToken: string;
 }) {
+    // Most orders ship within Dhaka, so it's pre-selected rather than making
+    // every shopper pick it manually. Matched by name rather than assuming
+    // array order, since admins can reorder shipping areas.
+    const defaultShippingAreaId =
+        shippingAreas.find((a) => a.name === 'Inside Dhaka City Corporation')
+            ?.id ??
+        shippingAreas[0]?.id ??
+        null;
+
     const form = useForm({
         product_id: product?.id ?? 0,
         variant_id: null as number | null,
@@ -77,7 +99,7 @@ export default function Welcome({
         customer_name: '',
         customer_phone: '',
         delivery_address: '',
-        shipping_area_id: shippingAreas[0]?.id ?? null,
+        shipping_area_id: defaultShippingAreaId,
         customer_note: '',
         session_token: '',
         form_token: formToken,
@@ -94,7 +116,7 @@ export default function Welcome({
         customer_name: '',
         customer_phone: '',
         delivery_address: '',
-        shipping_area_id: shippingAreas[0]?.id ?? null,
+        shipping_area_id: defaultShippingAreaId,
     });
     const trackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -130,7 +152,7 @@ export default function Welcome({
                 type: 'success',
                 orderNumber: placed.order_number,
                 customerName: placed.customer_name,
-                shippingAreaName: placed.shipping_area_name,
+                shippingAreaName: shippingAreaLabel(placed.shipping_area_name),
                 grandTotal: placed.grand_total,
             });
 
@@ -205,6 +227,28 @@ export default function Welcome({
             onError: (errors) => {
                 if (errors.order) {
                     setOrderResult({ type: 'error', message: errors.order });
+
+                    return;
+                }
+
+                // Any validation error outside the fields the checkout form
+                // already shows inline (name/phone/address/area/quantity/
+                // note) would otherwise fail completely silently - the
+                // click would appear to do nothing. Surface those too,
+                // generically, rather than leave the shopper with no
+                // feedback at all.
+                const isShownInline = (field: string) =>
+                    INLINE_ERROR_FIELDS.has(field);
+
+                if (
+                    Object.keys(errors).length > 0 &&
+                    !Object.keys(errors).every(isShownInline)
+                ) {
+                    setOrderResult({
+                        type: 'error',
+                        message:
+                            "We couldn't process your order. Please refresh the page and try again.",
+                    });
                 }
             },
         });
