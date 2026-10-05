@@ -1,6 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
+    ExternalLink,
+    Images,
     LayoutGrid,
     ListOrdered,
     Package,
@@ -139,7 +141,7 @@ export function AdminSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link href={dashboard()}>
-                                <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md">
+                                <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-lg border border-border/50 shadow-2xs">
                                     <img
                                         src={ababilLogo}
                                         alt={name}
@@ -160,7 +162,9 @@ export function AdminSidebar() {
             <SidebarContent>
                 {groups.map((group) => (
                     <SidebarGroup key={group.label} className="px-2 py-0">
-                        <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+                        <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider text-muted-foreground/80 uppercase">
+                            {group.label}
+                        </SidebarGroupLabel>
                         <SidebarMenu>
                             {group.items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
@@ -175,7 +179,7 @@ export function AdminSidebar() {
                                         </Link>
                                     </SidebarMenuButton>
                                     {!!item.badge && (
-                                        <SidebarMenuBadge className="bg-destructive text-white">
+                                        <SidebarMenuBadge className="border border-amber-500/20 bg-amber-500/15 font-semibold text-amber-700 dark:text-amber-300">
                                             {item.badge}
                                         </SidebarMenuBadge>
                                     )}
@@ -193,7 +197,11 @@ export function AdminSidebar() {
                             asChild
                             tooltip={{ children: 'View the public storefront' }}
                         >
-                            <Link href={home()}>
+                            <Link
+                                href={home()}
+                                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                                <ExternalLink className="size-3.5" />
                                 <span>View storefront</span>
                             </Link>
                         </SidebarMenuButton>
