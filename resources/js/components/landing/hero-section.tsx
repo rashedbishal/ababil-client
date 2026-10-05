@@ -22,8 +22,7 @@ const heroSlides: HeroSlide[] = [
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ১',
         badge: '১০০% অর্গানিক · ৯টি ভেষজ উপাদান',
         tagline: 'হাঁটু, কোমর ও ঘাড় ব্যথায় দ্রুত আরামদায়ক উপশম',
-        positionClass:
-            'bottom-10 right-16 sm:bottom-14 sm:right-24 lg:right-32',
+        positionClass: 'bottom-8 right-6 sm:bottom-14 sm:right-24 lg:right-32',
     },
     {
         id: 2,
@@ -34,7 +33,7 @@ const heroSlides: HeroSlide[] = [
         badge: 'প্রিমিয়াম ভেষজ ফর্মুলা',
         tagline: 'মহাঔষধী ভেষজের বিশেষ গুণসম্পন্ন ম্যাসাজ তেল',
         positionClass:
-            'top-16 sm:top-20 lg:top-24 right-14 sm:right-24 lg:right-32',
+            'top-20 sm:top-24 lg:top-28 bottom-auto right-6 sm:right-24 lg:right-32',
     },
     {
         id: 3,
@@ -44,8 +43,7 @@ const heroSlides: HeroSlide[] = [
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৩',
         badge: 'সারা বাংলাদেশে হোম ডেলিভারি',
         tagline: 'ঘরে বসেই অর্ডার করুন, হাতে পেয়ে মূল্য পরিশোধ করুন',
-        positionClass:
-            'bottom-10 right-16 sm:bottom-16 sm:right-24 lg:right-32',
+        positionClass: 'bottom-8 right-6 sm:bottom-16 sm:right-24 lg:right-32',
     },
     {
         id: 4,
@@ -55,8 +53,7 @@ const heroSlides: HeroSlide[] = [
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৪',
         badge: '৩ দিনের মানি-ব্যাক গ্যারান্টি',
         tagline: '১০০% ঝুঁকিমুক্ত কেনাকাটার নিশ্চয়তা',
-        positionClass:
-            'bottom-12 right-16 sm:bottom-16 sm:right-24 lg:right-32',
+        positionClass: 'bottom-8 right-6 sm:bottom-16 sm:right-24 lg:right-32',
     },
     {
         id: 5,
@@ -66,8 +63,7 @@ const heroSlides: HeroSlide[] = [
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৫',
         badge: '৫০০০+ সন্তুষ্ট গ্রাহকের ভরসা',
         tagline: 'নিয়মিত ব্যবহারে জীবনের স্বাভাবিক গতি ফিরে পান',
-        positionClass:
-            'bottom-10 right-16 sm:bottom-14 sm:right-24 lg:right-32',
+        positionClass: 'bottom-8 right-6 sm:bottom-14 sm:right-24 lg:right-32',
     },
 ];
 
@@ -220,12 +216,12 @@ export default function HeroSection() {
                 </div>
 
                 <div
-                    className={`absolute bottom-6 z-30 max-w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-amber-300/30 bg-stone-950/75 px-2.5 py-2 shadow-xl shadow-black/25 backdrop-blur-md ${currentSlide.positionClass}`}
+                    className={`absolute z-30 max-w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-amber-300/30 bg-stone-950/75 px-3 py-2.5 shadow-xl shadow-black/25 backdrop-blur-md ${currentSlide.positionClass}`}
                 >
                     <span className="inline-block rounded-full border border-amber-400/30 bg-amber-500/10 px-2 py-0.5 font-bengali text-[8px] font-semibold tracking-[0.12em] text-amber-300 uppercase sm:text-[9px]">
                         {currentSlide.badge}
                     </span>
-                    <p className="mt-1 font-bengali text-[11px] font-medium leading-snug text-white sm:text-xs">
+                    <p className="mt-1 font-bengali text-[11px] leading-snug font-medium text-white sm:text-xs">
                         {currentSlide.tagline}
                     </p>
                 </div>

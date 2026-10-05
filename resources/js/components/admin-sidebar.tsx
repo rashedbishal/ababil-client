@@ -2,7 +2,6 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     ExternalLink,
-    Images,
     LayoutGrid,
     ListOrdered,
     Package,
