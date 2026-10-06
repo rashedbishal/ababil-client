@@ -7,17 +7,22 @@ import {
     Truck,
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import mapImage from '../../../images/landing/bangladesh-map.webp';
 import Reveal from './motion/reveal';
 
+// Coordinates (% of the map image) were picked by hand against the artwork
+// so each dot sits on clear land for that division - never on the
+// illustrated figures, the river, or outside the map's silhouette.
 const pins = [
-    { label: 'রংপুর', x: 22, y: 12 },
-    { label: 'রাজশাহী', x: 18, y: 30 },
-    { label: 'সিলেট', x: 58, y: 16 },
-    { label: 'ঢাকা', x: 44, y: 40 },
-    { label: 'খুলনা', x: 24, y: 68 },
-    { label: 'বরিশাল', x: 36, y: 74 },
-    { label: 'চট্টগ্রাম', x: 63, y: 68 },
+    { label: 'রংপুর', x: 12.5, y: 13 },
+    { label: 'রাজশাহী', x: 20, y: 34 },
+    { label: 'ময়মনসিংহ', x: 28.5, y: 30.5 },
+    { label: 'সিলেট', x: 63, y: 37 },
+    { label: 'ঢাকা', x: 38, y: 47.5 },
+    { label: 'খুলনা', x: 17.5, y: 71 },
+    { label: 'বরিশাল', x: 36, y: 78 },
+    { label: 'চট্টগ্রাম', x: 77.5, y: 90 },
 ];
 
 const callouts = [
@@ -59,26 +64,123 @@ const callouts = [
     },
 ];
 
-function Pin({ x, y, delay }: { x: number; y: number; delay: number }) {
+type Line = { x1: number; y1: number; x2: number; y2: number };
+
+function Pin({
+    x,
+    y,
+    delay,
+    innerRef,
+}: {
+    x: number;
+    y: number;
+    delay: number;
+    innerRef?: (el: HTMLDivElement | null) => void;
+}) {
     return (
         <div
-            className="absolute -translate-x-1/2 -translate-y-1/2"
+            ref={innerRef}
+            className="absolute z-[7] -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${x}%`, top: `${y}%` }}
         >
-            <span className="relative flex size-3.5">
+            <span className="relative flex size-2 sm:size-3.5">
                 <span
                     className="animate-pulse-ring absolute inline-flex h-full w-full rounded-full bg-amber-500"
                     style={{ animationDelay: `${delay}s` }}
                 />
-                <span className="relative inline-flex size-3.5 rounded-full bg-stone-950 ring-2 ring-amber-200" />
+                <span className="relative inline-flex size-2 rounded-full bg-stone-950 ring-1 ring-amber-200 sm:size-3.5 sm:ring-2" />
             </span>
         </div>
     );
 }
 
 export default function NationwideSection() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const pinRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const calloutRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const [lines, setLines] = useState<Line[]>([]);
+    const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+
+    const computeLines = useCallback(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        setCanvasSize({
+            width: containerRect.width,
+            height: containerRect.height,
+        });
+
+        const pinCenters = pinRefs.current.map((el) => {
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            return {
+                x: r.left + r.width / 2 - containerRect.left,
+                y: r.top + r.height / 2 - containerRect.top,
+            };
+        });
+
+        const validPins = pinCenters.filter(
+            (p): p is { x: number; y: number } => p !== null,
+        );
+
+        const nextLines: Line[] = [];
+        calloutRefs.current.forEach((el) => {
+            if (!el) return;
+            const r = el.getBoundingClientRect();
+            const cx = r.left + r.width / 2 - containerRect.left;
+            const cy = r.top + r.height / 2 - containerRect.top;
+
+            let nearestIndex = -1;
+            let nearestDist = Infinity;
+            for (let i = 0; i < validPins.length; i++) {
+                const p = validPins[i];
+                const dist = (p.x - cx) ** 2 + (p.y - cy) ** 2;
+                if (dist < nearestDist) {
+                    nearestDist = dist;
+                    nearestIndex = i;
+                }
+            }
+
+            if (nearestIndex !== -1) {
+                const nearest = validPins[nearestIndex];
+                nextLines.push({
+                    x1: cx,
+                    y1: cy,
+                    x2: nearest.x,
+                    y2: nearest.y,
+                });
+            }
+        });
+
+        setLines(nextLines);
+    }, []);
+
+    useEffect(() => {
+        const raf = requestAnimationFrame(() => computeLines());
+        const timeout = window.setTimeout(computeLines, 2900);
+
+        window.addEventListener('resize', computeLines);
+
+        let observer: ResizeObserver | undefined;
+        if (containerRef.current && 'ResizeObserver' in window) {
+            observer = new ResizeObserver(() => computeLines());
+            observer.observe(containerRef.current);
+        }
+
+        return () => {
+            cancelAnimationFrame(raf);
+            window.clearTimeout(timeout);
+            window.removeEventListener('resize', computeLines);
+            observer?.disconnect();
+        };
+    }, [computeLines]);
+
     return (
-        <section className="relative overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 py-20 sm:py-28">
+        <section
+            id="delivery"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 py-20 sm:py-28"
+        >
             <div
                 aria-hidden
                 className="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(255,250,220,0.35),transparent_45%),radial-gradient(circle_at_85%_85%,rgba(120,72,0,0.14),transparent_50%),radial-gradient(circle_at_50%_100%,rgba(255,255,255,0.18),transparent_55%)]"
@@ -98,12 +200,16 @@ export default function NationwideSection() {
                     </h2>
                 </Reveal>
 
-                <div className="relative mx-auto mt-10 max-w-md py-10 sm:py-16 lg:max-w-3xl lg:py-20">
+                <div
+                    ref={containerRef}
+                    className="relative mx-auto mt-10 max-w-md py-10 sm:py-16 lg:max-w-3xl lg:py-20"
+                >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true, margin: '-100px' }}
                         transition={{ duration: 2.7, ease: [0.16, 1, 0.3, 1] }}
+                        onAnimationComplete={computeLines}
                         className="relative mx-auto max-w-md lg:max-w-2xl"
                     >
                         <div
@@ -115,6 +221,7 @@ export default function NationwideSection() {
                             alt="সারা বাংলাদেশে আবাবিল হোম ডেলিভারি"
                             loading="lazy"
                             decoding="async"
+                            onLoad={computeLines}
                             className="relative w-full drop-shadow-[0_35px_45px_rgba(87,53,0,0.35)]"
                         />
                         {pins.map((pin, i) => (
@@ -123,29 +230,60 @@ export default function NationwideSection() {
                                 x={pin.x}
                                 y={pin.y}
                                 delay={i * 0.3}
+                                innerRef={(el) => {
+                                    pinRefs.current[i] = el;
+                                }}
                             />
                         ))}
                     </motion.div>
 
+                    {/* Leader lines connecting each floating card to its nearest delivery point */}
+                    <svg
+                        className="pointer-events-none absolute inset-0 z-[6] hidden lg:block"
+                        width={canvasSize.width}
+                        height={canvasSize.height}
+                        aria-hidden
+                    >
+                        {lines.map((line, i) => (
+                            <line
+                                key={i}
+                                x1={line.x1}
+                                y1={line.y1}
+                                x2={line.x2}
+                                y2={line.y2}
+                                stroke="rgba(41,37,36,0.45)"
+                                strokeWidth={1.5}
+                                strokeDasharray="5 5"
+                                strokeLinecap="round"
+                            />
+                        ))}
+                    </svg>
+
                     {callouts.map(
                         ({ icon: Icon, text, pos, floatDelay }, i) => (
-                            <Reveal
+                            <div
                                 key={text}
-                                delay={0.2 + i * 0.12}
+                                ref={(el) => {
+                                    calloutRefs.current[i] = el;
+                                }}
                                 className={`absolute z-10 hidden max-w-[13rem] lg:block ${pos}`}
                             >
-                                <div
-                                    className="animate-float-slow flex items-center gap-3 rounded-2xl border border-amber-300/30 bg-stone-950/90 px-4 py-3.5 shadow-2xl shadow-stone-950/30 backdrop-blur-md"
-                                    style={{ animationDelay: `${floatDelay}s` }}
-                                >
-                                    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 text-stone-950">
-                                        <Icon className="size-5" />
-                                    </span>
-                                    <span className="font-bengali text-sm leading-snug font-medium text-white">
-                                        {text}
-                                    </span>
-                                </div>
-                            </Reveal>
+                                <Reveal delay={0.2 + i * 0.12}>
+                                    <div
+                                        className="animate-float-slow flex items-center gap-3 rounded-2xl border border-amber-300/30 bg-stone-950/90 px-4 py-3.5 shadow-2xl shadow-stone-950/30 backdrop-blur-md"
+                                        style={{
+                                            animationDelay: `${floatDelay}s`,
+                                        }}
+                                    >
+                                        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 text-stone-950">
+                                            <Icon className="size-5" />
+                                        </span>
+                                        <span className="font-bengali text-sm leading-snug font-medium text-white">
+                                            {text}
+                                        </span>
+                                    </div>
+                                </Reveal>
+                            </div>
                         ),
                     )}
                 </div>

@@ -1,41 +1,53 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Lightbulb } from 'lucide-react';
+import { AnimatePresence, motion, useInView } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import cleanseImg from '../../../images/landing/cards/usage-clean-area-full.webp';
 import dispenseImg from '../../../images/landing/cards/usage-amount-full.webp';
 import massageImg from '../../../images/landing/cards/usage-massage-full.webp';
 import routineImg from '../../../images/landing/cards/usage-routine-full.webp';
 import Reveal from './motion/reveal';
 import TiltCard from './motion/tilt-card';
+import OrderButton from './order-button';
 
 const steps = [
     {
         step: '১',
         title: 'ক্লিনজ',
-        description: 'যেখানে ব্যথা অনুভব করছেন সেই স্থানটি হালকা পরিষ্কার করে নিন।',
+        description:
+            'যেখানে ব্যথা বা অস্বস্তি অনুভব করছেন, সেই স্থানটি হালকা গরম পানি ও পরিষ্কার কাপড় দিয়ে মুছে নিন। ত্বক ধুলো-ময়লা ও ঘাম মুক্ত থাকলে অয়েল দ্রুত শোষিত হয় এবং কার্যকারিতা অনেক বেড়ে যায়।',
+        tip: 'গোসলের পরপরই ব্যবহার করলে ত্বক স্বাভাবিকভাবেই পরিষ্কার ও নরম থাকে।',
         image: cleanseImg,
     },
     {
         step: '২',
         title: 'পরিমাণমতো নিন',
-        description: 'হাতের তালুতে প্রয়োজনমতো অয়েল নিন।',
+        description:
+            'হাতের তালুতে ২-৩ ফোঁটা অথবা প্রয়োজনমতো অয়েল নিন। বেশি পরিমাণে নেওয়ার প্রয়োজন নেই — অল্প পরিমাণ অয়েলই আক্রান্ত স্থানে পর্যাপ্ত আরাম দিতে যথেষ্ট।',
+        tip: 'অয়েল হাতের তালুতে কয়েক সেকেন্ড ঘষে নিলে প্রয়োগ করা আরও সহজ হয়।',
         image: dispenseImg,
     },
     {
         step: '৩',
         title: 'আলতো ম্যাসাজ',
-        description: 'বৃত্তাকার ভঙ্গিতে আলতোভাবে ম্যাসাজ করুন যতক্ষণ না শোষিত হয়।',
+        description:
+            'বৃত্তাকার ভঙ্গিতে ৩-৫ মিনিট আলতোভাবে ম্যাসাজ করুন, যতক্ষণ না অয়েল সম্পূর্ণভাবে ত্বকে শোষিত হয়ে যায়। অতিরিক্ত চাপ না দিয়ে স্বাভাবিক হাতে ম্যাসাজ করাই যথেষ্ট।',
+        tip: 'ম্যাসাজের সময় গভীর শ্বাস নিলে পেশি আরও দ্রুত শিথিল হয়।',
         image: massageImg,
     },
     {
         step: '৪',
         title: 'নিয়মিত ব্যবহার',
-        description: 'ভালো ফলাফলের জন্য দিনে ২-৩ বার নিয়মিত ব্যবহার করুন।',
+        description:
+            'ভালো ও দীর্ঘস্থায়ী ফলাফলের জন্য দিনে ২-৩ বার নিয়মিত ব্যবহার করুন। একটানা ব্যবহারে ধীরে ধীরে উপকার আরও স্পষ্টভাবে বোঝা যেতে শুরু করে।',
+        tip: 'ঘুমানোর আগে একবার ব্যবহার করলে সারারাত আরাম পাওয়া যায়।',
         image: routineImg,
     },
 ];
 
 export default function UsageGuideSection() {
+    const sectionRef = useRef<HTMLElement>(null);
+    const isInView = useInView(sectionRef, { once: true, margin: '-120px' });
+
     const [activeStep, setActiveStep] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
 
@@ -47,9 +59,9 @@ export default function UsageGuideSection() {
         setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
     }, []);
 
-    // Auto-advance steps unless user interacts
+    // Auto-advance steps once the section has scrolled into view, unless the user interacts
     useEffect(() => {
-        if (isPaused) return;
+        if (isPaused || !isInView) return;
         const timer = setInterval(() => {
             setActiveStep((prev) => {
                 // Advance step; on last step (step 4), keep it remaining as requested
@@ -60,7 +72,7 @@ export default function UsageGuideSection() {
             });
         }, 4000);
         return () => clearInterval(timer);
-    }, [isPaused]);
+    }, [isPaused, isInView]);
 
     const current = steps[activeStep];
     const isLastStep = activeStep === steps.length - 1;
@@ -68,6 +80,7 @@ export default function UsageGuideSection() {
     return (
         <section
             id="usage"
+            ref={sectionRef}
             className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-white via-amber-50/60 to-white py-14 select-none sm:py-24"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
@@ -87,6 +100,12 @@ export default function UsageGuideSection() {
                     <h2 className="mt-3 font-bengali text-2xl font-bold text-stone-900 sm:text-3xl lg:text-4xl">
                         ব্যবহারের নিয়ম
                     </h2>
+                    <p className="mx-auto mt-4 max-w-2xl font-bengali text-sm leading-relaxed text-stone-600 sm:text-base">
+                        মাত্র ৪টি সহজ ধাপে আবাবিল ব্যবহার করে পেতে পারেন ব্যথা থেকে প্রকৃত
+                        আরাম। সর্বোচ্চ ফলাফলের জন্য নিচের প্রতিটি ধাপ ধারাবাহিকভাবে অনুসরণ
+                        করুন — ধাপগুলো যত নিয়মিত মেনে চলবেন, উপকারও তত দ্রুত ও
+                        দীর্ঘস্থায়ী হবে।
+                    </p>
                 </Reveal>
 
                 {/* Step Selector Tabs (১, ২, ৩, ৪) */}
@@ -135,22 +154,23 @@ export default function UsageGuideSection() {
                                             decoding="async"
                                             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
-                                        <span className="absolute top-4 left-4 flex size-12 items-center justify-center rounded-2xl border border-amber-400/30 bg-stone-950/90 font-bengali text-xl font-bold text-amber-300 shadow-xl sm:size-14 sm:text-2xl">
-                                            ধাপ {current.step}
-                                        </span>
                                     </div>
 
                                     {/* Content Area */}
                                     <div className="flex-1 text-center lg:text-left">
-                                        <span className="font-bengali text-xs font-semibold tracking-widest text-amber-600 uppercase">
-                                            ধাপ {current.step} / ৪
-                                        </span>
-                                        <h3 className="mt-2 font-bengali text-2xl font-extrabold text-stone-900 sm:text-3xl lg:text-4xl">
+                                        <h3 className="font-bengali text-2xl font-extrabold text-stone-900 sm:text-3xl lg:text-4xl">
                                             {current.title}
                                         </h3>
                                         <p className="mt-4 font-bengali text-base leading-relaxed text-stone-700 sm:text-lg lg:text-xl">
                                             {current.description}
                                         </p>
+
+                                        <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-amber-50 px-4 py-3 text-left">
+                                            <Lightbulb className="mt-0.5 size-4 shrink-0 text-amber-500" />
+                                            <p className="font-bengali text-sm leading-relaxed text-amber-900">
+                                                {current.tip}
+                                            </p>
+                                        </div>
 
                                         {/* Step Control Buttons */}
                                         <div className="mt-8 flex items-center justify-center gap-4 lg:justify-start">
@@ -173,6 +193,12 @@ export default function UsageGuideSection() {
                                                 পরবর্তী
                                                 <ChevronRight className="size-4" />
                                             </button>
+                                        </div>
+
+                                        <div className="mt-6 flex justify-center lg:justify-start">
+                                            <OrderButton size="lg">
+                                                এখনই অর্ডার করুন
+                                            </OrderButton>
                                         </div>
                                     </div>
                                 </div>
