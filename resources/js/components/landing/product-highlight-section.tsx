@@ -193,7 +193,7 @@ export default function ProductHighlightSection({
                                     </span>
                                 </div>
                                 <span className="rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 font-bengali text-xs font-bold text-emerald-300">
-                                    স্পেশাল অফার চলোমান
+                                    স্পেশাল অফার চলমান
                                 </span>
                             </div>
 
