@@ -15,7 +15,6 @@ import OrderCtaBand from '@/components/landing/order-cta-band';
 import ProblemSection from '@/components/landing/problem-section';
 import ProductHighlightSection from '@/components/landing/product-highlight-section';
 import SafetySection from '@/components/landing/safety-section';
-import ScrollProgress from '@/components/landing/scroll-progress';
 import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
 import StickyOrderBar from '@/components/landing/sticky-order-bar';
@@ -330,7 +329,6 @@ export default function Welcome({
             </Head>
 
             <div className="min-h-screen bg-amber-50 font-sans text-stone-900">
-                <ScrollProgress />
                 <SiteHeader phone={contact.phone} />
 
                 <main>

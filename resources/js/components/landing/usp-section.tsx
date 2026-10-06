@@ -226,25 +226,25 @@ export default function UspSection() {
                                         }}
                                     >
                                         <div className="group relative">
-                                            {/* Outer Circle Ambient Glow */}
+                                            {/* Outer Card Ambient Glow */}
                                             <div
                                                 aria-hidden
-                                                className="pointer-events-none absolute -inset-4 hidden rounded-full bg-gradient-to-br from-amber-400/30 via-yellow-300/15 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100 md:block"
+                                                className="pointer-events-none absolute -inset-4 hidden rounded-[2rem] bg-gradient-to-br from-amber-400/30 via-yellow-300/15 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100 md:block"
                                             />
 
-                                            {/* Issue 1 Fix: Full Container Image Fill Frame */}
-                                            <div className="relative flex size-56 items-center justify-center overflow-hidden rounded-full border-4 border-amber-300 bg-stone-900 shadow-xl shadow-amber-900/10 transition-transform duration-300 group-hover:scale-105 sm:size-64 md:size-72">
+                                            {/* Square Card Image Frame (matches the 1:1 source images) */}
+                                            <div className="relative flex aspect-square size-56 items-center justify-center overflow-hidden rounded-2xl border-4 border-amber-300 bg-stone-900 shadow-xl shadow-amber-900/10 transition-transform duration-300 group-hover:scale-105 sm:size-64 md:size-72">
                                                 <img
                                                     src={item.image}
                                                     alt={item.title}
                                                     loading="lazy"
                                                     decoding="async"
-                                                    className="size-full rounded-full object-cover"
+                                                    className="size-full rounded-xl object-cover"
                                                 />
                                             </div>
 
                                             {/* Number Badge */}
-                                            <span className="absolute right-1 bottom-1 flex size-10 items-center justify-center rounded-full border-3 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-md sm:size-12 sm:text-base">
+                                            <span className="absolute -right-2 -bottom-2 flex size-10 items-center justify-center rounded-full border-3 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-md sm:size-12 sm:text-base">
                                                 {bnDigits[realIndex]}
                                             </span>
                                         </div>
