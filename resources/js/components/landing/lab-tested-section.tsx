@@ -16,7 +16,7 @@ export default function LabTestedSection() {
     return (
         <section
             id="lab-tested"
-            className="scroll-mt-24 overflow-hidden bg-stone-50 py-8 sm:py-20"
+            className="scroll-mt-24 overflow-hidden bg-stone-50 py-8 sm:py-14"
         >
             <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 md:grid-cols-2 md:gap-14">
                 <Reveal>

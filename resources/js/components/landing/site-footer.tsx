@@ -2,7 +2,7 @@ import logo from '../../../images/landing/ababil-logo.webp';
 
 export default function SiteFooter({ phone }: { phone: string | null }) {
     return (
-        <footer className="border-t border-amber-500/10 bg-stone-950 py-7 sm:py-10">
+        <footer className="border-t border-amber-500/10 bg-stone-950 py-7 sm:py-8">
             <div className="mx-auto max-w-6xl space-y-4 px-4 text-center font-bengali sm:px-6">
                 <img src={logo} alt="Ababil" className="mx-auto h-12 w-12" />
 

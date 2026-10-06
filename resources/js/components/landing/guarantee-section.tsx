@@ -5,14 +5,14 @@ import OrderButton from './order-button';
 
 export default function GuaranteeSection() {
     return (
-        <section className="relative overflow-hidden bg-stone-950 py-8 sm:py-20">
+        <section className="relative overflow-hidden bg-stone-950 py-8 sm:py-14">
             <div
                 aria-hidden
                 className="animate-float-slow absolute top-1/2 left-1/2 hidden size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/10 blur-3xl md:block"
             />
             <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
                 <Reveal>
-                    <div className="inline-flex flex-col items-center gap-4 rounded-2xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-transparent px-8 py-7 sm:px-14 sm:py-10">
+                    <div className="inline-flex flex-col items-center gap-4 rounded-2xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-transparent px-8 py-7 sm:px-14 sm:py-8">
                         <span className="flex size-16 items-center justify-center rounded-full bg-amber-500/15 text-amber-400">
                             <ShieldCheck className="size-9" />
                         </span>

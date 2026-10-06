@@ -13,7 +13,7 @@ const SEAL_CLIP =
 
 export default function TrustSection() {
     return (
-        <section className="relative overflow-hidden bg-stone-950 py-8 sm:py-20">
+        <section className="relative overflow-hidden bg-stone-950 py-8 sm:py-14">
             <div
                 aria-hidden
                 className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgb(217,161,65,0.12),transparent_60%)]"

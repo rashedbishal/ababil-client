@@ -179,7 +179,7 @@ export default function NationwideSection() {
     return (
         <section
             id="delivery"
-            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 py-10 sm:py-28"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 py-10 sm:py-20"
         >
             <div
                 aria-hidden
@@ -202,7 +202,7 @@ export default function NationwideSection() {
 
                 <div
                     ref={containerRef}
-                    className="relative mx-auto mt-6 max-w-md py-6 sm:mt-10 sm:py-16 lg:max-w-3xl lg:py-20"
+                    className="relative mx-auto mt-6 max-w-md py-6 sm:mt-10 sm:py-10 lg:max-w-3xl lg:py-14"
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}

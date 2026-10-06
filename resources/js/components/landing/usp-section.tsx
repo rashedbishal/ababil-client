@@ -152,7 +152,7 @@ export default function UspSection() {
     return (
         <section
             id="usp"
-            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 via-white to-amber-100/60 py-8 select-none sm:py-20"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 via-white to-amber-100/60 py-8 select-none sm:py-14"
         >
             {/* Background Ambient Glow */}
             <div

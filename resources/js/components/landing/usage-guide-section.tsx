@@ -81,7 +81,7 @@ export default function UsageGuideSection() {
         <section
             id="usage"
             ref={sectionRef}
-            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-white via-amber-50/60 to-white py-8 select-none sm:py-24"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-white via-amber-50/60 to-white py-8 select-none sm:py-16"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >

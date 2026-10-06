@@ -89,7 +89,7 @@ export default function ProblemSection() {
     return (
         <section
             id="problem"
-            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 via-white to-amber-50 py-8 sm:py-24"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 via-white to-amber-50 py-8 sm:py-16"
         >
             <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
                 <Reveal className="mx-auto max-w-2xl text-center">
@@ -101,7 +101,7 @@ export default function ProblemSection() {
                     </h2>
                 </Reveal>
 
-                <div className="relative mt-8 space-y-10 sm:mt-24 sm:space-y-28">
+                <div className="relative mt-8 space-y-10 sm:mt-16 sm:space-y-16">
                     <div
                         aria-hidden
                         className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-amber-300 to-transparent lg:block"
@@ -168,7 +168,7 @@ export default function ProblemSection() {
                                                 className="block h-auto w-full object-contain"
                                             />
                                         </TiltCard>
-                                        <span className="absolute -top-6 -left-6 flex size-[4.5rem] items-center justify-center rounded-full border-4 border-amber-50 bg-stone-950 font-bengali text-2xl font-bold text-amber-300 shadow-lg">
+                                        <span className="absolute -top-2 -left-2 flex size-9 items-center justify-center rounded-full border-2 border-amber-50 bg-stone-950 font-bengali text-sm font-bold text-amber-300 shadow-lg sm:-top-3 sm:-left-3 sm:size-12 sm:text-lg lg:-top-4 lg:-left-4 lg:size-14 lg:border-4 lg:text-xl">
                                             {bnDigits[i]}
                                         </span>
                                     </a>

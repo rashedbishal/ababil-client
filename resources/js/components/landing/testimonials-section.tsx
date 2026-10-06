@@ -184,7 +184,7 @@ export default function TestimonialsSection() {
     return (
         <section
             id="reviews"
-            className="relative scroll-mt-24 overflow-hidden bg-stone-950 py-8 select-none sm:py-24"
+            className="relative scroll-mt-24 overflow-hidden bg-stone-950 py-8 select-none sm:py-16"
         >
             {/* Background Glow Effects */}
             <div

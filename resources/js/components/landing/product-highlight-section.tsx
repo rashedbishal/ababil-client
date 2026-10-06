@@ -41,7 +41,7 @@ export default function ProductHighlightSection({
     return (
         <section
             id="product-highlight"
-            className="relative overflow-hidden bg-stone-950 py-8 text-white select-none sm:py-20"
+            className="relative overflow-hidden bg-stone-950 py-8 text-white select-none sm:py-14"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
