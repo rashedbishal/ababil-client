@@ -8,6 +8,7 @@ use App\Models\IncompleteOrder;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\SiteVisit;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -43,15 +44,10 @@ class DashboardController extends Controller
                 'total_products' => Product::query()->count(),
                 'pending_orders' => (int) ($statusCounts[OrderStatus::Pending->value] ?? 0),
                 'confirmed_orders' => (int) ($statusCounts[OrderStatus::Confirmed->value] ?? 0),
-                'processing_orders' => (int) ($statusCounts[OrderStatus::Processing->value] ?? 0),
-                // Arrived but not yet handed off to the courier - excludes
-                // orders that will never be shipped (cancelled/returned).
-                'awaiting_courier_orders' => Order::query()
-                    ->whereNull('courier_consignment_id')
-                    ->whereNotIn('status', [OrderStatus::Cancelled->value, OrderStatus::Returned->value])
-                    ->count(),
+                'courier_submitted_orders' => (int) ($statusCounts[OrderStatus::CourierSubmitted->value] ?? 0),
                 'delivered_orders' => (int) ($statusCounts[OrderStatus::Delivered->value] ?? 0),
                 'cancelled_orders' => (int) ($statusCounts[OrderStatus::Cancelled->value] ?? 0),
+                'trashed_orders' => Order::onlyTrashed()->count(),
                 'incomplete_orders' => IncompleteOrder::query()->where('conversion_status', 'pending')->count(),
                 'total_revenue' => $this->formatMoney($revenue),
             ],
@@ -64,6 +60,7 @@ class DashboardController extends Controller
                 // been collected - only orders that reached Delivered count.
                 'amount_received' => $this->formatMoney($rangeQuery()->where('status', OrderStatus::Delivered)->sum('grand_total')),
             ],
+            'series' => $this->buildSeries($rangeFrom, $rangeTo),
             'recentOrders' => Order::query()
                 ->latest()
                 ->limit(10)
@@ -77,6 +74,49 @@ class DashboardController extends Controller
                     'created_at' => $order->created_at?->toIso8601String(),
                 ]),
         ]);
+    }
+
+    /**
+     * Daily order/delivery/revenue counts for the selected range, one entry
+     * per calendar day (zero-filled where no orders fell on that day) so the
+     * frontend can plot a continuous line without gaps.
+     *
+     * @return list<array{date: string, orders: int, delivered: int, revenue: float}>
+     */
+    private function buildSeries(Carbon $from, Carbon $to): array
+    {
+        $ordersByDay = Order::query()
+            ->whereBetween('created_at', [$from, $to])
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as aggregate')
+            ->groupBy('date')
+            ->pluck('aggregate', 'date');
+
+        $deliveredByDay = Order::query()
+            ->where('status', OrderStatus::Delivered)
+            ->whereBetween('created_at', [$from, $to])
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as aggregate')
+            ->groupBy('date')
+            ->pluck('aggregate', 'date');
+
+        $revenueByDay = Order::query()
+            ->where('status', OrderStatus::Delivered)
+            ->whereBetween('created_at', [$from, $to])
+            ->selectRaw('DATE(created_at) as date, SUM(grand_total) as aggregate')
+            ->groupBy('date')
+            ->pluck('aggregate', 'date');
+
+        $series = [];
+        foreach (CarbonPeriod::create($from->copy()->startOfDay(), $to->copy()->startOfDay()) as $day) {
+            $key = $day->toDateString();
+            $series[] = [
+                'date' => $key,
+                'orders' => (int) ($ordersByDay[$key] ?? 0),
+                'delivered' => (int) ($deliveredByDay[$key] ?? 0),
+                'revenue' => (float) ($revenueByDay[$key] ?? 0),
+            ];
+        }
+
+        return $series;
     }
 
     /**

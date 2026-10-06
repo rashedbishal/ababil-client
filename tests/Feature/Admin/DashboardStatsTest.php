@@ -13,17 +13,25 @@ test('the dashboard reports total product count', function () {
         ->assertInertia(fn ($page) => $page->where('stats.total_products', 3));
 });
 
-test('the dashboard reports orders awaiting courier submission, excluding cancelled and returned orders', function () {
+test('the dashboard reports the count of orders submitted to the courier', function () {
     $this->actingAsAdmin();
 
-    Order::factory()->create(['status' => OrderStatus::Pending, 'courier_consignment_id' => null]);
-    Order::factory()->create(['status' => OrderStatus::Confirmed, 'courier_consignment_id' => null]);
-    Order::factory()->create(['status' => OrderStatus::CourierSubmitted, 'courier_consignment_id' => 'CONSIGN-1']);
-    Order::factory()->create(['status' => OrderStatus::Cancelled, 'courier_consignment_id' => null]);
-    Order::factory()->create(['status' => OrderStatus::Returned, 'courier_consignment_id' => null]);
+    Order::factory()->count(2)->create(['status' => OrderStatus::CourierSubmitted]);
+    Order::factory()->create(['status' => OrderStatus::Shipped]);
+    Order::factory()->create(['status' => OrderStatus::Pending]);
 
     $this->get(route('admin.dashboard'))
-        ->assertInertia(fn ($page) => $page->where('stats.awaiting_courier_orders', 2));
+        ->assertInertia(fn ($page) => $page->where('stats.courier_submitted_orders', 2));
+});
+
+test('the dashboard reports the count of trashed orders', function () {
+    $this->actingAsAdmin();
+
+    Order::factory()->count(2)->create()->each->delete();
+    Order::factory()->create();
+
+    $this->get(route('admin.dashboard'))
+        ->assertInertia(fn ($page) => $page->where('stats.trashed_orders', 2));
 });
 
 test('the dashboard reports today\'s unique visitor count', function () {
@@ -78,4 +86,31 @@ test('the date-range report defaults to the last 30 days when no range is given'
 
     $this->get(route('admin.dashboard'))
         ->assertInertia(fn ($page) => $page->where('range.order_count', 1));
+});
+
+test('the dashboard builds a zero-filled daily series for the selected range', function () {
+    $this->actingAsAdmin();
+
+    Order::factory()->create(['created_at' => today()->subDays(2), 'grand_total' => 100.50, 'status' => OrderStatus::Delivered]);
+    Order::factory()->create(['created_at' => today()->subDays(2), 'grand_total' => 150, 'status' => OrderStatus::Pending]);
+    Order::factory()->create(['created_at' => today(), 'grand_total' => 200.25, 'status' => OrderStatus::Delivered]);
+
+    $response = $this->get(route('admin.dashboard', [
+        'from' => today()->subDays(2)->toDateString(),
+        'to' => today()->toDateString(),
+    ]));
+
+    $response->assertInertia(fn ($page) => $page
+        ->has('series', 3)
+        ->where('series.0.date', today()->subDays(2)->toDateString())
+        ->where('series.0.orders', 2)
+        ->where('series.0.delivered', 1)
+        ->where('series.0.revenue', 100.5)
+        ->where('series.1.orders', 0)
+        ->where('series.1.delivered', 0)
+        ->where('series.1.revenue', 0)
+        ->where('series.2.date', today()->toDateString())
+        ->where('series.2.orders', 1)
+        ->where('series.2.delivered', 1)
+        ->where('series.2.revenue', 200.25));
 });

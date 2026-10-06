@@ -4,18 +4,28 @@ import {
     Activity,
     AlertCircle,
     ArrowUpRight,
+    BarChart3,
     Calendar,
     CheckCircle2,
     Clock,
     DollarSign,
-    Filter,
+    type LucideIcon,
     Package,
-    RotateCcw,
+    Send,
     ShoppingBag,
     Sparkles,
-    Truck,
+    Trash2,
     Users,
 } from 'lucide-react';
+import {
+    CartesianGrid,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip as RechartsTooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,7 +41,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { dashboard } from '@/routes/admin';
+import incompleteOrders from '@/routes/admin/incomplete-orders';
 import orders from '@/routes/admin/orders';
+import products from '@/routes/admin/products';
 
 type Stats = {
     total_orders: number;
@@ -40,10 +52,10 @@ type Stats = {
     total_products: number;
     pending_orders: number;
     confirmed_orders: number;
-    processing_orders: number;
-    awaiting_courier_orders: number;
+    courier_submitted_orders: number;
     delivered_orders: number;
     cancelled_orders: number;
+    trashed_orders: number;
     incomplete_orders: number;
     total_revenue: string;
 };
@@ -64,6 +76,217 @@ type RecentOrder = {
     grand_total: string;
     created_at: string | null;
 };
+
+type SeriesPoint = {
+    date: string;
+    orders: number;
+    delivered: number;
+    revenue: number;
+};
+
+function formatChartDate(value: string) {
+    return new Date(value).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+    });
+}
+
+function compactNumber(value: number) {
+    return new Intl.NumberFormat(undefined, {
+        notation: 'compact',
+        maximumFractionDigits: 1,
+    }).format(value);
+}
+
+function ChartTooltip({
+    active,
+    payload,
+    label,
+    formatValue = (value) => String(value),
+}: {
+    active?: boolean;
+    payload?: { value: number }[];
+    label?: string;
+    formatValue?: (value: number) => string;
+}) {
+    if (!active || !payload?.length) {
+        return null;
+    }
+
+    return (
+        <div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-md">
+            <p className="font-medium text-popover-foreground">
+                {label ? formatChartDate(label) : ''}
+            </p>
+            <p className="text-muted-foreground">
+                {formatValue(payload[0].value)}
+            </p>
+        </div>
+    );
+}
+
+function ChartCard({
+    title,
+    data,
+    dataKey,
+    colorClassName,
+    formatValue,
+    yTickFormatter = compactNumber,
+    allowDecimals = true,
+    className,
+}: {
+    title: string;
+    data: SeriesPoint[];
+    dataKey: keyof SeriesPoint;
+    colorClassName: string;
+    formatValue?: (value: number) => string;
+    yTickFormatter?: (value: number) => string;
+    allowDecimals?: boolean;
+    className?: string;
+}) {
+    const axisTick = {
+        fontSize: 10,
+        fill: 'var(--color-muted-foreground)',
+    };
+
+    return (
+        <div
+            className={`flex flex-col gap-2 rounded-lg border bg-card/80 p-3 shadow-2xs ${className ?? ''}`}
+        >
+            <p className="text-xs font-semibold text-muted-foreground">
+                {title}
+            </p>
+            <div className={`min-h-32 flex-1 ${colorClassName}`}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                        data={data}
+                        margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
+                    >
+                        <CartesianGrid
+                            vertical={false}
+                            stroke="var(--color-border)"
+                        />
+                        <XAxis
+                            dataKey="date"
+                            tickFormatter={formatChartDate}
+                            tick={axisTick}
+                            tickLine={false}
+                            axisLine={{ stroke: 'var(--color-border)' }}
+                            minTickGap={28}
+                        />
+                        <YAxis
+                            tickFormatter={yTickFormatter}
+                            tick={axisTick}
+                            tickLine={false}
+                            axisLine={false}
+                            width={36}
+                            allowDecimals={allowDecimals}
+                        />
+                        <RechartsTooltip
+                            content={<ChartTooltip formatValue={formatValue} />}
+                        />
+                        <Line
+                            type="monotone"
+                            dataKey={dataKey}
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            dot={false}
+                            activeDot={{ r: 4 }}
+                        />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    );
+}
+
+type PrimaryCardConfig = {
+    label: string;
+    value: string | number;
+    icon: LucideIcon;
+    gradient: string;
+    cardBorder: string;
+    subtitle: string;
+    badge?: string;
+    href?: string;
+};
+
+function PrimaryCard({ card }: { card: PrimaryCardConfig }) {
+    const content = (
+        <Card
+            className={`group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${card.cardBorder}`}
+        >
+            <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-br from-primary/5 to-transparent blur-xl transition-all group-hover:scale-125" />
+            <CardContent className="p-3.5 sm:p-5">
+                <div className="flex items-center justify-between">
+                    <span className="truncate text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                        {card.label}
+                    </span>
+                    <div
+                        className={`flex size-8 items-center justify-center rounded-xl bg-gradient-to-br sm:size-10 ${card.gradient} shadow-2xs ring-1 transition-transform duration-300 group-hover:scale-110`}
+                    >
+                        <card.icon className="size-4 sm:size-5" />
+                    </div>
+                </div>
+                <div className="mt-2 flex items-baseline justify-between sm:mt-4">
+                    <span className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+                        {card.value}
+                    </span>
+                    {card.badge && (
+                        <span className="inline-flex animate-pulse items-center rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                            {card.badge}
+                        </span>
+                    )}
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
+                    {card.subtitle}
+                </p>
+            </CardContent>
+        </Card>
+    );
+
+    return card.href ? (
+        <Link href={card.href} className="block">
+            {content}
+        </Link>
+    ) : (
+        content
+    );
+}
+
+type BreakdownCardConfig = {
+    label: string;
+    value: string | number;
+    icon: LucideIcon;
+    accent: string;
+    href?: string;
+};
+
+function BreakdownCard({ card }: { card: BreakdownCardConfig }) {
+    const content = (
+        <div
+            className={`flex flex-col justify-between rounded-xl border border-l-4 bg-card/80 p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${card.accent}`}
+        >
+            <div className="flex items-center justify-between">
+                <span className="truncate text-xs font-medium text-muted-foreground">
+                    {card.label}
+                </span>
+                <card.icon className="size-3.5 shrink-0 text-muted-foreground/60" />
+            </div>
+            <span className="mt-2 text-xl font-bold tracking-tight">
+                {card.value}
+            </span>
+        </div>
+    );
+
+    return card.href ? (
+        <Link href={card.href} className="block">
+            {content}
+        </Link>
+    ) : (
+        content
+    );
+}
 
 function getStatusBadgeStyle(status: string) {
     const s = status.toLowerCase();
@@ -91,10 +314,12 @@ function getStatusBadgeStyle(status: string) {
 export default function AdminDashboard({
     stats,
     range,
+    series,
     recentOrders,
 }: {
     stats: Stats;
     range: Range;
+    series: SeriesPoint[];
     recentOrders: RecentOrder[];
 }) {
     const [rangeFrom, setRangeFrom] = useState(range.from);
@@ -113,16 +338,7 @@ export default function AdminDashboard({
         );
     }
 
-    const primaryCards = [
-        {
-            label: 'Total Revenue',
-            value: `৳ ${stats.total_revenue}`,
-            icon: DollarSign,
-            gradient:
-                'from-emerald-500/20 via-teal-500/10 to-transparent text-emerald-600 dark:text-emerald-400 ring-emerald-500/20',
-            cardBorder: 'hover:border-emerald-500/40',
-            subtitle: 'Lifetime earnings',
-        },
+    const primaryCards: PrimaryCardConfig[] = [
         {
             label: "Today's Orders",
             value: stats.todays_orders,
@@ -141,6 +357,7 @@ export default function AdminDashboard({
             cardBorder: 'hover:border-amber-500/40',
             badge: stats.pending_orders > 0 ? 'Review Needed' : undefined,
             subtitle: 'Awaiting fulfillment',
+            href: orders.index({ query: { status: 'pending' } }).url,
         },
         {
             label: "Today's Visitors",
@@ -151,56 +368,73 @@ export default function AdminDashboard({
             cardBorder: 'hover:border-sky-500/40',
             subtitle: 'Unique active sessions',
         },
+        {
+            label: 'Total Revenue',
+            value: `৳ ${stats.total_revenue}`,
+            icon: DollarSign,
+            gradient:
+                'from-emerald-500/20 via-teal-500/10 to-transparent text-emerald-600 dark:text-emerald-400 ring-emerald-500/20',
+            cardBorder: 'hover:border-emerald-500/40',
+            subtitle: 'Lifetime earnings',
+        },
     ];
 
-    const breakdownCards = [
+    const breakdownCards: BreakdownCardConfig[] = [
         {
             label: 'Total Orders',
             value: stats.total_orders,
             icon: ShoppingBag,
             accent: 'border-l-indigo-500',
+            href: orders.index().url,
         },
         {
             label: 'Confirmed',
             value: stats.confirmed_orders,
             icon: CheckCircle2,
             accent: 'border-l-blue-500',
+            href: orders.index({ query: { status: 'confirmed' } }).url,
         },
         {
-            label: 'Processing',
-            value: stats.processing_orders,
-            icon: RotateCcw,
-            accent: 'border-l-indigo-500',
+            label: 'Courier Submitted',
+            value: stats.courier_submitted_orders,
+            icon: Send,
+            accent: 'border-l-violet-500',
+            href: orders.index({ query: { status: 'courier_submitted' } }).url,
         },
         {
-            label: 'Awaiting Courier',
-            value: stats.awaiting_courier_orders,
-            icon: Truck,
+            label: 'Trashed Orders',
+            value: stats.trashed_orders,
+            icon: Trash2,
             accent: 'border-l-purple-500',
+            href: orders.trashed().url,
         },
         {
             label: 'Total Delivered',
             value: stats.delivered_orders,
             icon: CheckCircle2,
             accent: 'border-l-emerald-500',
+            href: orders.index({ query: { status: 'delivered' } }).url,
         },
         {
             label: 'Total Cancelled',
             value: stats.cancelled_orders,
             icon: AlertCircle,
             accent: 'border-l-rose-500',
+            href: orders.index({ query: { status: 'cancelled' } }).url,
         },
         {
             label: 'Incomplete Checkouts',
             value: stats.incomplete_orders,
             icon: AlertCircle,
             accent: 'border-l-amber-500',
+            href: incompleteOrders.index().url,
         },
         {
             label: 'Total Products',
             value: stats.total_products,
             icon: Package,
             accent: 'border-l-teal-500',
+            href: products.index().url,
         },
     ];
 
@@ -238,164 +472,157 @@ export default function AdminDashboard({
                 </div>
             </div>
 
-            {/* Primary Elevated KPI Cards */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                {primaryCards.map((card) => (
-                    <Card
-                        key={card.label}
-                        className={`group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${card.cardBorder}`}
-                    >
-                        <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-br from-primary/5 to-transparent blur-xl transition-all group-hover:scale-125" />
-                        <CardContent className="p-3.5 sm:p-5">
-                            <div className="flex items-center justify-between">
-                                <span className="truncate text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    {card.label}
-                                </span>
-                                <div
-                                    className={`flex size-8 items-center justify-center rounded-xl bg-gradient-to-br sm:size-10 ${card.gradient} shadow-2xs ring-1 transition-transform duration-300 group-hover:scale-110`}
-                                >
-                                    <card.icon className="size-4 sm:size-5" />
+            {/* KPI overview (left) + Store Analytics (right) */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+                {/* Left column: Primary KPI cards + Status Breakdown Grid */}
+                <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                        {primaryCards.map((card) => (
+                            <PrimaryCard key={card.label} card={card} />
+                        ))}
+                    </div>
+
+                    {/* Status Breakdown Grid */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <h3 className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                                <Activity className="size-3.5 text-primary" />
+                                Catalog & Status Metrics
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            {breakdownCards.map((card) => (
+                                <BreakdownCard key={card.label} card={card} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right column: date-range filter, range summary, and trend charts */}
+                <Card className="gap-0 overflow-hidden border-border/80 py-0 shadow-xs">
+                    <CardHeader className="border-b border-border/60 bg-muted/30 py-3">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+                                    <BarChart3 className="size-3.5" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-sm font-bold">
+                                        Store Analytics
+                                    </CardTitle>
+                                    <p className="text-xs text-muted-foreground">
+                                        Analyze revenue and orders within custom
+                                        date ranges
+                                    </p>
                                 </div>
                             </div>
-                            <div className="mt-2 flex items-baseline justify-between sm:mt-4">
-                                <span className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-                                    {card.value}
-                                </span>
-                                {card.badge && (
-                                    <span className="inline-flex animate-pulse items-center rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
-                                        {card.badge}
-                                    </span>
-                                )}
-                            </div>
-                            <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
-                                {card.subtitle}
-                            </p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-
-            {/* Status Breakdown Grid */}
-            <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                    <h3 className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-muted-foreground uppercase">
-                        <Activity className="size-3.5 text-primary" />
-                        Catalog & Status Metrics
-                    </h3>
-                </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-                    {breakdownCards.map((card) => (
-                        <div
-                            key={card.label}
-                            className={`flex flex-col justify-between rounded-xl border border-l-4 bg-card/80 p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${card.accent}`}
-                        >
-                            <div className="flex items-center justify-between">
-                                <span className="truncate text-xs font-medium text-muted-foreground">
-                                    {card.label}
-                                </span>
-                                <card.icon className="size-3.5 shrink-0 text-muted-foreground/60" />
-                            </div>
-                            <span className="mt-2 text-xl font-bold tracking-tight">
-                                {card.value}
-                            </span>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Sales Report Filter & Range Summary */}
-            <Card className="overflow-hidden border-border/80 shadow-xs">
-                <CardHeader className="border-b border-border/60 bg-muted/30 py-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <div className="flex size-6 items-center justify-center rounded-md bg-primary/10 text-primary">
-                                <Filter className="size-3.5" />
+                    </CardHeader>
+                    <CardContent className="space-y-3 p-4">
+                        <form
+                            onSubmit={applyRange}
+                            className="flex flex-wrap items-end gap-3 rounded-lg border bg-muted/20 p-3"
+                        >
+                            <div className="grid gap-1">
+                                <Label
+                                    htmlFor="from"
+                                    className="text-xs font-semibold text-muted-foreground"
+                                >
+                                    Start Date
+                                </Label>
+                                <Input
+                                    id="from"
+                                    type="date"
+                                    value={rangeFrom}
+                                    onChange={(e) =>
+                                        setRangeFrom(e.target.value)
+                                    }
+                                    className="h-8 w-40 text-xs font-medium shadow-2xs"
+                                />
                             </div>
-                            <div>
-                                <CardTitle className="text-sm font-bold">
-                                    Sales Performance
-                                </CardTitle>
-                                <p className="text-xs text-muted-foreground">
-                                    Analyze revenue and orders within custom
-                                    date ranges
+                            <div className="grid gap-1">
+                                <Label
+                                    htmlFor="to"
+                                    className="text-xs font-semibold text-muted-foreground"
+                                >
+                                    End Date
+                                </Label>
+                                <Input
+                                    id="to"
+                                    type="date"
+                                    value={rangeTo}
+                                    onChange={(e) => setRangeTo(e.target.value)}
+                                    className="h-8 w-40 text-xs font-medium shadow-2xs"
+                                />
+                            </div>
+                            <Button
+                                type="submit"
+                                size="sm"
+                                className="h-8 gap-1.5 font-medium"
+                            >
+                                <Calendar className="size-3.5" />
+                                Apply Range Filter
+                            </Button>
+                        </form>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <div className="relative overflow-hidden rounded-lg border border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-transparent p-3 shadow-2xs">
+                                <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                                    Orders in Selected Range
+                                </p>
+                                <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
+                                    {range.order_count}
+                                </p>
+                            </div>
+                            <div className="relative overflow-hidden rounded-lg border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent p-3 shadow-2xs">
+                                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                                    Gross Order Value
+                                </p>
+                                <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
+                                    ৳ {range.order_total}
+                                </p>
+                            </div>
+                            <div className="relative overflow-hidden rounded-lg border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent p-3 shadow-2xs">
+                                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                    Net Revenue Collected
+                                </p>
+                                <p className="mt-0.5 text-2xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">
+                                    ৳ {range.amount_received}
                                 </p>
                             </div>
                         </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-3">
-                    <form
-                        onSubmit={applyRange}
-                        className="flex flex-wrap items-end gap-3 rounded-lg border bg-muted/20 p-3"
-                    >
-                        <div className="grid gap-1">
-                            <Label
-                                htmlFor="from"
-                                className="text-xs font-semibold text-muted-foreground"
-                            >
-                                Start Date
-                            </Label>
-                            <Input
-                                id="from"
-                                type="date"
-                                value={rangeFrom}
-                                onChange={(e) => setRangeFrom(e.target.value)}
-                                className="h-8 w-40 text-xs font-medium shadow-2xs"
-                            />
-                        </div>
-                        <div className="grid gap-1">
-                            <Label
-                                htmlFor="to"
-                                className="text-xs font-semibold text-muted-foreground"
-                            >
-                                End Date
-                            </Label>
-                            <Input
-                                id="to"
-                                type="date"
-                                value={rangeTo}
-                                onChange={(e) => setRangeTo(e.target.value)}
-                                className="h-8 w-40 text-xs font-medium shadow-2xs"
-                            />
-                        </div>
-                        <Button
-                            type="submit"
-                            size="sm"
-                            className="h-8 gap-1.5 font-medium"
-                        >
-                            <Calendar className="size-3.5" />
-                            Apply Range Filter
-                        </Button>
-                    </form>
 
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <div className="relative overflow-hidden rounded-lg border border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-transparent p-3 shadow-2xs">
-                            <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                                Orders in Selected Range
-                            </p>
-                            <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
-                                {range.order_count}
-                            </p>
+                        {/* Trend charts: total orders (large) + deliveries / net revenue (stacked) */}
+                        <div className="grid grid-cols-2 grid-rows-2 gap-3">
+                            <ChartCard
+                                title="Chart of Total Orders"
+                                data={series}
+                                dataKey="orders"
+                                colorClassName="text-indigo-600 dark:text-indigo-400"
+                                allowDecimals={false}
+                                className="row-span-2"
+                            />
+                            <ChartCard
+                                title="Chart of Total Deliveries"
+                                data={series}
+                                dataKey="delivered"
+                                colorClassName="text-emerald-600 dark:text-emerald-400"
+                                allowDecimals={false}
+                            />
+                            <ChartCard
+                                title="Chart of Net Revenue"
+                                data={series}
+                                dataKey="revenue"
+                                colorClassName="text-blue-600 dark:text-blue-400"
+                                formatValue={(value) => `৳ ${value.toFixed(2)}`}
+                                yTickFormatter={(value) =>
+                                    `৳${compactNumber(value)}`
+                                }
+                            />
                         </div>
-                        <div className="relative overflow-hidden rounded-lg border border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent p-3 shadow-2xs">
-                            <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-                                Gross Order Value
-                            </p>
-                            <p className="mt-0.5 text-2xl font-extrabold tracking-tight">
-                                ৳ {range.order_total}
-                            </p>
-                        </div>
-                        <div className="relative overflow-hidden rounded-lg border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent p-3 shadow-2xs">
-                            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                                Net Revenue Collected
-                            </p>
-                            <p className="mt-0.5 text-2xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">
-                                ৳ {range.amount_received}
-                            </p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Recent Orders Table */}
             <Card className="overflow-hidden border-border/80 shadow-xs">
