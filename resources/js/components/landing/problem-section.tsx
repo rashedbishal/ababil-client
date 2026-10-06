@@ -1,12 +1,14 @@
-import { CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import backImg from '../../../images/landing/cards/problem-back.webp';
 import feetImg from '../../../images/landing/cards/problem-feet.webp';
 import kneeImg from '../../../images/landing/cards/problem-knee.webp';
 import muscleImg from '../../../images/landing/cards/problem-muscle.webp';
 import neckImg from '../../../images/landing/cards/problem-neck.webp';
+import Magnetic from './motion/magnetic';
 import Reveal from './motion/reveal';
 import TiltCard from './motion/tilt-card';
+import OrderButton from './order-button';
 
 const bnDigits = ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
@@ -177,7 +179,7 @@ export default function ProblemSection() {
                                             fromLeft ? '' : 'lg:text-right'
                                         }`}
                                     >
-                                        {/* Mobile & Tab Description (Unchanged) */}
+                                        {/* Mobile & Tab Description */}
                                         <div className="lg:hidden">
                                             <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
                                                 {label}
@@ -185,6 +187,17 @@ export default function ProblemSection() {
                                             <p className="mx-auto mt-3 max-w-md font-bengali text-base text-stone-600 sm:text-lg">
                                                 {descriptionMobile}
                                             </p>
+
+                                            <div className="mt-5 flex justify-center">
+                                                <Magnetic strength={0.25}>
+                                                    <OrderButton
+                                                        size="sm"
+                                                        href="#checkout"
+                                                    >
+                                                        অর্ডার করুন
+                                                    </OrderButton>
+                                                </Magnetic>
+                                            </div>
                                         </div>
 
                                         {/* Desktop & Laptop Enriched Section */}
@@ -243,13 +256,14 @@ export default function ProblemSection() {
                                                         : 'justify-end'
                                                 }`}
                                             >
-                                                <a
-                                                    href="#checkout"
-                                                    className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-2 font-bengali text-sm font-bold text-amber-300 shadow-md transition-all hover:bg-amber-500 hover:text-stone-950"
-                                                >
-                                                    <ShieldCheck className="size-4" />
-                                                    <span>অর্ডার করুন</span>
-                                                </a>
+                                                <Magnetic strength={0.25}>
+                                                    <OrderButton
+                                                        size="sm"
+                                                        href="#checkout"
+                                                    >
+                                                        অর্ডার করুন
+                                                    </OrderButton>
+                                                </Magnetic>
                                             </div>
                                         </div>
                                     </div>
