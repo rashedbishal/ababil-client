@@ -89,17 +89,36 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 2.0, ease: [0.16, 1, 0.3, 1] }}
                 style={{ scale }}
-                className="pointer-events-auto relative mx-auto max-w-5xl rounded-full p-px"
+                className="pointer-events-auto relative mx-auto max-w-5xl rounded-full p-px shadow-[0_0_30px_-6px_rgba(251,191,36,0.45)]"
             >
                 <div
                     aria-hidden
-                    className="absolute inset-0 rounded-full border border-amber-400/15"
+                    className="absolute inset-0 rounded-full border border-amber-400/40"
                 />
 
                 <motion.header
                     style={{ boxShadow: shadow }}
-                    className="relative flex items-center justify-between gap-2 rounded-full bg-stone-950/95 px-3 py-2 sm:gap-3 sm:px-5 sm:py-2.5 sm:backdrop-blur-xl"
+                    className="relative flex items-center justify-between gap-2 overflow-hidden rounded-full bg-stone-950/95 px-3 py-2 sm:gap-3 sm:px-5 sm:py-2.5 sm:backdrop-blur-xl"
                 >
+                    {/* Glassy top sheen */}
+                    <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-full bg-gradient-to-b from-white/15 to-transparent"
+                    />
+
+                    {/* Slow shimmer sweep */}
+                    <motion.div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-y-0 left-0 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-amber-200/25 to-transparent"
+                        initial={{ x: '-150%' }}
+                        animate={{ x: '650%' }}
+                        transition={{
+                            duration: 3.2,
+                            repeat: Infinity,
+                            repeatDelay: 2.5,
+                            ease: 'easeInOut',
+                        }}
+                    />
                     {/* Brand Logo */}
                     <a
                         href="#top"
