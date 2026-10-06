@@ -11,7 +11,7 @@ const notices = [
 
 export default function SafetySection() {
     return (
-        <section className="bg-amber-50 py-14 sm:py-20">
+        <section className="bg-amber-50 py-8 sm:py-20">
             <div className="mx-auto max-w-3xl px-4 sm:px-6">
                 <Reveal>
                     <div className="rounded-2xl border border-amber-300 bg-white p-6 shadow-sm sm:p-8">
