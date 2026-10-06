@@ -141,16 +141,15 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                     </a>
 
                     {/* Mobile Section Pill Trigger */}
-                    <div className="relative flex items-center lg:hidden">
+                    <div className="relative flex min-w-0 items-center lg:hidden">
                         <button
                             type="button"
                             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-                            className="flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 font-bengali text-xs font-semibold text-amber-300 shadow-inner backdrop-blur-md transition-all active:scale-95 sm:px-3.5 sm:text-sm"
+                            className="flex min-w-0 items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-1 font-bengali text-[11px] font-semibold whitespace-nowrap text-amber-300 shadow-inner backdrop-blur-md transition-all active:scale-95 sm:gap-1.5 sm:px-3.5 sm:text-sm"
                         >
-                            <span className="size-1.5 animate-pulse rounded-full bg-amber-400" />
-                            <span>{currentLabel}</span>
+                            <span className="truncate">{currentLabel}</span>
                             <ChevronDown
-                                className={`size-3.5 text-amber-400/80 transition-transform duration-300 ${
+                                className={`size-3 shrink-0 text-amber-400/80 transition-transform duration-300 sm:size-3.5 ${
                                     isMobileMenuOpen ? 'rotate-180' : ''
                                 }`}
                             />
@@ -158,7 +157,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                     </div>
 
                     {/* Desktop Navigation Links */}
-                    <nav className="hidden items-center gap-0.5 lg:flex">
+                    <nav className="no-scrollbar hidden items-center gap-0.5 overflow-x-auto lg:flex">
                         {navLinks.map((link) => {
                             const isActive = activeHref === link.href;
 
@@ -166,7 +165,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                 <a
                                     key={link.href}
                                     href={link.href}
-                                    className="relative rounded-full px-3 py-1.5 font-bengali text-sm font-medium whitespace-nowrap text-neutral-300 transition-colors hover:text-amber-300"
+                                    className="relative shrink-0 rounded-full px-3 py-1.5 font-bengali text-sm font-medium whitespace-nowrap text-neutral-300 transition-colors hover:text-amber-300"
                                 >
                                     {isActive && (
                                         <motion.span
@@ -195,7 +194,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                         {phone && (
                             <a
                                 href={`tel:${phone.replace(/[^0-9+]/g, '')}`}
-                                className="hidden items-center gap-1.5 font-bengali text-sm text-neutral-300 transition hover:text-amber-300 md:flex"
+                                className="hidden items-center gap-1.5 font-bengali text-sm text-neutral-300 transition hover:text-amber-300 xl:flex"
                             >
                                 <motion.span
                                     animate={{ scale: [1, 1.15, 1] }}
@@ -212,7 +211,13 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                         )}
 
                         <Magnetic strength={0.25}>
-                            <OrderButton size="sm">অর্ডার করুন</OrderButton>
+                            <OrderButton
+                                size="sm"
+                                showArrow={false}
+                                className="max-sm:gap-0 max-sm:px-3.5 max-sm:py-1.5 max-sm:text-xs"
+                            >
+                                অর্ডার করুন
+                            </OrderButton>
                         </Magnetic>
                     </div>
                 </motion.header>
@@ -264,14 +269,16 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                                         : 'text-neutral-300 hover:bg-white/5 hover:text-white'
                                                 }`}
                                             >
-                                                <span className="flex items-center gap-2.5">
-                                                    <span className="text-base">
+                                                <span className="flex min-w-0 items-center gap-2.5">
+                                                    <span className="shrink-0 text-base">
                                                         {link.icon}
                                                     </span>
-                                                    <span>{link.label}</span>
+                                                    <span className="whitespace-nowrap">
+                                                        {link.label}
+                                                    </span>
                                                 </span>
                                                 {isActive && (
-                                                    <span className="size-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+                                                    <span className="size-2 shrink-0 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
                                                 )}
                                             </a>
                                         );
