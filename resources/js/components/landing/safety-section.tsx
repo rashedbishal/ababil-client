@@ -3,6 +3,8 @@ import {
     Baby,
     Ban,
     Check,
+    CheckCircle2,
+    Circle,
     Eye,
     FlaskConical,
     Lock,
@@ -131,41 +133,20 @@ export default function SafetySection() {
                                             type="button"
                                             onClick={() => toggle(idx)}
                                             aria-pressed={isChecked}
-                                            className={`flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-all duration-300 sm:gap-4 sm:px-5 sm:py-4 ${
+                                            className={`group flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-all duration-300 sm:gap-4 sm:px-5 sm:py-4 ${
                                                 isChecked
                                                     ? 'border-amber-400/40 bg-amber-400/[0.08]'
                                                     : 'border-white/10 bg-white/[0.03] hover:border-amber-400/25 hover:bg-white/[0.06]'
                                             }`}
                                         >
                                             <span
-                                                className={`relative flex size-8 shrink-0 items-center justify-center rounded-full transition-colors duration-300 sm:size-9 ${
+                                                className={`flex size-8 shrink-0 items-center justify-center rounded-full transition-colors duration-300 sm:size-9 ${
                                                     isChecked
                                                         ? 'bg-amber-400 text-stone-950'
                                                         : 'bg-white/10 text-amber-400'
                                                 }`}
                                             >
-                                                <motion.span
-                                                    initial={false}
-                                                    animate={{
-                                                        scale: isChecked
-                                                            ? [0.6, 1.15, 1]
-                                                            : 1,
-                                                        rotate: isChecked
-                                                            ? 0
-                                                            : 0,
-                                                    }}
-                                                    transition={{
-                                                        duration: 0.35,
-                                                        ease: [0.16, 1, 0.3, 1],
-                                                    }}
-                                                    className="flex items-center justify-center"
-                                                >
-                                                    {isChecked ? (
-                                                        <Check className="size-4 sm:size-5" />
-                                                    ) : (
-                                                        <Icon className="size-4 sm:size-5" />
-                                                    )}
-                                                </motion.span>
+                                                <Icon className="size-4 sm:size-5" />
                                             </span>
 
                                             <div className="min-w-0 flex-1">
@@ -176,6 +157,27 @@ export default function SafetySection() {
                                                     {notice.description}
                                                 </p>
                                             </div>
+
+                                            {/* Checkbox indicator - signals the row is tappable */}
+                                            <motion.span
+                                                initial={false}
+                                                animate={{
+                                                    scale: isChecked
+                                                        ? [0.6, 1.2, 1]
+                                                        : 1,
+                                                }}
+                                                transition={{
+                                                    duration: 0.35,
+                                                    ease: [0.16, 1, 0.3, 1],
+                                                }}
+                                                className="mt-0.5 flex shrink-0 items-center justify-center"
+                                            >
+                                                {isChecked ? (
+                                                    <CheckCircle2 className="size-5 fill-amber-400 text-stone-950 sm:size-6" />
+                                                ) : (
+                                                    <Circle className="size-5 text-neutral-600 transition-colors group-hover:text-amber-400/60 sm:size-6" />
+                                                )}
+                                            </motion.span>
                                         </button>
                                     </li>
                                 );

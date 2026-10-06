@@ -124,8 +124,6 @@ export default function HeroSection() {
             id="top"
             aria-label="Hero Wallpaper Slider"
             className="relative flex h-[calc(100svh-4.5rem)] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none lg:aspect-[2560/800] lg:h-auto"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
         >
             {/* Ambient Lighting */}
             <div
@@ -136,20 +134,6 @@ export default function HeroSection() {
                 aria-hidden
                 className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgb(120,72,0,0.15)_100%)]"
             />
-
-            {/* Auto-play Top Progress Line */}
-            <div className="absolute inset-x-0 top-0 z-40 h-1 overflow-hidden bg-stone-900/60">
-                <motion.div
-                    key={page}
-                    initial={{ width: '0%' }}
-                    animate={{ width: isPaused ? '100%' : '100%' }}
-                    transition={{
-                        duration: isPaused ? 0 : AUTO_PLAY_DURATION / 1000,
-                        ease: 'linear',
-                    }}
-                    className="h-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 shadow-md shadow-amber-400/50"
-                />
-            </div>
 
             {/* Viewport Slider Container for Mobile/Tab & Aspect Ratio for Desktop */}
             <div className="relative h-[calc(100svh-4.5rem)] w-full overflow-hidden lg:aspect-[2560/800] lg:h-full">
@@ -214,27 +198,37 @@ export default function HeroSection() {
                     </p>
                 </div>
 
-                {/* Left & Right Slider Arrow Buttons */}
-                <button
-                    type="button"
-                    onClick={() => paginate(-1)}
-                    aria-label="Previous slide"
-                    className="group absolute top-1/2 left-4 z-30 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-amber-400/30 bg-stone-950/70 text-amber-400 shadow-2xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:ring-2 focus:ring-amber-400 focus:outline-none sm:left-8 sm:size-14"
+                {/* Slider Arrow Buttons (grouped, bottom-left corner) */}
+                <div
+                    className="absolute bottom-4 left-4 z-30 flex items-center gap-2 sm:bottom-6 sm:left-6"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
                 >
-                    <ChevronLeft className="size-6 transition-transform group-hover:-translate-x-0.5 sm:size-8" />
-                </button>
+                    <button
+                        type="button"
+                        onClick={() => paginate(-1)}
+                        aria-label="Previous slide"
+                        className="group flex size-9 items-center justify-center rounded-full border border-amber-400/30 bg-stone-950/70 text-amber-400 shadow-2xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:ring-2 focus:ring-amber-400 focus:outline-none sm:size-11"
+                    >
+                        <ChevronLeft className="size-5 transition-transform group-hover:-translate-x-0.5 sm:size-6" />
+                    </button>
 
-                <button
-                    type="button"
-                    onClick={() => paginate(1)}
-                    aria-label="Next slide"
-                    className="group absolute top-1/2 right-4 z-30 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-amber-400/30 bg-stone-950/70 text-amber-400 shadow-2xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:ring-2 focus:ring-amber-400 focus:outline-none sm:right-8 sm:size-14"
-                >
-                    <ChevronRight className="size-6 transition-transform group-hover:translate-x-0.5 sm:size-8" />
-                </button>
+                    <button
+                        type="button"
+                        onClick={() => paginate(1)}
+                        aria-label="Next slide"
+                        className="group flex size-9 items-center justify-center rounded-full border border-amber-400/30 bg-stone-950/70 text-amber-400 shadow-2xl backdrop-blur-md transition-all hover:scale-110 hover:border-amber-400 hover:bg-amber-500 hover:text-stone-950 focus:ring-2 focus:ring-amber-400 focus:outline-none sm:size-11"
+                    >
+                        <ChevronRight className="size-5 transition-transform group-hover:translate-x-0.5 sm:size-6" />
+                    </button>
+                </div>
 
                 {/* Bottom Navigation Dots */}
-                <div className="absolute inset-x-0 bottom-4 z-30 flex items-center justify-center gap-2.5">
+                <div
+                    className="absolute inset-x-0 bottom-4 z-30 flex items-center justify-center gap-2.5"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                >
                     {heroSlides.map((slide, index) => (
                         <button
                             key={slide.id}
