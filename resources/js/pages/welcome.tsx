@@ -364,10 +364,6 @@ export default function Welcome({
                         subtitle="নির্দেশনা মেনে ব্যবহারে আবাবিল আপনার পাশে আছে"
                     />
                     <TestimonialsSection />
-                    <OrderCtaBand
-                        title="৩ দিনের মানি-ব্যাক গ্যারান্টি সহ অর্ডার করুন"
-                        subtitle="ঝুঁকিমুক্তভাবে আজই ব্যবহার শুরু করুন"
-                    />
                     <GuaranteeSection />
 
                     <CheckoutSection

@@ -1,5 +1,7 @@
 import { ShieldCheck } from 'lucide-react';
+import Magnetic from './motion/magnetic';
 import Reveal from './motion/reveal';
+import OrderButton from './order-button';
 
 export default function GuaranteeSection() {
     return (
@@ -21,6 +23,9 @@ export default function GuaranteeSection() {
                             পণ্যে সন্তুষ্ট না হলে ডেলিভারির ৩ দিনের মধ্যে যোগাযোগ করুন —
                             শর্তসাপেক্ষে টাকা ফেরত দেওয়া হবে।
                         </p>
+                        <Magnetic strength={0.25}>
+                            <OrderButton>অর্ডার করুন</OrderButton>
+                        </Magnetic>
                     </div>
                 </Reveal>
             </div>
