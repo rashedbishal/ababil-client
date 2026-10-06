@@ -89,36 +89,35 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 2.0, ease: [0.16, 1, 0.3, 1] }}
                 style={{ scale }}
-                className="pointer-events-auto relative mx-auto max-w-5xl rounded-full p-px shadow-[0_0_30px_-6px_rgba(251,191,36,0.45)]"
+                className="pointer-events-auto relative mx-auto max-w-5xl rounded-full shadow-[0_0_30px_-6px_rgba(251,191,36,0.45)]"
             >
-                <div
-                    aria-hidden
-                    className="absolute inset-0 rounded-full border border-amber-400/40"
-                />
-
                 <motion.header
                     style={{ boxShadow: shadow }}
-                    className="relative flex items-center justify-between gap-2 overflow-hidden rounded-full bg-stone-950/95 px-3 py-2 sm:gap-3 sm:px-5 sm:py-2.5 sm:backdrop-blur-xl"
+                    className="relative flex items-center justify-between gap-2 rounded-full border-2 border-amber-400/60 bg-stone-950/95 px-3 py-2 sm:gap-3 sm:px-5 sm:py-2.5 sm:backdrop-blur-xl"
                 >
-                    {/* Glassy top sheen */}
+                    {/* Decorative sheen/shimmer, clipped in their own layer so they
+                        never interact with (or clip) the header's own border */}
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-full bg-gradient-to-b from-white/15 to-transparent"
-                    />
+                        className="pointer-events-none absolute inset-[2px] overflow-hidden rounded-full"
+                    >
+                        {/* Glassy top sheen */}
+                        <div className="absolute inset-x-0 top-0 h-1/2 rounded-t-full bg-gradient-to-b from-white/15 to-transparent" />
 
-                    {/* Slow shimmer sweep */}
-                    <motion.div
-                        aria-hidden
-                        className="pointer-events-none absolute inset-y-0 left-0 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-amber-200/25 to-transparent"
-                        initial={{ x: '-150%' }}
-                        animate={{ x: '650%' }}
-                        transition={{
-                            duration: 3.2,
-                            repeat: Infinity,
-                            repeatDelay: 2.5,
-                            ease: 'easeInOut',
-                        }}
-                    />
+                        {/* Slow shimmer sweep */}
+                        <motion.div
+                            className="absolute inset-y-0 left-0 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-amber-200/25 to-transparent"
+                            initial={{ x: '-150%' }}
+                            animate={{ x: '650%' }}
+                            transition={{
+                                duration: 3.2,
+                                repeat: Infinity,
+                                repeatDelay: 2.5,
+                                ease: 'easeInOut',
+                            }}
+                        />
+                    </div>
+
                     {/* Brand Logo */}
                     <a
                         href="#top"
@@ -157,7 +156,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                     </div>
 
                     {/* Desktop Navigation Links */}
-                    <nav className="no-scrollbar hidden items-center gap-0.5 overflow-x-auto lg:flex">
+                    <nav className="no-scrollbar hidden items-center gap-0.5 overflow-x-auto py-1 lg:flex">
                         {navLinks.map((link) => {
                             const isActive = activeHref === link.href;
 
@@ -165,6 +164,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                 <a
                                     key={link.href}
                                     href={link.href}
+                                    onClick={() => setActiveHref(link.href)}
                                     className="relative shrink-0 rounded-full px-3 py-1.5 font-bengali text-sm font-medium whitespace-nowrap text-neutral-300 transition-colors hover:text-amber-300"
                                 >
                                     {isActive && (
@@ -172,15 +172,15 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                             layoutId="nav-active-pill"
                                             transition={{
                                                 type: 'spring',
-                                                stiffness: 180,
-                                                damping: 28,
+                                                stiffness: 220,
+                                                damping: 25,
                                             }}
-                                            className="absolute inset-0 rounded-full bg-amber-400/10 ring-1 ring-amber-400/30"
+                                            className="absolute inset-0 rounded-full border border-amber-400/50 bg-amber-400/15 shadow-[0_0_12px_rgba(251,191,36,0.18)]"
                                         />
                                     )}
                                     <motion.span
                                         whileHover={{ y: -1 }}
-                                        className={`relative z-10 ${isActive ? 'text-amber-300' : ''}`}
+                                        className={`relative z-10 ${isActive ? 'font-semibold text-amber-300' : ''}`}
                                     >
                                         {link.label}
                                     </motion.span>
