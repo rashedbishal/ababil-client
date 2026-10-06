@@ -8,7 +8,7 @@ import FaqSection from '@/components/landing/faq-section';
 import FloatingActions from '@/components/landing/floating-actions';
 import GuaranteeSection from '@/components/landing/guarantee-section';
 import HeroSection from '@/components/landing/hero-section';
-import IngredientsSection from '@/components/landing/ingredients-section';
+import LabTestedSection from '@/components/landing/lab-tested-section';
 import MarqueeStrip from '@/components/landing/marquee-strip';
 import NationwideSection from '@/components/landing/nationwide-section';
 import OrderCtaBand from '@/components/landing/order-cta-band';
@@ -350,7 +350,8 @@ export default function Welcome({
                         title="এখনই অর্ডার করে পেয়ে যান আবাবিল"
                         subtitle="ক্যাশ অন ডেলিভারি — সারা বাংলাদেশে"
                     />
-                    <IngredientsSection />
+                    <TrustSection />
+                    <LabTestedSection />
                     <NationwideSection />
                     <OrderCtaBand
                         title="হোম ডেলিভারিতে আজই পেয়ে যান আবাবিল"
@@ -362,12 +363,7 @@ export default function Welcome({
                         title="নিরাপদে ব্যবহার করুন, আজই অর্ডার করুন"
                         subtitle="নির্দেশনা মেনে ব্যবহারে আবাবিল আপনার পাশে আছে"
                     />
-                    <TrustSection />
                     <TestimonialsSection />
-                    <OrderCtaBand
-                        title="৩ দিনের মানি-ব্যাক গ্যারান্টি সহ অর্ডার করুন"
-                        subtitle="ঝুঁকিমুক্তভাবে আজই ব্যবহার শুরু করুন"
-                    />
                     <GuaranteeSection />
 
                     <CheckoutSection

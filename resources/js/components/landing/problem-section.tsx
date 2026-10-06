@@ -87,7 +87,7 @@ export default function ProblemSection() {
     return (
         <section
             id="problem"
-            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 via-white to-amber-50 py-16 sm:py-24"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-amber-50 via-white to-amber-50 py-8 sm:py-24"
         >
             <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
                 <Reveal className="mx-auto max-w-2xl text-center">

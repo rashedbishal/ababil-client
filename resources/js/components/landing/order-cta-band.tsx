@@ -10,7 +10,7 @@ export default function OrderCtaBand({
     subtitle?: string;
 }) {
     return (
-        <div className="bg-stone-950 py-10">
+        <div className="bg-stone-950 py-6 sm:py-10">
             <Reveal className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left">
                 <div>
                     <p className="font-bengali text-lg font-semibold text-white">
