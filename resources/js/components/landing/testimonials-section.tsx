@@ -79,16 +79,18 @@ const videoTestimonials: VideoTestimonial[] = [
 ];
 
 const TOTAL_ORIGINAL = videoTestimonials.length;
-// We duplicate the items 3 times to allow infinite loop transitions seamlessly
-const EXTENDED_ITEMS = [
-    ...videoTestimonials,
-    ...videoTestimonials,
-    ...videoTestimonials,
-];
 
 export default function TestimonialsSection() {
-    // Start at middle set (index = TOTAL_ORIGINAL = 7)
-    const [currentIndex, setCurrentIndex] = useState(TOTAL_ORIGINAL);
+    // 5-set extended array for 100% gapless infinite loop protection
+    const EXTENDED_ITEMS = [
+        ...videoTestimonials,
+        ...videoTestimonials,
+        ...videoTestimonials,
+        ...videoTestimonials,
+        ...videoTestimonials,
+    ];
+    // Start at middle set (index = TOTAL_ORIGINAL * 2 = 14)
+    const [currentIndex, setCurrentIndex] = useState(TOTAL_ORIGINAL * 2);
     const [isTransitioning, setIsTransitioning] = useState(true);
     const [visibleCount, setVisibleCount] = useState(3);
     const [isDragging, setIsDragging] = useState(false);
@@ -119,25 +121,48 @@ export default function TestimonialsSection() {
     }, []);
 
     const slideNext = useCallback(() => {
-        if (!isTransitioning) setIsTransitioning(true);
-        setCurrentIndex((prev) => prev + 1);
-    }, [isTransitioning]);
+        setIsTransitioning(true);
+        setCurrentIndex((prev) => {
+            if (prev >= TOTAL_ORIGINAL * 3) {
+                return TOTAL_ORIGINAL * 2 + 1;
+            }
+            return prev + 1;
+        });
+    }, []);
 
     const slidePrev = useCallback(() => {
-        if (!isTransitioning) setIsTransitioning(true);
-        setCurrentIndex((prev) => prev - 1);
-    }, [isTransitioning]);
+        setIsTransitioning(true);
+        setCurrentIndex((prev) => {
+            if (prev < TOTAL_ORIGINAL) {
+                return TOTAL_ORIGINAL * 2 - 1;
+            }
+            return prev - 1;
+        });
+    }, []);
+
+    const resetLoopPosition = useCallback((targetIndex: number) => {
+        const realIndex =
+            ((targetIndex % TOTAL_ORIGINAL) + TOTAL_ORIGINAL) % TOTAL_ORIGINAL;
+        setIsTransitioning(false);
+        setCurrentIndex(TOTAL_ORIGINAL * 2 + realIndex);
+    }, []);
 
     // Handle seamless infinite loop jump when transition ends
     const handleTransitionEnd = () => {
-        if (currentIndex >= TOTAL_ORIGINAL * 2) {
-            setIsTransitioning(false);
-            setCurrentIndex(currentIndex - TOTAL_ORIGINAL);
-        } else if (currentIndex < TOTAL_ORIGINAL) {
-            setIsTransitioning(false);
-            setCurrentIndex(currentIndex + TOTAL_ORIGINAL);
+        if (currentIndex >= TOTAL_ORIGINAL * 3 || currentIndex < TOTAL_ORIGINAL) {
+            resetLoopPosition(currentIndex);
         }
     };
+
+    // Fallback timer in case transitionend event is dropped by browser
+    useEffect(() => {
+        if (currentIndex >= TOTAL_ORIGINAL * 3 || currentIndex < TOTAL_ORIGINAL) {
+            const fallbackTimer = setTimeout(() => {
+                resetLoopPosition(currentIndex);
+            }, 550);
+            return () => clearTimeout(fallbackTimer);
+        }
+    }, [currentIndex, resetLoopPosition]);
 
     // Pointer / Touch / Mouse Drag event handlers
     const handlePointerDown = (e: React.PointerEvent) => {

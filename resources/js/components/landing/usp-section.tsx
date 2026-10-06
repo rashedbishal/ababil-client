@@ -49,8 +49,10 @@ const EXTENDED_USPS = [...usps, ...usps, ...usps];
 const AUTO_SLIDE_INTERVAL = 2000; // 2 seconds fast & frequent auto slide
 
 export default function UspSection() {
-    // Start at middle loop set (index = TOTAL_USPS = 6)
-    const [currentIndex, setCurrentIndex] = useState(TOTAL_USPS);
+    // 5-set extended array for 100% gapless infinite loop protection
+    const EXTENDED_USPS = [...usps, ...usps, ...usps, ...usps, ...usps];
+    // Start at middle loop set (index = TOTAL_USPS * 2 = 12)
+    const [currentIndex, setCurrentIndex] = useState(TOTAL_USPS * 2);
     const [isTransitioning, setIsTransitioning] = useState(true);
     const [visibleCount, setVisibleCount] = useState(3);
     const [isDragging, setIsDragging] = useState(false);
@@ -77,36 +79,60 @@ export default function UspSection() {
     }, []);
 
     const slideNext = useCallback(() => {
-        if (!isTransitioning) setIsTransitioning(true);
-        setCurrentIndex((prev) => prev + 1);
-    }, [isTransitioning]);
+        setIsTransitioning(true);
+        setCurrentIndex((prev) => {
+            if (prev >= TOTAL_USPS * 3) {
+                return TOTAL_USPS * 2 + 1;
+            }
+            return prev + 1;
+        });
+    }, []);
 
     const slidePrev = useCallback(() => {
-        if (!isTransitioning) setIsTransitioning(true);
-        setCurrentIndex((prev) => prev - 1);
-    }, [isTransitioning]);
+        setIsTransitioning(true);
+        setCurrentIndex((prev) => {
+            if (prev < TOTAL_USPS) {
+                return TOTAL_USPS * 2 - 1;
+            }
+            return prev - 1;
+        });
+    }, []);
 
-    // Fast, continuous auto-slide effect (never paused by mouse hover)
+    // Fast, continuous auto-slide effect (paused when tab hidden or dragging)
     useEffect(() => {
         if (isDragging) return;
 
         const timer = setInterval(() => {
-            slideNext();
+            if (!document.hidden) {
+                slideNext();
+            }
         }, AUTO_SLIDE_INTERVAL);
 
         return () => clearInterval(timer);
     }, [isDragging, slideNext]);
 
+    const resetLoopPosition = useCallback((targetIndex: number) => {
+        const realIndex = ((targetIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
+        setIsTransitioning(false);
+        setCurrentIndex(TOTAL_USPS * 2 + realIndex);
+    }, []);
+
     // Seamless infinite loop jump when transition finishes
     const handleTransitionEnd = () => {
-        if (currentIndex >= TOTAL_USPS * 2) {
-            setIsTransitioning(false);
-            setCurrentIndex(currentIndex - TOTAL_USPS);
-        } else if (currentIndex < TOTAL_USPS) {
-            setIsTransitioning(false);
-            setCurrentIndex(currentIndex + TOTAL_USPS);
+        if (currentIndex >= TOTAL_USPS * 3 || currentIndex < TOTAL_USPS) {
+            resetLoopPosition(currentIndex);
         }
     };
+
+    // Fallback timer in case transitionend event is dropped by browser
+    useEffect(() => {
+        if (currentIndex >= TOTAL_USPS * 3 || currentIndex < TOTAL_USPS) {
+            const fallbackTimer = setTimeout(() => {
+                resetLoopPosition(currentIndex);
+            }, 550);
+            return () => clearTimeout(fallbackTimer);
+        }
+    }, [currentIndex, resetLoopPosition]);
 
     // Pointer / Touch / Mouse Drag handlers
     const handlePointerDown = (e: React.PointerEvent) => {
@@ -232,12 +258,12 @@ export default function UspSection() {
                                                 className="pointer-events-none absolute -inset-4 hidden rounded-[2rem] bg-gradient-to-br from-amber-400/30 via-yellow-300/15 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100 md:block"
                                             />
 
-                                            {/* Square Card Image Frame (matches the 1:1 source images) */}
-                                            <div className="relative flex aspect-square size-56 items-center justify-center overflow-hidden rounded-2xl border-4 border-amber-300 bg-stone-900 shadow-xl shadow-amber-900/10 transition-transform duration-300 group-hover:scale-105 sm:size-64 md:size-72">
+                                            {/* Square Card Image Frame */}
+                                            <div className="relative flex aspect-square size-56 items-center justify-center overflow-hidden rounded-2xl border-4 border-amber-300 bg-amber-100/80 shadow-xl shadow-amber-900/10 transition-transform duration-300 group-hover:scale-105 sm:size-64 md:size-72">
                                                 <img
                                                     src={item.image}
                                                     alt={item.title}
-                                                    loading="lazy"
+                                                    loading="eager"
                                                     decoding="async"
                                                     className="size-full rounded-xl object-cover"
                                                 />
@@ -261,7 +287,7 @@ export default function UspSection() {
                         </div>
                     </div>
 
-                    {/* Issue 3 Fix: Exactly 6 Indicator Dots matching card count */}
+                    {/* Indicators */}
                     <div className="mt-8 flex items-center justify-center gap-2">
                         {usps.map((_, index) => (
                             <button
