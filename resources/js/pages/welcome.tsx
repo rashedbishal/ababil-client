@@ -350,6 +350,7 @@ export default function Welcome({
                         title="এখনই অর্ডার করে পেয়ে যান আবাবিল"
                         subtitle="ক্যাশ অন ডেলিভারি — সারা বাংলাদেশে"
                     />
+                    <TrustSection />
                     <LabTestedSection />
                     <NationwideSection />
                     <OrderCtaBand
@@ -362,7 +363,6 @@ export default function Welcome({
                         title="নিরাপদে ব্যবহার করুন, আজই অর্ডার করুন"
                         subtitle="নির্দেশনা মেনে ব্যবহারে আবাবিল আপনার পাশে আছে"
                     />
-                    <TrustSection />
                     <TestimonialsSection />
                     <OrderCtaBand
                         title="৩ দিনের মানি-ব্যাক গ্যারান্টি সহ অর্ডার করুন"
