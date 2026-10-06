@@ -20,7 +20,7 @@ const heroSlides: HeroSlide[] = [
         imageWebpMobile: '/images/hero/IMG_3612_mobile.webp',
         imageJpeg: '/images/hero/IMG_3612.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ১',
-        badge: '১০০% অর্গানিক · ৯টি ভেষজ উপাদান',
+        badge: '১০০% অর্গানিক · বহু ভেষজ উপাদান',
         tagline: 'হাঁটু, কোমর ও ঘাড় ব্যথায় দ্রুত আরামদায়ক উপশম',
         positionClass: 'bottom-8 right-6 sm:bottom-14 sm:right-24 lg:right-32',
     },

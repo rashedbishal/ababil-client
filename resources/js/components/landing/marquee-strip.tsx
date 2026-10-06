@@ -3,7 +3,7 @@ import Marquee from './motion/marquee';
 
 const items = [
     { label: 'সারা বাংলাদেশে Cash on Delivery', icon: Truck },
-    { label: '৯টি প্রাকৃতিক উপাদান', icon: Leaf },
+    { label: 'বহু প্রাকৃতিক উপাদান', icon: Leaf },
     { label: '৩ দিনের Money-Back গ্যারান্টি', icon: ShieldCheck },
     { label: '১০০% অর্গানিক', icon: Sparkles },
     { label: 'অ্যালার্জিক ত্বকের জন্য নিরাপদ', icon: BadgeCheck },

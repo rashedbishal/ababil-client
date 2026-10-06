@@ -8,7 +8,7 @@ import OrderButton from './order-button';
 const navLinks = [
     { href: '#problem', label: 'সমস্যা' },
     { href: '#usp', label: 'কেন আবাবিল' },
-    { href: '#ingredients', label: 'উপাদান' },
+    { href: '#lab-tested', label: 'ল্যাব টেস্ট' },
     { href: '#usage', label: 'ব্যবহার' },
     { href: '#reviews', label: 'রিভিউ' },
     { href: '#checkout', label: 'পেমেন্ট' },
@@ -18,7 +18,7 @@ const mobileNavLinks = [
     { href: '#top', label: 'হোম', icon: '🏠' },
     { href: '#problem', label: 'সমস্যা', icon: '⚡' },
     { href: '#usp', label: 'কেন আবাবিল', icon: '⭐' },
-    { href: '#ingredients', label: 'উপাদান', icon: '🌿' },
+    { href: '#lab-tested', label: 'ল্যাব টেস্ট', icon: '🧪' },
     { href: '#usage', label: 'ব্যবহার', icon: '📖' },
     { href: '#reviews', label: 'রিভিউ', icon: '💬' },
     { href: '#checkout', label: 'পেমেন্ট', icon: '💳' },
