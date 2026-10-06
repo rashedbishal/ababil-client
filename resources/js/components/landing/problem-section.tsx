@@ -101,7 +101,7 @@ export default function ProblemSection() {
                     </h2>
                 </Reveal>
 
-                <div className="relative mt-16 space-y-20 sm:mt-24 sm:space-y-28">
+                <div className="relative mt-8 space-y-10 sm:mt-24 sm:space-y-28">
                     <div
                         aria-hidden
                         className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-amber-300 to-transparent lg:block"
@@ -137,7 +137,7 @@ export default function ProblemSection() {
                                         duration: 2.6,
                                         ease: [0.16, 1, 0.3, 1],
                                     }}
-                                    className={`group relative flex flex-col items-center gap-8 sm:gap-10 lg:flex-row ${
+                                    className={`group relative flex flex-col items-center gap-4 sm:gap-10 lg:flex-row ${
                                         fromLeft ? '' : 'lg:flex-row-reverse'
                                     }`}
                                 >
@@ -184,11 +184,11 @@ export default function ProblemSection() {
                                             <h3 className="font-bengali text-2xl font-bold text-stone-900 sm:text-3xl">
                                                 {label}
                                             </h3>
-                                            <p className="mx-auto mt-3 max-w-md font-bengali text-base text-stone-600 sm:text-lg">
+                                            <p className="mx-auto mt-2 max-w-md font-bengali text-base text-stone-600 sm:mt-3 sm:text-lg">
                                                 {descriptionMobile}
                                             </p>
 
-                                            <div className="mt-5 flex justify-center">
+                                            <div className="mt-3 flex justify-center sm:mt-5">
                                                 <Magnetic strength={0.25}>
                                                     <OrderButton
                                                         size="sm"
