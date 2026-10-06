@@ -8,9 +8,6 @@ interface HeroSlide {
     imageWebpMobile: string;
     imageJpeg: string;
     alt: string;
-    badge: string;
-    tagline: string;
-    positionClass: string;
 }
 
 const heroSlides: HeroSlide[] = [
@@ -20,9 +17,6 @@ const heroSlides: HeroSlide[] = [
         imageWebpMobile: '/images/hero/IMG_3612_mobile.webp',
         imageJpeg: '/images/hero/IMG_3612.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ১',
-        badge: '১০০% অর্গানিক · বহু ভেষজ উপাদান',
-        tagline: 'হাঁটু, কোমর ও ঘাড় ব্যথায় দ্রুত আরামদায়ক উপশম',
-        positionClass: 'bottom-8 right-6 sm:bottom-14 sm:right-24 lg:right-32',
     },
     {
         id: 2,
@@ -30,10 +24,6 @@ const heroSlides: HeroSlide[] = [
         imageWebpMobile: '/images/hero/IMG_3613_mobile.webp',
         imageJpeg: '/images/hero/IMG_3613.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ২',
-        badge: 'প্রিমিয়াম ভেষজ ফর্মুলা',
-        tagline: 'মহাঔষধী ভেষজের বিশেষ গুণসম্পন্ন ম্যাসাজ তেল',
-        positionClass:
-            'top-20 sm:top-24 lg:top-28 bottom-auto right-6 sm:right-24 lg:right-32',
     },
     {
         id: 3,
@@ -41,9 +31,6 @@ const heroSlides: HeroSlide[] = [
         imageWebpMobile: '/images/hero/IMG_3614_mobile.webp',
         imageJpeg: '/images/hero/IMG_3614.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৩',
-        badge: 'সারা বাংলাদেশে হোম ডেলিভারি',
-        tagline: 'ঘরে বসেই অর্ডার করুন, হাতে পেয়ে মূল্য পরিশোধ করুন',
-        positionClass: 'bottom-8 right-6 sm:bottom-16 sm:right-24 lg:right-32',
     },
     {
         id: 4,
@@ -51,9 +38,6 @@ const heroSlides: HeroSlide[] = [
         imageWebpMobile: '/images/hero/IMG_3615_mobile.webp',
         imageJpeg: '/images/hero/IMG_3615.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৪',
-        badge: '৩ দিনের মানি-ব্যাক গ্যারান্টি',
-        tagline: '১০০% ঝুঁকিমুক্ত কেনাকাটার নিশ্চয়তা',
-        positionClass: 'bottom-8 right-6 sm:bottom-16 sm:right-24 lg:right-32',
     },
     {
         id: 5,
@@ -61,9 +45,6 @@ const heroSlides: HeroSlide[] = [
         imageWebpMobile: '/images/hero/IMG_3616_mobile.webp',
         imageJpeg: '/images/hero/IMG_3616.JPEG',
         alt: 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল ব্যানার ৫',
-        badge: '৫০০০+ সন্তুষ্ট গ্রাহকের ভরসা',
-        tagline: 'নিয়মিত ব্যবহারে জীবনের স্বাভাবিক গতি ফিরে পান',
-        positionClass: 'bottom-8 right-6 sm:bottom-14 sm:right-24 lg:right-32',
     },
 ];
 
@@ -186,17 +167,6 @@ export default function HeroSection() {
                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-black/40" />
                     </motion.div>
                 </AnimatePresence>
-
-                <div
-                    className={`absolute z-30 max-w-[min(16rem,calc(100%-1.5rem))] rounded-xl border border-amber-300/30 bg-stone-950/75 px-3 py-2.5 shadow-xl shadow-black/25 backdrop-blur-md ${currentSlide.positionClass}`}
-                >
-                    <span className="inline-block rounded-full border border-amber-400/30 bg-amber-500/10 px-2 py-0.5 font-bengali text-[8px] font-semibold tracking-[0.12em] text-amber-300 uppercase sm:text-[9px]">
-                        {currentSlide.badge}
-                    </span>
-                    <p className="mt-1 font-bengali text-[11px] leading-snug font-medium text-white sm:text-xs">
-                        {currentSlide.tagline}
-                    </p>
-                </div>
 
                 {/* Slider Arrow Buttons (grouped, bottom-left corner) */}
                 <div
