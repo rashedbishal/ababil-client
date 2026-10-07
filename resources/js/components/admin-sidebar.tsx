@@ -158,9 +158,13 @@ export function AdminSidebar() {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
+                        <SidebarMenuButton
+                            size="lg"
+                            asChild
+                            className="group-data-[collapsible=icon]:p-0!"
+                        >
                             <Link href={dashboard()}>
-                                <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-lg border border-border/50 shadow-2xs">
+                                <div className="flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/50 shadow-2xs">
                                     <img
                                         src={ababilLogo}
                                         alt={name}

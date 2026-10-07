@@ -98,6 +98,10 @@ function compactNumber(value: number) {
     }).format(value);
 }
 
+function formatWholeAmount(value: string) {
+    return Math.round(Number(value)).toLocaleString();
+}
+
 function ChartTooltip({
     active,
     payload,
@@ -368,7 +372,7 @@ export default function AdminDashboard({
         },
         {
             label: 'Total Revenue',
-            value: `৳ ${stats.total_revenue}`,
+            value: `৳ ${formatWholeAmount(stats.total_revenue)}`,
             icon: DollarSign,
             gradient:
                 'from-emerald-500/20 via-teal-500/10 to-transparent text-emerald-600 dark:text-emerald-400 ring-emerald-500/20',
