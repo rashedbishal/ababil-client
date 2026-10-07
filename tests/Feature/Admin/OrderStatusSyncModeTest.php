@@ -3,6 +3,8 @@
 use App\Enums\OrderStatus;
 use App\Models\CourierProvider;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -106,6 +108,47 @@ test('refreshing courier status on an automated order syncs the order status', f
     $this->actingAs($admin)->post(route('admin.orders.courier.refresh', $order));
 
     expect($order->fresh()->status)->toBe(OrderStatus::Delivered);
+});
+
+test('a pickup_cancelled courier status auto-cancels an automated order and restores its stock', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    Setting::set('courier_default_provider', 'pathao');
+    CourierProvider::query()->create([
+        'name' => 'pathao',
+        'credentials' => [
+            'base_url' => 'https://courier-api-sandbox.pathao.com',
+            'client_id' => 'id',
+            'client_secret' => 'secret',
+            'username' => 'test@pathao.com',
+            'password' => 'lovePathao',
+            'store_id' => '123',
+        ],
+    ]);
+
+    $product = Product::factory()->create(['track_stock' => true, 'stock' => 5]);
+    $order = Order::factory()->create([
+        'status' => OrderStatus::CourierSubmitted,
+        'courier_consignment_id' => 'CONSIGN-1',
+        'courier_provider' => 'pathao',
+    ]);
+    OrderItem::factory()->for($order)->for($product)->create(['variant_id' => null, 'quantity' => 2]);
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::response([
+            'expires_in' => 432000,
+            'access_token' => 'token',
+            'refresh_token' => 'refresh',
+        ]),
+        '*/aladdin/api/v1/orders/CONSIGN-1/info' => Http::response([
+            'data' => ['consignment_id' => 'CONSIGN-1', 'order_status_slug' => 'Pickup_Cancelled'],
+        ]),
+    ]);
+
+    $this->actingAs($admin)->post(route('admin.orders.courier.refresh', $order));
+
+    expect($order->fresh()->status)->toBe(OrderStatus::Cancelled)
+        ->and($product->fresh()->stock)->toBe(7);
 });
 
 test('refreshing courier status on a manual order does not change the order status', function () {
