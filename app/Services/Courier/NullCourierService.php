@@ -13,18 +13,20 @@ use App\Exceptions\CourierException;
  */
 class NullCourierService implements CourierServiceInterface
 {
+    private const NOT_CONFIGURED_MESSAGE = 'No courier provider is configured. Set one as the default on the admin Courier Integration page.';
+
     public function createParcel(ParcelData $parcel): ParcelStatus
     {
-        throw new CourierException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
+        throw new CourierException(self::NOT_CONFIGURED_MESSAGE);
     }
 
     public function getParcelStatus(string $consignmentId): ParcelStatus
     {
-        throw new CourierException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
+        throw new CourierException(self::NOT_CONFIGURED_MESSAGE);
     }
 
     public function cancelParcel(string $consignmentId): bool
     {
-        throw new CourierException('No courier provider is configured. Set COURIER_DEFAULT in .env once a provider integration is added.');
+        throw new CourierException(self::NOT_CONFIGURED_MESSAGE);
     }
 }

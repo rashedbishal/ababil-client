@@ -76,6 +76,11 @@ class ProductController extends Controller
     {
         $data = $request->validated();
 
+        // count() === 0 here means "before this insert, the catalog is
+        // empty" - i.e. this product is about to become the only one, so
+        // it must stay active no matter what the form submitted. Compare
+        // to update() below, which checks count() === 1 for the same reason
+        // at a point where the product being edited already exists.
         if (Product::query()->count() === 0) {
             $data['is_active'] = true;
         }
@@ -131,6 +136,11 @@ class ProductController extends Controller
     {
         $data = $request->validated();
 
+        // count() === 1 here means "this product (which already exists)
+        // is the only one in the whole catalog" - it must stay active, the
+        // same rule store() above enforces before the product exists yet
+        // (there, count() === 0 means the same thing: about to be the
+        // only one).
         if (Product::query()->count() === 1) {
             $data['is_active'] = true;
         }

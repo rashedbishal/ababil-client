@@ -22,10 +22,16 @@ class Setting extends Model
 
     public static function get(string $key, ?string $default = null): ?string
     {
-        return Cache::rememberForever(
+        // The default is applied after the cache read, not baked into what
+        // gets cached - otherwise two call sites passing different defaults
+        // for the same (missing) key would get whichever one ran first,
+        // cached forever, regardless of what the other one asked for.
+        $value = Cache::rememberForever(
             "settings.{$key}",
-            fn (): ?string => static::query()->where('key', $key)->value('value') ?? $default,
+            fn (): ?string => static::query()->where('key', $key)->value('value'),
         );
+
+        return $value ?? $default;
     }
 
     public static function set(string $key, ?string $value): void
