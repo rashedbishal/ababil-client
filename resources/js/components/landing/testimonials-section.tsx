@@ -338,7 +338,7 @@ export default function TestimonialsSection() {
                                                         src={embedUrl}
                                                         title={`Testimonial video by ${item.name}`}
                                                         loading="lazy"
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                         allowFullScreen
                                                         className={`h-full w-full rounded-2xl object-cover ${
                                                             isDragging
