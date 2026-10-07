@@ -226,7 +226,7 @@ export function AdminSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
-                <NavUser showSettingsLink={false} showAppearanceToggle />
+                <NavUser showSettingsLink={false} />
             </SidebarFooter>
         </Sidebar>
     );

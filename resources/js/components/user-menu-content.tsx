@@ -1,6 +1,5 @@
 import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
-import AppearanceToggleTab from '@/components/appearance-tabs';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -16,14 +15,9 @@ import type { User } from '@/types';
 type Props = {
     user: User;
     showSettingsLink?: boolean;
-    showAppearanceToggle?: boolean;
 };
 
-export function UserMenuContent({
-    user,
-    showSettingsLink = true,
-    showAppearanceToggle = false,
-}: Props) {
+export function UserMenuContent({ user, showSettingsLink = true }: Props) {
     const cleanup = useMobileNavigation();
 
     const handleLogout = () => {
@@ -55,18 +49,6 @@ export function UserMenuContent({
                             </Link>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
-                </>
-            )}
-
-            {showAppearanceToggle && (
-                <>
-                    <DropdownMenuSeparator />
-                    <div className="px-1 py-1.5">
-                        <p className="mb-1.5 px-1 text-xs font-medium text-muted-foreground">
-                            Theme
-                        </p>
-                        <AppearanceToggleTab compact className="w-full" />
-                    </div>
                 </>
             )}
 
