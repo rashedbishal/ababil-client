@@ -14,6 +14,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
     Table,
@@ -297,20 +304,23 @@ export default function BlockedIpsIndex({
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="ip-status">Status</Label>
-                            <select
-                                id="ip-status"
+                            <Select
                                 value={form.data.is_active ? '1' : '0'}
-                                onChange={(e) =>
-                                    form.setData(
-                                        'is_active',
-                                        e.target.value === '1',
-                                    )
+                                onValueChange={(value) =>
+                                    form.setData('is_active', value === '1')
                                 }
-                                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
                             >
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
+                                <SelectTrigger
+                                    id="ip-status"
+                                    className="w-full"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="1">Active</SelectItem>
+                                    <SelectItem value="0">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 

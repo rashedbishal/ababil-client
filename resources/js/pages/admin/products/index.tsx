@@ -1,9 +1,17 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 import Heading from '@/components/heading';
 import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -47,6 +55,22 @@ export default function ProductsIndex({
         router.post(products.restore(id), {}, { preserveScroll: true });
     }
 
+    const [search, setSearch] = useState(filters.search ?? '');
+    const [status, setStatus] = useState(filters.status ?? '');
+
+    function submitFilters(e: React.FormEvent) {
+        e.preventDefault();
+
+        router.get(
+            products.index().url,
+            {
+                search: search || undefined,
+                status: status || undefined,
+            },
+            { preserveState: true, preserveScroll: true },
+        );
+    }
+
     return (
         <>
             <Head title="Products" />
@@ -60,24 +84,30 @@ export default function ProductsIndex({
                 )}
             </div>
 
-            <form method="get" className="flex flex-wrap gap-2">
+            <form onSubmit={submitFilters} className="flex flex-wrap gap-2">
                 <Input
                     type="search"
-                    name="search"
                     placeholder="Search by name or SKU…"
-                    defaultValue={filters.search ?? ''}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                     className="max-w-xs"
                 />
-                <select
-                    name="status"
-                    defaultValue={filters.status ?? ''}
-                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
+                <Select
+                    value={status || 'all'}
+                    onValueChange={(value) =>
+                        setStatus(value === 'all' ? '' : value)
+                    }
                 >
-                    <option value="">All active/inactive</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="archived">Archived</option>
-                </select>
+                    <SelectTrigger className="w-48">
+                        <SelectValue placeholder="All active/inactive" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All active/inactive</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                </Select>
                 <Button type="submit" variant="secondary">
                     Filter
                 </Button>

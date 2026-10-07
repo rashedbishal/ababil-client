@@ -7,6 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
     Table,
@@ -462,21 +469,27 @@ export default function OrderShow({
                 <form onSubmit={submit} className="space-y-4">
                     <div className="grid gap-2">
                         <Label htmlFor="status">Status</Label>
-                        <select
-                            id="status"
+                        <Select
                             value={form.data.status}
                             disabled={isAutomated}
-                            onChange={(e) =>
-                                form.setData('status', e.target.value)
+                            onValueChange={(value) =>
+                                form.setData('status', value)
                             }
-                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            {statuses.map((status) => (
-                                <option key={status.value} value={status.value}>
-                                    {status.label}
-                                </option>
-                            ))}
-                        </select>
+                            <SelectTrigger id="status" className="w-full">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {statuses.map((status) => (
+                                    <SelectItem
+                                        key={status.value}
+                                        value={status.value}
+                                    >
+                                        {status.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <InputError message={form.errors.status} />
                     </div>
                     <div className="grid gap-2">

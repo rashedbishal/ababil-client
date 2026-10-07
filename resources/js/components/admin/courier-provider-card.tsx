@@ -5,6 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import courier from '@/routes/admin/courier';
 
 export type ProviderField = {
@@ -121,24 +128,39 @@ export function CourierProviderCard({
                                 )}
                             </Label>
                             {field.options ? (
-                                <select
-                                    id={`${provider.name}-${field.key}`}
+                                <Select
                                     value={form.data[field.key] ?? ''}
-                                    onChange={(e) =>
-                                        form.setData(field.key, e.target.value)
+                                    onValueChange={(value) =>
+                                        form.setData(field.key, value)
                                     }
                                     disabled={!provider.enabled}
-                                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
                                 >
-                                    {field.options.map((option) => (
-                                        <option
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                    <SelectTrigger
+                                        id={`${provider.name}-${field.key}`}
+                                        className="w-full"
+                                    >
+                                        <SelectValue>
+                                            {
+                                                field.options.find(
+                                                    (option) =>
+                                                        option.value ===
+                                                        (form.data[field.key] ??
+                                                            ''),
+                                                )?.label
+                                            }
+                                        </SelectValue>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {field.options.map((option) => (
+                                            <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             ) : (
                                 <Input
                                     id={`${provider.name}-${field.key}`}

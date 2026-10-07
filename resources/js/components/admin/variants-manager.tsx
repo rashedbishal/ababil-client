@@ -13,6 +13,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
     Table,
     TableBody,
     TableCell,
@@ -203,21 +210,35 @@ export function VariantsManager({
                     <div className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="variant-size">Size</Label>
-                            <select
-                                id="variant-size"
-                                value={form.data.size_id}
-                                onChange={(e) =>
-                                    form.setData('size_id', e.target.value)
+                            <Select
+                                value={form.data.size_id || 'none'}
+                                onValueChange={(value) =>
+                                    form.setData(
+                                        'size_id',
+                                        value === 'none' ? '' : value,
+                                    )
                                 }
-                                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
                             >
-                                <option value="">No size</option>
-                                {sizes.map((size) => (
-                                    <option key={size.id} value={size.id}>
-                                        {size.name}
-                                    </option>
-                                ))}
-                            </select>
+                                <SelectTrigger
+                                    id="variant-size"
+                                    className="w-full"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">
+                                        No size
+                                    </SelectItem>
+                                    {sizes.map((size) => (
+                                        <SelectItem
+                                            key={size.id}
+                                            value={String(size.id)}
+                                        >
+                                            {size.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             <InputError message={form.errors.size_id} />
                         </div>
 
@@ -272,20 +293,23 @@ export function VariantsManager({
 
                         <div className="grid gap-2">
                             <Label htmlFor="variant-status">Status</Label>
-                            <select
-                                id="variant-status"
+                            <Select
                                 value={form.data.is_active ? '1' : '0'}
-                                onChange={(e) =>
-                                    form.setData(
-                                        'is_active',
-                                        e.target.value === '1',
-                                    )
+                                onValueChange={(value) =>
+                                    form.setData('is_active', value === '1')
                                 }
-                                className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
                             >
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
+                                <SelectTrigger
+                                    id="variant-status"
+                                    className="w-full"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="1">Active</SelectItem>
+                                    <SelectItem value="0">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 

@@ -1,11 +1,19 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import ConfirmDialog from '@/components/confirm-dialog';
+import { DatePicker } from '@/components/date-picker';
 import Heading from '@/components/heading';
 import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -137,36 +145,34 @@ export default function OrdersIndex({
                     <label className="text-xs text-muted-foreground">
                         Status
                     </label>
-                    <select
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value)}
-                        className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
+                    <Select
+                        value={status || 'all'}
+                        onValueChange={(value) =>
+                            setStatus(value === 'all' ? '' : value)
+                        }
                     >
-                        <option value="">All statuses</option>
-                        {statuses.map((s) => (
-                            <option key={s.value} value={s.value}>
-                                {s.label}
-                            </option>
-                        ))}
-                    </select>
+                        <SelectTrigger className="w-40">
+                            <SelectValue placeholder="All statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All statuses</SelectItem>
+                            {statuses.map((s) => (
+                                <SelectItem key={s.value} value={s.value}>
+                                    {s.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                 <div className="grid gap-1">
                     <label className="text-xs text-muted-foreground">
                         From
                     </label>
-                    <Input
-                        type="date"
-                        value={from}
-                        onChange={(e) => setFrom(e.target.value)}
-                    />
+                    <DatePicker value={from} onChange={setFrom} />
                 </div>
                 <div className="grid gap-1">
                     <label className="text-xs text-muted-foreground">To</label>
-                    <Input
-                        type="date"
-                        value={to}
-                        onChange={(e) => setTo(e.target.value)}
-                    />
+                    <DatePicker value={to} onChange={setTo} />
                 </div>
                 <Button type="button" variant="ghost" onClick={reset}>
                     Reset

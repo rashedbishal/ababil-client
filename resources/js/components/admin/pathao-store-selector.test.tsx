@@ -54,7 +54,9 @@ describe('PathaoStoreSelector', () => {
         );
 
         await waitFor(() =>
-            expect(screen.getByText(/New Real Store/)).toBeInTheDocument(),
+            expect(screen.getByRole('combobox')).toHaveTextContent(
+                'New Real Store',
+            ),
         );
 
         const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -133,7 +135,9 @@ describe('PathaoStoreSelector', () => {
         );
 
         await waitFor(() =>
-            expect(screen.getByText(/Another Store/)).toBeInTheDocument(),
+            expect(screen.getByRole('combobox')).toHaveTextContent(
+                'Still Here Store',
+            ),
         );
 
         fireEvent.click(screen.getByRole('button', { name: 'Save' }));

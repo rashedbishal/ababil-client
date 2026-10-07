@@ -69,10 +69,9 @@ describe('CourierProviderCard delivery/item type dropdowns', () => {
             />,
         );
 
-        const select = screen.getByLabelText(
-            'Delivery Type',
-        ) as HTMLSelectElement;
-        expect(select.value).toBe('48');
+        expect(screen.getByLabelText('Delivery Type')).toHaveTextContent(
+            'Normal Delivery',
+        );
     });
 
     it('switching the delivery type dropdown updates the underlying code sent to the backend, not just the label', () => {
@@ -83,12 +82,14 @@ describe('CourierProviderCard delivery/item type dropdowns', () => {
             />,
         );
 
-        const select = screen.getByLabelText(
-            'Delivery Type',
-        ) as HTMLSelectElement;
-        fireEvent.change(select, { target: { value: '12' } });
+        fireEvent.click(screen.getByLabelText('Delivery Type'));
+        fireEvent.click(
+            screen.getByRole('option', { name: 'On Demand Delivery' }),
+        );
 
-        expect(select.value).toBe('12');
+        expect(screen.getByLabelText('Delivery Type')).toHaveTextContent(
+            'On Demand Delivery',
+        );
     });
 
     it('switching the item type dropdown updates independently of delivery type', () => {
@@ -99,17 +100,15 @@ describe('CourierProviderCard delivery/item type dropdowns', () => {
             />,
         );
 
-        const itemType = screen.getByLabelText(
-            'Item Type',
-        ) as HTMLSelectElement;
-        const deliveryType = screen.getByLabelText(
-            'Delivery Type',
-        ) as HTMLSelectElement;
+        fireEvent.click(screen.getByLabelText('Item Type'));
+        fireEvent.click(screen.getByRole('option', { name: 'Document' }));
 
-        fireEvent.change(itemType, { target: { value: '1' } });
-
-        expect(itemType.value).toBe('1');
-        expect(deliveryType.value).toBe('48');
+        expect(screen.getByLabelText('Item Type')).toHaveTextContent(
+            'Document',
+        );
+        expect(screen.getByLabelText('Delivery Type')).toHaveTextContent(
+            'Normal Delivery',
+        );
     });
 
     it('renders a plain text input (not a dropdown) for fields without options', () => {

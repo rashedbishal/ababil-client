@@ -1,6 +1,13 @@
 import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import courierPathao from '@/routes/admin/courier/pathao';
 
 type Store = { id: number; name: string; address: string };
@@ -64,6 +71,8 @@ export function PathaoStoreSelector({
         }
     }
 
+    const selectedStore = stores?.find((s) => s.id === selectedStoreId);
+
     function saveStore(e: React.FormEvent) {
         e.preventDefault();
 
@@ -108,22 +117,30 @@ export function PathaoStoreSelector({
                         onSubmit={saveStore}
                         className="flex items-center gap-2"
                     >
-                        <select
-                            value={selectedStoreId ?? ''}
-                            onChange={(e) =>
-                                setSelectedStoreId(Number(e.target.value))
+                        <Select
+                            value={
+                                selectedStoreId !== null
+                                    ? String(selectedStoreId)
+                                    : undefined
                             }
-                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
+                            onValueChange={(value) =>
+                                setSelectedStoreId(Number(value))
+                            }
                         >
-                            <option value="" disabled>
-                                Select a store…
-                            </option>
-                            {stores.map((s) => (
-                                <option key={s.id} value={s.id}>
-                                    {s.name} — {s.address}
-                                </option>
-                            ))}
-                        </select>
+                            <SelectTrigger className="w-56">
+                                <SelectValue placeholder="Select a store…">
+                                    {selectedStore &&
+                                        `${selectedStore.name} — ${selectedStore.address}`}
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {stores.map((s) => (
+                                    <SelectItem key={s.id} value={String(s.id)}>
+                                        {s.name} — {s.address}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <Button
                             type="submit"
                             size="sm"

@@ -5,7 +5,7 @@ import {
     AlertCircle,
     ArrowUpRight,
     BarChart3,
-    Calendar,
+    Calendar as CalendarIcon,
     CheckCircle2,
     Clock,
     DollarSign,
@@ -26,11 +26,11 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
+import { DatePicker } from '@/components/date-picker';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Table,
@@ -530,14 +530,11 @@ export default function AdminDashboard({
                                 >
                                     Start Date
                                 </Label>
-                                <Input
+                                <DatePicker
                                     id="from"
-                                    type="date"
                                     value={rangeFrom}
-                                    onChange={(e) =>
-                                        setRangeFrom(e.target.value)
-                                    }
-                                    className="h-8 w-40 text-xs font-medium shadow-2xs"
+                                    onChange={setRangeFrom}
+                                    className="h-8 text-xs font-medium shadow-2xs"
                                 />
                             </div>
                             <div className="grid gap-1">
@@ -547,12 +544,11 @@ export default function AdminDashboard({
                                 >
                                     End Date
                                 </Label>
-                                <Input
+                                <DatePicker
                                     id="to"
-                                    type="date"
                                     value={rangeTo}
-                                    onChange={(e) => setRangeTo(e.target.value)}
-                                    className="h-8 w-40 text-xs font-medium shadow-2xs"
+                                    onChange={setRangeTo}
+                                    className="h-8 text-xs font-medium shadow-2xs"
                                 />
                             </div>
                             <Button
@@ -560,7 +556,7 @@ export default function AdminDashboard({
                                 size="sm"
                                 className="h-8 gap-1.5 font-medium"
                             >
-                                <Calendar className="size-3.5" />
+                                <CalendarIcon className="size-3.5" />
                                 Apply Range Filter
                             </Button>
                         </form>

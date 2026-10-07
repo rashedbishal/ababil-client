@@ -3,6 +3,13 @@ import InputError from '@/components/input-error';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
 export type ProductFormValues = {
@@ -152,8 +159,7 @@ export function ProductFormFields({
                     <legend className="px-1 text-sm font-medium">Status</legend>
                     <div className="grid gap-2">
                         <Label htmlFor="is_active">Visibility</Label>
-                        <select
-                            id="is_active"
+                        <Select
                             name="is_active"
                             defaultValue={
                                 canSetVisibility
@@ -163,11 +169,15 @@ export function ProductFormFields({
                                     : '1'
                             }
                             disabled={!canSetVisibility}
-                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
+                            <SelectTrigger id="is_active" className="w-full">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="1">Active</SelectItem>
+                                <SelectItem value="0">Inactive</SelectItem>
+                            </SelectContent>
+                        </Select>
                         {!canSetVisibility && (
                             <p className="text-xs text-muted-foreground">
                                 This is the only product in your catalog, so it
@@ -193,15 +203,18 @@ export function ProductFormFields({
                     <legend className="px-1 text-sm font-medium">Stock</legend>
                     <div className="grid gap-2">
                         <Label htmlFor="track_stock">Track stock</Label>
-                        <select
-                            id="track_stock"
+                        <Select
                             name="track_stock"
                             defaultValue={defaults.track_stock ? '1' : '0'}
-                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
                         >
-                            <option value="1">Yes</option>
-                            <option value="0">No</option>
-                        </select>
+                            <SelectTrigger id="track_stock" className="w-full">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="1">Yes</SelectItem>
+                                <SelectItem value="0">No</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <p className="text-xs text-muted-foreground">
                             Ignored once this product has sizes/variants - each
                             variant tracks its own stock.
