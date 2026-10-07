@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\ShippingArea;
+use App\Support\StorefrontSeo;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -44,7 +45,12 @@ class LandingController extends Controller
             // shopper needs time to read the page and fill the form - a
             // script submitting instantly doesn't.
             'formToken' => encrypt(now()->timestamp),
-        ]);
+        ])->withViewData('seo', StorefrontSeo::build($product, $product !== null && $this->inStock($product)));
+    }
+
+    private function inStock(Product $product): bool
+    {
+        return ! $product->track_stock || $product->stock > 0 || $product->hasVariants();
     }
 
     /**
@@ -61,7 +67,7 @@ class LandingController extends Controller
             'sale_price' => $product->sale_price !== null ? (string) $product->sale_price : null,
             'sku' => $product->sku,
             'free_delivery' => $product->free_delivery,
-            'in_stock' => ! $product->track_stock || $product->stock > 0 || $product->hasVariants(),
+            'in_stock' => $this->inStock($product),
             'variants' => $product->variants->map(fn (ProductVariant $variant) => [
                 'id' => $variant->id,
                 'size' => $variant->size?->name,

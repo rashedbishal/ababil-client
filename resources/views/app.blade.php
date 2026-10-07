@@ -8,7 +8,7 @@
     $gaId = $isStorefrontPage ? \App\Models\Setting::get('google_analytics_id') : null;
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ isset($seo) ? 'bn' : str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,14 +41,47 @@
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        {{-- Square PNGs in multiples of 48px are what Google Search uses for the result favicon --}}
+        <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48">
+        <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+        @isset($seo)
+            {{-- Storefront search/social metadata (App\Support\StorefrontSeo) --}}
+            <meta name="description" content="{{ $seo['description'] }}">
+            <link rel="canonical" href="{{ $seo['url'] }}">
+            <meta property="og:type" content="website">
+            <meta property="og:site_name" content="{{ $seo['siteName'] }}">
+            <meta property="og:title" content="{{ $seo['title'] }}">
+            <meta property="og:description" content="{{ $seo['description'] }}">
+            <meta property="og:url" content="{{ $seo['url'] }}">
+            <meta property="og:image" content="{{ $seo['image'] }}">
+            <meta property="og:image:width" content="1200">
+            <meta property="og:image:height" content="630">
+            <meta property="og:locale" content="bn_BD">
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:title" content="{{ $seo['title'] }}">
+            <meta name="twitter:description" content="{{ $seo['description'] }}">
+            <meta name="twitter:image" content="{{ $seo['image'] }}">
+            <script type="application/ld+json">{!! json_encode($seo['jsonLd'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+        @else
+            {{-- Only the storefront belongs in search results - not order confirmations, login or admin pages --}}
+            <meta name="robots" content="noindex, nofollow">
+        @endisset
 
         @fonts
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        {{-- The storefront title lives outside <x-inertia::head> so it's present
+             whether or not SSR replaces that block's contents. --}}
+        @isset($seo)
+            <title>{{ $seo['title'] }}</title>
+        @endisset
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            @unless (isset($seo))
+                <title>{{ config('app.name', 'Laravel') }}</title>
+            @endunless
         </x-inertia::head>
 
         @if ($gtmId)

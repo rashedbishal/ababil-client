@@ -319,15 +319,9 @@ export default function Welcome({
 
     return (
         <>
-            <Head title={product.name}>
-                {product.short_description && (
-                    <meta
-                        name="description"
-                        content={product.short_description}
-                    />
-                )}
-            </Head>
-
+            {/* No <Head> here: the title, description and other search/social
+                tags are rendered server-side (App\Support\StorefrontSeo) so
+                crawlers that don't run JavaScript still see them. */}
             <div className="min-h-screen bg-amber-50 font-sans text-stone-900">
                 <SiteHeader phone={contact.phone} />
 

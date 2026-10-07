@@ -11,7 +11,9 @@ import SettingsLayout from '@/layouts/settings/layout';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 void createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+    // No default title for pages that don't set one, so the storefront keeps
+    // the SEO <title> rendered server-side (see resources/views/app.blade.php).
+    title: (title) => (title ? `${title} - ${appName}` : ''),
     layout: (name) => {
         switch (true) {
             case name === 'welcome' || name === 'order-confirmation':
