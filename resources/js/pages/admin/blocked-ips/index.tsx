@@ -110,12 +110,14 @@ export default function BlockedIpsIndex({
         <>
             <Head title="Blocked IPs" />
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Heading
                     title="Blocked IPs"
                     description="Block abusive IP addresses from placing orders. Never affects admin access."
                 />
-                <Button onClick={openCreate}>Block an IP</Button>
+                <Button onClick={openCreate} className="w-full sm:w-auto">
+                    Block an IP
+                </Button>
             </div>
 
             {list.length === 0 && (

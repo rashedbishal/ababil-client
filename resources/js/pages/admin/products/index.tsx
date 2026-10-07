@@ -75,22 +75,25 @@ export default function ProductsIndex({
         <>
             <Head title="Products" />
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Heading title="Products" description="Manage your catalog." />
                 {canCreateProducts && (
-                    <Button asChild>
+                    <Button asChild className="w-full sm:w-auto">
                         <Link href={products.create()}>Add product</Link>
                     </Button>
                 )}
             </div>
 
-            <form onSubmit={submitFilters} className="flex flex-wrap gap-2">
+            <form
+                onSubmit={submitFilters}
+                className="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
+            >
                 <Input
                     type="search"
                     placeholder="Search by name or SKU…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="max-w-xs"
+                    className="w-full sm:max-w-xs"
                 />
                 <Select
                     value={status || 'all'}
@@ -98,7 +101,7 @@ export default function ProductsIndex({
                         setStatus(value === 'all' ? '' : value)
                     }
                 >
-                    <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-full sm:w-48">
                         <SelectValue placeholder="All active/inactive" />
                     </SelectTrigger>
                     <SelectContent>
@@ -108,7 +111,11 @@ export default function ProductsIndex({
                         <SelectItem value="archived">Archived</SelectItem>
                     </SelectContent>
                 </Select>
-                <Button type="submit" variant="secondary">
+                <Button
+                    type="submit"
+                    variant="secondary"
+                    className="w-full sm:w-auto"
+                >
                     Filter
                 </Button>
             </form>

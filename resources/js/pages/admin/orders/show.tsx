@@ -572,12 +572,12 @@ export default function OrderShow({
         <>
             <Head title={`Order ${order.order_number}`} />
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <Heading
                     title={`Order ${order.order_number}`}
                     description={`Placed ${order.created_at ? new Date(order.created_at).toLocaleString() : ''}`}
                 />
-                <Badge variant="outline" className="text-sm">
+                <Badge variant="outline" className="w-fit text-sm">
                     {statuses.find((s) => s.value === order.status)?.label ??
                         order.status}
                 </Badge>

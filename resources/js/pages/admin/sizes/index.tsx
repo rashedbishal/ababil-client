@@ -99,12 +99,14 @@ export default function SizesIndex({ sizes: sizeList }: { sizes: Size[] }) {
         <>
             <Head title="Sizes" />
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Heading
                     title="Sizes"
                     description="Manage the sizes products can be sold in."
                 />
-                <Button onClick={openCreate}>Add size</Button>
+                <Button onClick={openCreate} className="w-full sm:w-auto">
+                    Add size
+                </Button>
             </div>
 
             <Table>

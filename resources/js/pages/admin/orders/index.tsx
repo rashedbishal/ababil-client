@@ -152,7 +152,7 @@ export default function OrdersIndex({
                     </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-3">
-                    <div className="flex flex-wrap items-end gap-2">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:items-end">
                         <div className="grid gap-1">
                             <label className="text-xs text-muted-foreground">
                                 Order #
@@ -160,7 +160,7 @@ export default function OrdersIndex({
                             <Input
                                 value={orderNumber}
                                 onChange={(e) => setOrderNumber(e.target.value)}
-                                className="w-40"
+                                className="w-full"
                             />
                         </div>
                         <div className="grid gap-1">
@@ -170,7 +170,7 @@ export default function OrdersIndex({
                             <Input
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="w-40"
+                                className="w-full"
                             />
                         </div>
                         <div className="grid gap-1">
@@ -183,7 +183,7 @@ export default function OrdersIndex({
                                     setStatus(value === 'all' ? '' : value)
                                 }
                             >
-                                <SelectTrigger className="w-40">
+                                <SelectTrigger className="w-full">
                                     <SelectValue placeholder="All statuses" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -205,15 +205,28 @@ export default function OrdersIndex({
                             <label className="text-xs text-muted-foreground">
                                 From
                             </label>
-                            <DatePicker value={from} onChange={setFrom} />
+                            <DatePicker
+                                value={from}
+                                onChange={setFrom}
+                                className="w-full"
+                            />
                         </div>
                         <div className="grid gap-1">
                             <label className="text-xs text-muted-foreground">
                                 To
                             </label>
-                            <DatePicker value={to} onChange={setTo} />
+                            <DatePicker
+                                value={to}
+                                onChange={setTo}
+                                className="w-full"
+                            />
                         </div>
-                        <Button type="button" variant="ghost" onClick={reset}>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={reset}
+                            className="w-full lg:w-auto"
+                        >
                             Reset
                         </Button>
                     </div>

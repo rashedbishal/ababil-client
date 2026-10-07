@@ -101,12 +101,14 @@ export default function AdminsIndex({
         <>
             <Head title="Admin Management" />
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Heading
                     title="Admin Management"
                     description="Create and manage admin accounts, including your own password."
                 />
-                <Button onClick={openCreate}>Create admin</Button>
+                <Button onClick={openCreate} className="w-full sm:w-auto">
+                    Create admin
+                </Button>
             </div>
 
             {list.length === 0 && (

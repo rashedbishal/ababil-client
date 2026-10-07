@@ -214,31 +214,29 @@ type PrimaryCardConfig = {
 function PrimaryCard({ card }: { card: PrimaryCardConfig }) {
     const content = (
         <Card
-            className={`group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${card.cardBorder}`}
+            className={`group relative h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${card.cardBorder}`}
         >
             <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-br from-primary/5 to-transparent blur-xl transition-all group-hover:scale-125" />
             <CardContent className="p-3.5 sm:p-5">
-                <div className="flex items-center justify-between">
-                    <span className="truncate text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                <div className="flex items-start justify-between gap-2">
+                    <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                         {card.label}
                     </span>
                     <div
-                        className={`flex size-8 items-center justify-center rounded-xl bg-gradient-to-br sm:size-10 ${card.gradient} shadow-2xs ring-1 transition-transform duration-300 group-hover:scale-110`}
+                        className={`flex size-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br sm:size-10 ${card.gradient} shadow-2xs ring-1 transition-transform duration-300 group-hover:scale-110`}
                     >
                         <card.icon className="size-4 sm:size-5" />
                     </div>
                 </div>
-                <div className="mt-2 flex items-baseline justify-between sm:mt-4">
-                    <span className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-                        {card.value}
+                <span className="mt-2 block text-2xl font-extrabold tracking-tight sm:mt-4 sm:text-3xl">
+                    {card.value}
+                </span>
+                {card.badge && (
+                    <span className="mt-1.5 inline-flex w-fit animate-pulse items-center rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-amber-700 dark:text-amber-300">
+                        {card.badge}
                     </span>
-                    {card.badge && (
-                        <span className="inline-flex animate-pulse items-center rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
-                            {card.badge}
-                        </span>
-                    )}
-                </div>
-                <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
+                )}
+                <p className="mt-1.5 text-xs text-muted-foreground">
                     {card.subtitle}
                 </p>
             </CardContent>
@@ -246,7 +244,7 @@ function PrimaryCard({ card }: { card: PrimaryCardConfig }) {
     );
 
     return card.href ? (
-        <Link href={card.href} className="block">
+        <Link href={card.href} className="block h-full">
             {content}
         </Link>
     ) : (
@@ -265,10 +263,10 @@ type BreakdownCardConfig = {
 function BreakdownCard({ card }: { card: BreakdownCardConfig }) {
     const content = (
         <div
-            className={`flex flex-col justify-between rounded-xl border border-l-4 bg-card/80 p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${card.accent}`}
+            className={`flex h-full flex-col justify-between rounded-xl border border-l-4 bg-card/80 p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${card.accent}`}
         >
-            <div className="flex items-center justify-between">
-                <span className="truncate text-xs font-medium text-muted-foreground">
+            <div className="flex items-start justify-between gap-2">
+                <span className="text-xs font-medium text-muted-foreground">
                     {card.label}
                 </span>
                 <card.icon className="size-3.5 shrink-0 text-muted-foreground/60" />
@@ -280,7 +278,7 @@ function BreakdownCard({ card }: { card: BreakdownCardConfig }) {
     );
 
     return card.href ? (
-        <Link href={card.href} className="block">
+        <Link href={card.href} className="block h-full">
             {content}
         </Link>
     ) : (
@@ -521,9 +519,9 @@ export default function AdminDashboard({
                     <CardContent className="space-y-3 p-4">
                         <form
                             onSubmit={applyRange}
-                            className="flex flex-wrap items-end gap-3 rounded-lg border bg-muted/20 p-3"
+                            className="flex flex-col gap-3 rounded-lg border bg-muted/20 p-3 sm:flex-row sm:flex-wrap sm:items-end"
                         >
-                            <div className="grid gap-1">
+                            <div className="grid w-full gap-1 sm:w-auto">
                                 <Label
                                     htmlFor="from"
                                     className="text-xs font-semibold text-muted-foreground"
@@ -534,10 +532,10 @@ export default function AdminDashboard({
                                     id="from"
                                     value={rangeFrom}
                                     onChange={setRangeFrom}
-                                    className="h-8 text-xs font-medium shadow-2xs"
+                                    className="h-8 w-full text-xs font-medium shadow-2xs sm:w-40"
                                 />
                             </div>
-                            <div className="grid gap-1">
+                            <div className="grid w-full gap-1 sm:w-auto">
                                 <Label
                                     htmlFor="to"
                                     className="text-xs font-semibold text-muted-foreground"
@@ -548,13 +546,13 @@ export default function AdminDashboard({
                                     id="to"
                                     value={rangeTo}
                                     onChange={setRangeTo}
-                                    className="h-8 text-xs font-medium shadow-2xs"
+                                    className="h-8 w-full text-xs font-medium shadow-2xs sm:w-40"
                                 />
                             </div>
                             <Button
                                 type="submit"
                                 size="sm"
-                                className="h-8 gap-1.5 font-medium"
+                                className="h-8 w-full gap-1.5 font-medium sm:w-auto"
                             >
                                 <CalendarIcon className="size-3.5" />
                                 Apply Range Filter

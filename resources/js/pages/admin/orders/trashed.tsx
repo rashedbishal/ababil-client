@@ -72,7 +72,7 @@ export default function TrashedOrdersIndex({
         <>
             <Head title="Trashed Orders" />
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Heading
                     title="Trashed Orders"
                     description="Orders moved to trash. Restore them or delete them permanently."
@@ -81,6 +81,7 @@ export default function TrashedOrdersIndex({
                     <Button
                         variant="destructive"
                         onClick={() => setPendingAction({ type: 'clear' })}
+                        className="w-full sm:w-auto"
                     >
                         Clear trash
                     </Button>
