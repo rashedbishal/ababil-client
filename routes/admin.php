@@ -43,6 +43,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('orders/{order}/courier/refresh', [OrderCourierController::class, 'refresh'])->name('orders.courier.refresh');
 
     Route::get('incomplete-orders', [IncompleteOrderController::class, 'index'])->name('incomplete-orders.index');
+    Route::post('incomplete-orders/{incompleteOrder}/convert', [IncompleteOrderController::class, 'convert'])->name('incomplete-orders.convert');
     Route::delete('incomplete-orders/{incompleteOrder}', [IncompleteOrderController::class, 'destroy'])->name('incomplete-orders.destroy');
 
     Route::resource('blocked-ips', BlockedIpController::class)->only(['index', 'store', 'update', 'destroy']);
