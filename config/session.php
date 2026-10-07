@@ -169,7 +169,16 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    // Defaults to true in production so the session cookie never goes out
+    // over plain HTTP even if SESSION_SECURE_COOKIE is never set explicitly
+    // on the server - override with an explicit SESSION_SECURE_COOKIE=false
+    // only if production is ever intentionally served without HTTPS.
+    //
+    // Reads APP_ENV via env() directly rather than app()->isProduction():
+    // this config file can be evaluated before the app container's
+    // environment binding is ready (e.g. during `config:clear`), and
+    // app() calls that early would fail.
+    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') === 'production'),
 
     /*
     |--------------------------------------------------------------------------

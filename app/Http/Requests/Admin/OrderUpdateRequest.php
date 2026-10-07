@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Enums\CourierStatus;
 use App\Enums\OrderStatus;
 use App\Enums\OrderStatusSyncMode;
 use App\Models\Order;
@@ -25,7 +24,12 @@ class OrderUpdateRequest extends FormRequest
     {
         return [
             'status' => ['sometimes', new Enum(OrderStatus::class)],
-            'courier_status' => ['sometimes', 'nullable', new Enum(CourierStatus::class)],
+            // courier_status is deliberately not accepted here - it's a
+            // read-only reflection of what the courier actually reported
+            // (see RefreshCourierStatusAction/SyncCourierOrderStatuses),
+            // never something an admin hand-edits. Accepting it directly
+            // would let it be overwritten without going through the sync
+            // pipeline that keeps it consistent with orders.status.
             'admin_note' => ['sometimes', 'nullable', 'string', 'max:2000'],
             // Matches PlaceOrderRequest's own rules for these same fields -
             // an admin correction shouldn't be allowed to save something
