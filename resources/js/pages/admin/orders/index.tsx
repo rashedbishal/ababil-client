@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { ListFilter } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import ConfirmDialog from '@/components/confirm-dialog';
 import { DatePicker } from '@/components/date-picker';
@@ -6,6 +7,11 @@ import Heading from '@/components/heading';
 import { Pagination } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -101,6 +107,11 @@ export default function OrdersIndex({
         setTo('');
     }
 
+    const [filtersOpen, setFiltersOpen] = useState(false);
+    const activeFilterCount = [orderNumber, phone, status, from, to].filter(
+        Boolean,
+    ).length;
+
     const [pendingDelete, setPendingDelete] = useState<OrderRow | null>(null);
 
     function confirmDelete() {
@@ -120,64 +131,94 @@ export default function OrdersIndex({
 
             <Heading title="Orders" description="All customer orders." />
 
-            <div className="flex flex-wrap items-end gap-2">
-                <div className="grid gap-1">
-                    <label className="text-xs text-muted-foreground">
-                        Order #
-                    </label>
-                    <Input
-                        value={orderNumber}
-                        onChange={(e) => setOrderNumber(e.target.value)}
-                        className="w-40"
-                    />
-                </div>
-                <div className="grid gap-1">
-                    <label className="text-xs text-muted-foreground">
-                        Phone
-                    </label>
-                    <Input
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-40"
-                    />
-                </div>
-                <div className="grid gap-1">
-                    <label className="text-xs text-muted-foreground">
-                        Status
-                    </label>
-                    <Select
-                        value={status || 'all'}
-                        onValueChange={(value) =>
-                            setStatus(value === 'all' ? '' : value)
-                        }
+            <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+                <CollapsibleTrigger asChild>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5"
                     >
-                        <SelectTrigger className="w-40">
-                            <SelectValue placeholder="All statuses" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All statuses</SelectItem>
-                            {statuses.map((s) => (
-                                <SelectItem key={s.value} value={s.value}>
-                                    {s.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="grid gap-1">
-                    <label className="text-xs text-muted-foreground">
-                        From
-                    </label>
-                    <DatePicker value={from} onChange={setFrom} />
-                </div>
-                <div className="grid gap-1">
-                    <label className="text-xs text-muted-foreground">To</label>
-                    <DatePicker value={to} onChange={setTo} />
-                </div>
-                <Button type="button" variant="ghost" onClick={reset}>
-                    Reset
-                </Button>
-            </div>
+                        <ListFilter className="size-4" />
+                        Filters
+                        {activeFilterCount > 0 && (
+                            <Badge
+                                variant="secondary"
+                                className="ml-0.5 px-1.5"
+                            >
+                                {activeFilterCount}
+                            </Badge>
+                        )}
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-3">
+                    <div className="flex flex-wrap items-end gap-2">
+                        <div className="grid gap-1">
+                            <label className="text-xs text-muted-foreground">
+                                Order #
+                            </label>
+                            <Input
+                                value={orderNumber}
+                                onChange={(e) => setOrderNumber(e.target.value)}
+                                className="w-40"
+                            />
+                        </div>
+                        <div className="grid gap-1">
+                            <label className="text-xs text-muted-foreground">
+                                Phone
+                            </label>
+                            <Input
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                className="w-40"
+                            />
+                        </div>
+                        <div className="grid gap-1">
+                            <label className="text-xs text-muted-foreground">
+                                Status
+                            </label>
+                            <Select
+                                value={status || 'all'}
+                                onValueChange={(value) =>
+                                    setStatus(value === 'all' ? '' : value)
+                                }
+                            >
+                                <SelectTrigger className="w-40">
+                                    <SelectValue placeholder="All statuses" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
+                                        All statuses
+                                    </SelectItem>
+                                    {statuses.map((s) => (
+                                        <SelectItem
+                                            key={s.value}
+                                            value={s.value}
+                                        >
+                                            {s.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid gap-1">
+                            <label className="text-xs text-muted-foreground">
+                                From
+                            </label>
+                            <DatePicker value={from} onChange={setFrom} />
+                        </div>
+                        <div className="grid gap-1">
+                            <label className="text-xs text-muted-foreground">
+                                To
+                            </label>
+                            <DatePicker value={to} onChange={setTo} />
+                        </div>
+                        <Button type="button" variant="ghost" onClick={reset}>
+                            Reset
+                        </Button>
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
 
             {paginated.data.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground">

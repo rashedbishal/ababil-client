@@ -589,14 +589,14 @@ export default function AdminDashboard({
                         </div>
 
                         {/* Trend charts: total orders (large) + deliveries / net revenue (stacked) */}
-                        <div className="grid grid-cols-2 grid-rows-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:grid-rows-2">
                             <ChartCard
                                 title="Chart of Total Orders"
                                 data={series}
                                 dataKey="orders"
                                 colorClassName="text-indigo-600 dark:text-indigo-400"
                                 allowDecimals={false}
-                                className="row-span-2"
+                                className="md:row-span-2"
                             />
                             <ChartCard
                                 title="Chart of Total Deliveries"
