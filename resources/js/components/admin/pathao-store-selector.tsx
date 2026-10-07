@@ -115,7 +115,7 @@ export function PathaoStoreSelector({
                 {stores !== null && stores.length > 0 && (
                     <form
                         onSubmit={saveStore}
-                        className="flex items-center gap-2"
+                        className="flex w-full flex-wrap items-center gap-2 sm:w-auto"
                     >
                         <Select
                             value={
@@ -127,7 +127,7 @@ export function PathaoStoreSelector({
                                 setSelectedStoreId(Number(value))
                             }
                         >
-                            <SelectTrigger className="w-56">
+                            <SelectTrigger className="w-full min-w-0 sm:w-56">
                                 <SelectValue placeholder="Select a store…">
                                     {selectedStore &&
                                         `${selectedStore.name} — ${selectedStore.address}`}
