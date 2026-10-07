@@ -45,7 +45,22 @@ class LandingController extends Controller
             // shopper needs time to read the page and fill the form - a
             // script submitting instantly doesn't.
             'formToken' => encrypt(now()->timestamp),
-        ])->withViewData('seo', StorefrontSeo::build($product, $product !== null && $this->inStock($product)));
+        ])->withViewData('seo', $this->seo($product));
+    }
+
+    /**
+     * Search metadata must never take the storefront down: if building it
+     * from the product fails, report the error and fall back to the
+     * site-level tags (no Product structured data) instead of a 500.
+     *
+     * @return array<string, mixed>
+     */
+    private function seo(?Product $product): array
+    {
+        return rescue(
+            fn () => StorefrontSeo::build($product, $product !== null && $this->inStock($product)),
+            fn () => StorefrontSeo::build(null, false),
+        );
     }
 
     private function inStock(Product $product): bool
