@@ -85,34 +85,32 @@ class DashboardController extends Controller
      */
     private function buildSeries(Carbon $from, Carbon $to): array
     {
-        $ordersByDay = Order::query()
+        // One grouped query instead of three separate ones over the same
+        // date range - the conditional SUM/COUNT below compute the
+        // delivered-only counts/revenue in the same pass as the plain
+        // per-day order count.
+        $rowsByDay = Order::query()
             ->whereBetween('created_at', [$from, $to])
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as aggregate')
+            ->selectRaw(
+                'DATE(created_at) as date, '.
+                'COUNT(*) as orders, '.
+                'SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as delivered, '.
+                'SUM(CASE WHEN status = ? THEN grand_total ELSE 0 END) as revenue',
+                [OrderStatus::Delivered->value, OrderStatus::Delivered->value],
+            )
             ->groupBy('date')
-            ->pluck('aggregate', 'date');
-
-        $deliveredByDay = Order::query()
-            ->where('status', OrderStatus::Delivered)
-            ->whereBetween('created_at', [$from, $to])
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as aggregate')
-            ->groupBy('date')
-            ->pluck('aggregate', 'date');
-
-        $revenueByDay = Order::query()
-            ->where('status', OrderStatus::Delivered)
-            ->whereBetween('created_at', [$from, $to])
-            ->selectRaw('DATE(created_at) as date, SUM(grand_total) as aggregate')
-            ->groupBy('date')
-            ->pluck('aggregate', 'date');
+            ->get()
+            ->keyBy('date');
 
         $series = [];
         foreach (CarbonPeriod::create($from->copy()->startOfDay(), $to->copy()->startOfDay()) as $day) {
             $key = $day->toDateString();
+            $row = $rowsByDay->get($key);
             $series[] = [
                 'date' => $key,
-                'orders' => (int) ($ordersByDay[$key] ?? 0),
-                'delivered' => (int) ($deliveredByDay[$key] ?? 0),
-                'revenue' => (float) ($revenueByDay[$key] ?? 0),
+                'orders' => (int) ($row->orders ?? 0),
+                'delivered' => (int) ($row->delivered ?? 0),
+                'revenue' => (float) ($row->revenue ?? 0),
             ];
         }
 

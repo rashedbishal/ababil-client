@@ -63,11 +63,17 @@ class PlaceOrderAction
             $variant = null;
 
             if ($data['variant_id'] !== null) {
-                $variant = ProductVariant::query()->lockForUpdate()->find($data['variant_id']);
+                $variant = ProductVariant::query()->lockForUpdate()->with('size')->find($data['variant_id']);
 
                 if (! $variant || $variant->product_id !== $product->id || ! $variant->is_active) {
                     throw new OrderPlacementException('The selected size is no longer available.');
                 }
+
+                // currentPrice() below falls back to $variant->product when
+                // there's no price override - reuse the $product already
+                // locked and loaded above instead of a redundant lazy-load
+                // of the same row.
+                $variant->setRelation('product', $product);
             } elseif ($product->hasVariants()) {
                 throw new OrderPlacementException('Please select a size.');
             }

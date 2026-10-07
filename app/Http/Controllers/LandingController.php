@@ -83,13 +83,21 @@ class LandingController extends Controller
             'sku' => $product->sku,
             'free_delivery' => $product->free_delivery,
             'in_stock' => $this->inStock($product),
-            'variants' => $product->variants->map(fn (ProductVariant $variant) => [
-                'id' => $variant->id,
-                'size' => $variant->size?->name,
-                'stock' => $variant->stock,
-                'in_stock' => $variant->stock > 0,
-                'price' => $variant->currentPrice(),
-            ])->values(),
+            'variants' => $product->variants->map(function (ProductVariant $variant) use ($product) {
+                // currentPrice() falls back to $variant->product->currentPrice()
+                // when there's no price override - set the relation to the
+                // $product already loaded here instead of letting it lazy-load
+                // (and re-query) the same row once per variant.
+                $variant->setRelation('product', $product);
+
+                return [
+                    'id' => $variant->id,
+                    'size' => $variant->size?->name,
+                    'stock' => $variant->stock,
+                    'in_stock' => $variant->stock > 0,
+                    'price' => $variant->currentPrice(),
+                ];
+            })->values(),
         ];
     }
 }
