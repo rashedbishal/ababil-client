@@ -16,6 +16,7 @@ test('it maps a courier status to the implied order status', function (CourierSt
     'return in transit becomes returned' => [CourierStatus::ReturnInTransit, OrderStatus::Returned],
     'on hold does not change order status' => [CourierStatus::OnHold, null],
     'return requested does not change order status yet' => [CourierStatus::ReturnRequested, null],
+    'pickup cancelled does not change order status' => [CourierStatus::PickupCancelled, null],
     'not submitted does not change order status' => [CourierStatus::NotSubmitted, null],
     'unknown does not change order status' => [CourierStatus::Unknown, null],
 ]);

@@ -319,6 +319,7 @@ test('it maps a known courier status and preserves the raw text', function (stri
     'assigned for return' => ['Assigned for Return', CourierStatus::AssignedForReturn],
     'first mile hub' => ['First Mile Hub', CourierStatus::FirstMileHub],
     'return to merchant' => ['Return to Merchant', CourierStatus::ReturnToMerchant],
+    'pickup cancelled' => ['Pickup_Cancelled', CourierStatus::PickupCancelled],
     'unrecognized status falls back to Unknown' => ['Some_New_Status_Pathao_Might_Add', CourierStatus::Unknown],
 ]);
 

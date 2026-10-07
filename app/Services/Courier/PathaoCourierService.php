@@ -361,6 +361,7 @@ class PathaoCourierService implements CourierServiceInterface
             'in_transit' => CourierStatus::InTransit,
             'on_hold' => CourierStatus::OnHold,
             'reattempt_requested' => CourierStatus::ReattemptRequested,
+            'pickup_cancelled' => CourierStatus::PickupCancelled,
             'delivery' => CourierStatus::Delivery,
             'partial_delivery' => CourierStatus::PartialDelivery,
             'exchange' => CourierStatus::Exchange,

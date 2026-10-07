@@ -13,6 +13,7 @@ enum CourierStatus: string
     case InTransit = 'in_transit';
     case OnHold = 'on_hold';
     case ReattemptRequested = 'reattempt_requested';
+    case PickupCancelled = 'pickup_cancelled';
     case Delivery = 'delivery';
     case PartialDelivery = 'partial_delivery';
     case Exchange = 'exchange';
@@ -41,6 +42,7 @@ enum CourierStatus: string
             self::InTransit => 'In Transit',
             self::OnHold => 'On Hold',
             self::ReattemptRequested => 'Reattempt Requested',
+            self::PickupCancelled => 'Pickup Cancelled',
             self::Delivery => 'Delivery',
             self::PartialDelivery => 'Partial Delivery',
             self::Exchange => 'Exchange',
@@ -63,8 +65,8 @@ enum CourierStatus: string
      * The order status this courier status implies, used to sync `orders.status`
      * when an order's status_sync_mode is Automated. Null means "don't touch the
      * order status" - either the courier status is a terminal-ambiguous/needs-human
-     * signal (On Hold, Return Requested) or it doesn't map to a merchant-facing
-     * order status (NotSubmitted, Unknown).
+     * signal (On Hold, Return Requested, Pickup Cancelled) or it doesn't map to a
+     * merchant-facing order status (NotSubmitted, Unknown).
      */
     public function toOrderStatus(): ?OrderStatus
     {
@@ -73,7 +75,7 @@ enum CourierStatus: string
             self::FirstMileHub, self::AssignedForDelivery, self::AtDeliveryHub, self::InTransit, self::ReattemptRequested => OrderStatus::Shipped,
             self::Delivery, self::PartialDelivery, self::Exchange => OrderStatus::Delivered,
             self::ReturnAtSorting, self::ReturnInTransit, self::AssignedForReturn, self::ReturnToMerchant, self::Returned, self::PaidReturn, self::ReturnedToInventory => OrderStatus::Returned,
-            self::NotSubmitted, self::OnHold, self::ReturnRequested, self::Unknown => null,
+            self::NotSubmitted, self::OnHold, self::ReturnRequested, self::PickupCancelled, self::Unknown => null,
         };
     }
 }
