@@ -73,6 +73,13 @@ export default defineConfig({
             typeAware: true,
         },
     },
+    // Run by the pre-commit hook (.vite-hooks/pre-commit) on staged files
+    // only, so formatting/lint/Pint issues are fixed before they reach CI.
+    staged: {
+        '*.{js,jsx,ts,tsx}': 'vp check --fix',
+        '*.{css,json,md,yml,yaml}': 'vp fmt',
+        '*.php': 'vendor/bin/pint',
+    },
     fmt: {
         printWidth: 80,
         tabWidth: 4,

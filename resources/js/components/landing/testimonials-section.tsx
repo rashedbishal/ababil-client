@@ -149,14 +149,20 @@ export default function TestimonialsSection() {
 
     // Handle seamless infinite loop jump when transition ends
     const handleTransitionEnd = () => {
-        if (currentIndex >= TOTAL_ORIGINAL * 3 || currentIndex < TOTAL_ORIGINAL) {
+        if (
+            currentIndex >= TOTAL_ORIGINAL * 3 ||
+            currentIndex < TOTAL_ORIGINAL
+        ) {
             resetLoopPosition(currentIndex);
         }
     };
 
     // Fallback timer in case transitionend event is dropped by browser
     useEffect(() => {
-        if (currentIndex >= TOTAL_ORIGINAL * 3 || currentIndex < TOTAL_ORIGINAL) {
+        if (
+            currentIndex >= TOTAL_ORIGINAL * 3 ||
+            currentIndex < TOTAL_ORIGINAL
+        ) {
             const fallbackTimer = setTimeout(() => {
                 resetLoopPosition(currentIndex);
             }, 550);

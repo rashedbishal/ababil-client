@@ -44,8 +44,6 @@ const usps = [
 ];
 
 const TOTAL_USPS = usps.length; // 6 cards
-// Duplicate array 3 times for 100% seamless infinite looping
-const EXTENDED_USPS = [...usps, ...usps, ...usps];
 const AUTO_SLIDE_INTERVAL = 2000; // 2 seconds fast & frequent auto slide
 
 export default function UspSection() {
@@ -112,7 +110,8 @@ export default function UspSection() {
     }, [isDragging, slideNext]);
 
     const resetLoopPosition = useCallback((targetIndex: number) => {
-        const realIndex = ((targetIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
+        const realIndex =
+            ((targetIndex % TOTAL_USPS) + TOTAL_USPS) % TOTAL_USPS;
         setIsTransitioning(false);
         setCurrentIndex(TOTAL_USPS * 2 + realIndex);
     }, []);
