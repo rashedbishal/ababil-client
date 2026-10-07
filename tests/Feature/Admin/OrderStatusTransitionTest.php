@@ -166,6 +166,18 @@ test('an order can skip pipeline stages moving forward', function () {
     expect($result->status)->toBe(OrderStatus::Delivered);
 });
 
+test('wouldAllow previews a transition without applying it', function () {
+    $order = Order::factory()->create(['status' => OrderStatus::Shipped]);
+
+    $action = app(UpdateOrderStatusAction::class);
+
+    expect($action->wouldAllow(OrderStatus::Shipped, OrderStatus::Delivered))->toBeTrue()
+        ->and($action->wouldAllow(OrderStatus::Shipped, OrderStatus::Confirmed))->toBeFalse()
+        ->and($action->wouldAllow(OrderStatus::Cancelled, OrderStatus::Shipped))->toBeFalse()
+        ->and($action->wouldAllow(OrderStatus::Shipped, OrderStatus::Shipped))->toBeTrue()
+        ->and($order->fresh()->status)->toBe(OrderStatus::Shipped);
+});
+
 test('the admin order update endpoint returns a validation error instead of a 500 for an invalid transition', function () {
     $admin = $this->actingAsAdmin();
     $order = Order::factory()->create(['status' => OrderStatus::Cancelled, 'status_sync_mode' => 'manual']);

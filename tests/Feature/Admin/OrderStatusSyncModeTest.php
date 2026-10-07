@@ -110,6 +110,49 @@ test('refreshing courier status on an automated order syncs the order status', f
     expect($order->fresh()->status)->toBe(OrderStatus::Delivered);
 });
 
+test('the order page previews what re-enabling automated sync would do from the last known courier status', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $order = Order::factory()->create([
+        'status' => OrderStatus::CourierSubmitted,
+        'status_sync_mode' => 'manual',
+        'courier_status' => 'in_transit',
+    ]);
+
+    $this->actingAs($admin)->get(route('admin.orders.show', $order))
+        ->assertInertia(fn ($page) => $page
+            ->where('automatedSyncPreview.courier_status_label', 'In Transit')
+            ->where('automatedSyncPreview.implied_status_label', 'Shipped')
+            ->where('automatedSyncPreview.implied_status_value', 'shipped')
+            ->where('automatedSyncPreview.will_change_status', true));
+});
+
+test('the automated-sync preview reports no change when the courier status already matches the order status', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Shipped,
+        'status_sync_mode' => 'manual',
+        'courier_status' => 'in_transit',
+    ]);
+
+    $this->actingAs($admin)->get(route('admin.orders.show', $order))
+        ->assertInertia(fn ($page) => $page
+            ->where('automatedSyncPreview.will_change_status', false));
+});
+
+test('the automated-sync preview reports no change when the implied transition would be rejected as backward', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Delivered,
+        'status_sync_mode' => 'manual',
+        'courier_status' => 'pending',
+    ]);
+
+    $this->actingAs($admin)->get(route('admin.orders.show', $order))
+        ->assertInertia(fn ($page) => $page
+            ->where('automatedSyncPreview.implied_status_value', 'courier_submitted')
+            ->where('automatedSyncPreview.will_change_status', false));
+});
+
 test('a pickup_cancelled courier status auto-cancels an automated order and restores its stock', function () {
     $admin = User::factory()->create(['is_admin' => true]);
 

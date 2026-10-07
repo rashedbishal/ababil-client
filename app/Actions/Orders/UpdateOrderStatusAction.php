@@ -114,6 +114,27 @@ class UpdateOrderStatusAction
     }
 
     /**
+     * Whether execute() would allow this transition, without applying it.
+     * Lets callers preview a status change - e.g. warning an admin what
+     * re-enabling automated courier sync is about to do to orders.status -
+     * against this same policy instead of duplicating it.
+     */
+    public function wouldAllow(OrderStatus $from, OrderStatus $to): bool
+    {
+        if ($from === $to) {
+            return true;
+        }
+
+        try {
+            $this->guardTransition($from, $to);
+
+            return true;
+        } catch (InvalidOrderStatusTransitionException) {
+            return false;
+        }
+    }
+
+    /**
      * @throws InvalidOrderStatusTransitionException
      */
     private function guardTransition(OrderStatus $from, OrderStatus $to): void

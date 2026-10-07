@@ -87,6 +87,8 @@ class OrderController extends Controller
 
         $order->load(['items', 'shippingArea', 'statusHistories.changedBy']);
 
+        $impliedByCourier = $order->courier_status?->toOrderStatus();
+
         return Inertia::render('admin/orders/show', [
             'order' => [
                 'id' => $order->id,
@@ -132,6 +134,18 @@ class OrderController extends Controller
             ],
             'statuses' => array_map(fn (OrderStatus $s) => ['value' => $s->value, 'label' => $s->label()], OrderStatus::cases()),
             'courierConfigured' => Setting::get('courier_default_provider') !== null,
+            // What re-enabling automated sync would do right now, from the
+            // last known courier_status - shown as a warning before an admin
+            // in manual mode switches back, since that switch re-applies this
+            // immediately (see SetOrderStatusSyncModeAction).
+            'automatedSyncPreview' => [
+                'courier_status_label' => $order->courier_status?->label(),
+                'implied_status_label' => $impliedByCourier?->label(),
+                'implied_status_value' => $impliedByCourier?->value,
+                'will_change_status' => $impliedByCourier !== null
+                    && $impliedByCourier !== $order->status
+                    && app(UpdateOrderStatusAction::class)->wouldAllow($order->status, $impliedByCourier),
+            ],
         ]);
     }
 

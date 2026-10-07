@@ -75,14 +75,23 @@ type OrderDetail = {
     history: HistoryEntry[];
 };
 
+type AutomatedSyncPreview = {
+    courier_status_label: string | null;
+    implied_status_label: string | null;
+    implied_status_value: string | null;
+    will_change_status: boolean;
+};
+
 export default function OrderShow({
     order,
     statuses,
     courierConfigured,
+    automatedSyncPreview,
 }: {
     order: OrderDetail;
     statuses: { value: string; label: string }[];
     courierConfigured: boolean;
+    automatedSyncPreview: AutomatedSyncPreview;
 }) {
     const form = useForm({
         status: order.status,
@@ -150,6 +159,24 @@ export default function OrderShow({
     function updateStatusSyncMode(mode: 'automated' | 'manual') {
         if (!mode || mode === order.status_sync_mode) {
             return;
+        }
+
+        if (mode === 'automated' && automatedSyncPreview.will_change_status) {
+            const currentLabel =
+                statuses.find((s) => s.value === order.status)?.label ??
+                order.status;
+            const stockNote =
+                automatedSyncPreview.implied_status_value === 'cancelled'
+                    ? ' This will also restore the stock reserved for this order.'
+                    : '';
+
+            const confirmed = confirm(
+                `Switching to Automated will immediately change this order's status from "${currentLabel}" to "${automatedSyncPreview.implied_status_label}", based on the last known courier status (${automatedSyncPreview.courier_status_label}).${stockNote} Continue?`,
+            );
+
+            if (!confirmed) {
+                return;
+            }
         }
 
         router.patch(
