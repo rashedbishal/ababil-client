@@ -1,5 +1,5 @@
 import { ChevronDown, Phone } from 'lucide-react';
-import { AnimatePresence, motion, useScroll, useTransform } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import logo from '../../../images/landing/ababil-logo.webp';
 import Magnetic from './motion/magnetic';
@@ -33,22 +33,6 @@ const mobileNavLinks = [
 ];
 
 export default function SiteHeader({ phone }: { phone: string | null }) {
-    const { scrollY } = useScroll();
-    const scale = useTransform(
-        scrollY,
-        [DOCK_THRESHOLD, DOCK_THRESHOLD + 160],
-        [1, 0.97],
-    );
-    const shadowOpacity = useTransform(
-        scrollY,
-        [DOCK_THRESHOLD, DOCK_THRESHOLD + 160],
-        [0.25, 0.5],
-    );
-    const shadow = useTransform(
-        shadowOpacity,
-        (v) => `0 18px 45px -12px rgb(0 0 0 / ${v})`,
-    );
-
     const [activeHref, setActiveHref] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     // Docked (flat, full-width) look at the very top of the page so the hero
@@ -147,21 +131,19 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
         // flash the page's white background.
         <div className="sticky top-0 z-50">
             <div
-                className={`pointer-events-none transition-[padding] duration-500 ease-out ${
+                className={`pointer-events-none ${
                     isDocked ? 'px-0 pt-0' : 'px-3 pt-3 sm:px-4 sm:pt-4'
                 }`}
             >
-                <motion.div
-                    style={{ scale }}
-                    className={`pointer-events-auto relative transition-[border-radius,box-shadow,max-width,margin] duration-500 ease-out ${
+                <div
+                    className={`pointer-events-auto relative ${
                         isDocked
                             ? 'mx-auto max-w-none rounded-none shadow-none'
                             : 'mx-auto max-w-5xl rounded-full shadow-[0_0_30px_-6px_rgba(251,191,36,0.45)]'
                     }`}
                 >
-                    <motion.header
-                        style={{ boxShadow: shadow }}
-                        className={`relative flex h-16 items-center justify-between gap-2 border-amber-400/60 bg-stone-950/95 px-3 transition-[border-radius,border-width] duration-500 ease-out sm:gap-3 sm:px-5 sm:backdrop-blur-xl ${
+                    <header
+                        className={`relative flex h-16 items-center justify-between gap-2 border-amber-400/60 bg-stone-950/95 px-3 shadow-[0_18px_45px_-12px_rgba(0,0,0,0.35)] sm:gap-3 sm:px-5 sm:backdrop-blur-xl ${
                             isDocked
                                 ? 'rounded-none border-x-0 border-t-0 border-b-2'
                                 : 'rounded-full border-2'
@@ -171,31 +153,22 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                         never interact with (or clip) the header's own border */}
                         <div
                             aria-hidden
-                            className={`pointer-events-none absolute inset-[2px] overflow-hidden transition-[border-radius] duration-500 ease-out ${
+                            className={`pointer-events-none absolute inset-[2px] overflow-hidden ${
                                 isDocked ? 'rounded-none' : 'rounded-full'
                             }`}
                         >
                             {/* Glassy top sheen */}
                             <div
-                                className={`absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent transition-[border-radius] duration-500 ease-out ${
+                                className={`absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent ${
                                     isDocked
                                         ? 'rounded-t-none'
                                         : 'rounded-t-full'
                                 }`}
                             />
 
-                            {/* Slow shimmer sweep */}
-                            <motion.div
-                                className="absolute inset-y-0 left-0 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-amber-200/25 to-transparent"
-                                initial={{ x: '-150%' }}
-                                animate={{ x: '650%' }}
-                                transition={{
-                                    duration: 3.2,
-                                    repeat: Infinity,
-                                    repeatDelay: 2.5,
-                                    ease: 'easeInOut',
-                                }}
-                            />
+                            {/* Slow shimmer sweep — plain CSS animation, no
+                                per-frame JS */}
+                            <div className="animate-sheen-sweep absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent via-amber-200/25 to-transparent" />
                         </div>
 
                         {/* Brand Logo */}
@@ -278,16 +251,9 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                     href={`tel:${phone.replace(/[^0-9+]/g, '')}`}
                                     className="hidden items-center gap-1.5 font-bengali text-sm text-neutral-300 transition hover:text-amber-300 xl:flex"
                                 >
-                                    <motion.span
-                                        animate={{ scale: [1, 1.15, 1] }}
-                                        transition={{
-                                            duration: 4.5,
-                                            repeat: Infinity,
-                                            ease: 'easeInOut',
-                                        }}
-                                    >
+                                    <span className="animate-icon-pulse inline-flex">
                                         <Phone className="size-3.5" />
-                                    </motion.span>
+                                    </span>
                                     {phone}
                                 </a>
                             )}
@@ -302,7 +268,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                                 </OrderButton>
                             </Magnetic>
                         </div>
-                    </motion.header>
+                    </header>
 
                     {/* Mobile Dropdown Menu Overlay */}
                     <AnimatePresence>
@@ -376,7 +342,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                             </>
                         )}
                     </AnimatePresence>
-                </motion.div>
+                </div>
             </div>
         </div>
     );

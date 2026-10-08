@@ -71,19 +71,21 @@ export default function HeroSection() {
         return () => clearInterval(timer);
     }, [isPaused, paginate]);
 
-    // Luxurious smooth slide transition variants
+    // Luxurious smooth slide transition variants. Deliberately transform +
+    // opacity only (no `filter: blur()`) — animating blur repaints the full
+    // slide every frame, which is expensive on low-end mobile GPUs and this
+    // transition plays automatically every ~7s for as long as the hero is
+    // visible.
     const slideVariants = {
         enter: (dir: number) => ({
             x: dir > 0 ? '4%' : '-4%',
             opacity: 0,
             scale: 1.02,
-            filter: 'blur(4px)',
         }),
         center: {
             x: '0%',
             opacity: 1,
             scale: 1,
-            filter: 'blur(0px)',
             transition: {
                 duration: 1.4,
                 ease: [0.16, 1, 0.3, 1] as const,
@@ -93,7 +95,6 @@ export default function HeroSection() {
             x: dir < 0 ? '4%' : '-4%',
             opacity: 0,
             scale: 0.98,
-            filter: 'blur(4px)',
             transition: {
                 duration: 1.2,
                 ease: [0.16, 1, 0.3, 1] as const,

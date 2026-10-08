@@ -32,32 +32,24 @@ export default function OrderButton({
                 large ? 'px-10 py-4 text-lg sm:text-xl' : 'px-6 py-2.5 text-sm'
             } ${className}`}
         >
-            <motion.span
+            {/* Plain CSS animations (no per-frame JS) — only applied while
+                the button is in view, toggling a class is effectively free. */}
+            <span
                 aria-hidden
-                className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/35 to-transparent"
-                initial={{ x: '-150%' }}
-                animate={isInView ? { x: '350%' } : { x: '-150%' }}
-                transition={{
-                    duration: 2.2,
-                    repeat: Infinity,
-                    repeatDelay: 1.4,
-                    ease: 'easeInOut',
-                }}
+                className={`pointer-events-none absolute inset-y-0 left-0 w-1/3 -translate-x-full bg-gradient-to-r from-transparent via-white/35 to-transparent ${
+                    isInView ? 'animate-cta-sheen-sweep' : ''
+                }`}
             />
             <span className="relative">{children}</span>
             {showArrow && (
-                <motion.span
+                <span
                     aria-hidden
-                    className="relative"
-                    animate={isInView ? { x: [0, 5, 0] } : { x: 0 }}
-                    transition={{
-                        duration: 1.2,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                    }}
+                    className={`relative ${
+                        isInView ? 'animate-cta-arrow-nudge' : ''
+                    }`}
                 >
                     <ArrowRight className={large ? 'size-5' : 'size-4'} />
-                </motion.span>
+                </span>
             )}
         </motion.a>
     );

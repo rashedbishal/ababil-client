@@ -1,4 +1,3 @@
-import { motion } from 'motion/react';
 import { Children, type ReactNode } from 'react';
 
 /**
@@ -24,14 +23,11 @@ export default function Marquee({
 
     return (
         <div className={`overflow-hidden ${className ?? ''}`}>
-            <motion.div
-                className="flex w-max items-center"
-                animate={{ x: ['0%', '-50%'] }}
-                transition={{
-                    duration: durationSeconds,
-                    repeat: Infinity,
-                    ease: 'linear',
-                }}
+            {/* Plain CSS animation (no Framer/JS per-frame cost) — cheap and
+                always-on, which matters since this runs forever. */}
+            <div
+                className="animate-marquee-scroll flex w-max items-center"
+                style={{ animationDuration: `${durationSeconds}s` }}
             >
                 {track.map((child, i) => (
                     <span
@@ -42,7 +38,7 @@ export default function Marquee({
                         {child}
                     </span>
                 ))}
-            </motion.div>
+            </div>
         </div>
     );
 }

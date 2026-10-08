@@ -226,11 +226,91 @@
     animation: border-spin 12s linear infinite;
 }
 
+/* Pure-CSS replacements for a handful of always-on decorative loops that
+   used to be driven by Framer Motion's JS/rAF path. A plain CSS animation
+   runs entirely on the compositor thread with zero per-frame JS, which
+   matters a lot on low-end mobile CPUs/GPUs where many simultaneous
+   JS-driven animations compound into visible jank. */
+@keyframes sheen-sweep {
+    0% {
+        transform: translateX(-150%);
+    }
+    56% {
+        transform: translateX(650%);
+    }
+    100% {
+        transform: translateX(650%);
+    }
+}
+
+.animate-sheen-sweep {
+    animation: sheen-sweep 5.7s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+.animate-icon-pulse {
+    animation: icon-pulse 4.5s ease-in-out infinite;
+}
+
+@keyframes cta-sheen-sweep {
+    0% {
+        transform: translateX(-150%);
+    }
+    61% {
+        transform: translateX(350%);
+    }
+    100% {
+        transform: translateX(350%);
+    }
+}
+
+.animate-cta-sheen-sweep {
+    animation: cta-sheen-sweep 3.6s ease-in-out infinite;
+}
+
+@keyframes cta-arrow-nudge {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+.animate-cta-arrow-nudge {
+    animation: cta-arrow-nudge 1.2s ease-in-out infinite;
+}
+
+@keyframes marquee-scroll {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-marquee-scroll {
+    animation: marquee-scroll linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .animate-shimmer,
     .animate-float-slow,
     .animate-pulse-ring,
-    .animate-border-spin {
+    .animate-border-spin,
+    .animate-sheen-sweep,
+    .animate-icon-pulse,
+    .animate-cta-sheen-sweep,
+    .animate-cta-arrow-nudge,
+    .animate-marquee-scroll {
         animation: none;
     }
 }
