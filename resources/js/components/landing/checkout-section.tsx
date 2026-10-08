@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toEnglishDigits } from '@/lib/bangla-digits';
 import { shippingAreaLabel } from '@/lib/shipping-area';
 import Reveal from './motion/reveal';
+import ProductImageViewer from './product-image-viewer';
 import QuantityStepper from './quantity-stepper';
 
 import product1 from '../../../images/landing/product/product-1.webp';
@@ -80,6 +81,7 @@ export default function CheckoutSection({
     onSubmit: (e: FormEvent) => void;
 }) {
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    const [viewerOpen, setViewerOpen] = useState(false);
     const activeImage = galleryImages[selectedImageIndex];
 
     return (
@@ -115,21 +117,31 @@ export default function CheckoutSection({
                                     className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.18),transparent_70%)]"
                                 />
 
-                                <AnimatePresence mode="wait">
-                                    <motion.img
-                                        key={activeImage.id}
-                                        src={activeImage.src}
-                                        alt={activeImage.alt}
-                                        initial={{ opacity: 0, scale: 0.94 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.94 }}
-                                        transition={{
-                                            duration: 0.35,
-                                            ease: [0.16, 1, 0.3, 1],
-                                        }}
-                                        className="relative max-h-full w-auto object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)]"
-                                    />
-                                </AnimatePresence>
+                                <button
+                                    type="button"
+                                    onClick={() => setViewerOpen(true)}
+                                    aria-label="ছবিটি বড় করে দেখুন"
+                                    className="relative flex size-full items-center justify-center"
+                                >
+                                    <AnimatePresence mode="wait">
+                                        <motion.img
+                                            key={activeImage.id}
+                                            src={activeImage.src}
+                                            alt={activeImage.alt}
+                                            initial={{
+                                                opacity: 0,
+                                                scale: 0.94,
+                                            }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.94 }}
+                                            transition={{
+                                                duration: 0.35,
+                                                ease: [0.16, 1, 0.3, 1],
+                                            }}
+                                            className="relative max-h-full w-auto object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)]"
+                                        />
+                                    </AnimatePresence>
+                                </button>
 
                                 {/* Rating Badge */}
                                 <div className="absolute top-4 left-4 flex items-center gap-1 rounded-full border border-amber-400/40 bg-stone-950/85 px-3 py-1 font-bengali text-xs font-semibold text-amber-300 shadow-md backdrop-blur-md">
@@ -473,6 +485,13 @@ export default function CheckoutSection({
                     </div>
                 </div>
             </div>
+
+            <ProductImageViewer
+                images={galleryImages}
+                initialIndex={selectedImageIndex}
+                open={viewerOpen}
+                onOpenChange={setViewerOpen}
+            />
         </section>
     );
 }

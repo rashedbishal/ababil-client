@@ -6,6 +6,7 @@ import dispenseImg from '../../../images/landing/cards/usage-amount-full.webp';
 import massageImg from '../../../images/landing/cards/usage-massage-full.webp';
 import routineImg from '../../../images/landing/cards/usage-routine-full.webp';
 import Reveal from './motion/reveal';
+import TapHint from './motion/tap-hint';
 import TiltCard from './motion/tilt-card';
 import OrderButton from './order-button';
 
@@ -149,7 +150,7 @@ export default function UsageGuideSection() {
                                     <a
                                         href="#checkout"
                                         aria-label="অর্ডার করতে ক্লিক করুন"
-                                        className="group relative block aspect-square w-full max-w-[170px] shrink-0 overflow-hidden rounded-2xl border-2 border-amber-100 bg-stone-900 shadow-inner sm:max-w-md lg:w-1/2"
+                                        className="group relative block aspect-square w-full max-w-[170px] shrink-0 cursor-pointer overflow-hidden rounded-2xl border-2 border-amber-100 bg-stone-900 shadow-inner sm:max-w-md lg:w-1/2"
                                     >
                                         <img
                                             src={current.image}
@@ -158,6 +159,7 @@ export default function UsageGuideSection() {
                                             decoding="async"
                                             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
+                                        <TapHint />
                                     </a>
 
                                     {/* Content Area */}

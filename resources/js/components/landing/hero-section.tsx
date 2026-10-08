@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
+import TapHint from './motion/tap-hint';
 
 interface HeroSlide {
     id: number;
@@ -141,7 +142,7 @@ export default function HeroSection() {
                             <a
                                 href="#checkout"
                                 aria-label="অর্ডার করতে ক্লিক করুন"
-                                className="block size-full"
+                                className="relative block size-full cursor-pointer"
                             >
                                 <picture className="size-full">
                                     <source
@@ -166,6 +167,7 @@ export default function HeroSection() {
                                         className="size-full object-cover object-center"
                                     />
                                 </picture>
+                                <TapHint />
                             </a>
                         </motion.div>
 

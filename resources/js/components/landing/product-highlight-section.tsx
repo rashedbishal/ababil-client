@@ -5,6 +5,7 @@ import Magnetic from './motion/magnetic';
 import PriceReveal from './motion/price-reveal';
 import Reveal from './motion/reveal';
 import OrderButton from './order-button';
+import ProductImageViewer from './product-image-viewer';
 
 import product1 from '../../../images/landing/product/product-1.webp';
 import product2 from '../../../images/landing/product/product-2.webp';
@@ -27,6 +28,7 @@ export default function ProductHighlightSection({
 }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const [viewerOpen, setViewerOpen] = useState(false);
 
     useEffect(() => {
         if (isPaused) return;
@@ -63,9 +65,10 @@ export default function ProductHighlightSection({
                                     className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.15),transparent_65%)]"
                                 />
 
-                                <a
-                                    href="#checkout"
-                                    aria-label="অর্ডার করতে ক্লিক করুন"
+                                <button
+                                    type="button"
+                                    onClick={() => setViewerOpen(true)}
+                                    aria-label="ছবিটি বড় করে দেখুন"
                                     className="relative flex size-full items-center justify-center"
                                 >
                                     <AnimatePresence mode="wait">
@@ -97,7 +100,7 @@ export default function ProductHighlightSection({
                                             className="relative max-h-full w-auto object-contain drop-shadow-[0_20px_25px_rgba(0,0,0,0.8)]"
                                         />
                                     </AnimatePresence>
-                                </a>
+                                </button>
 
                                 {/* Rating Badge */}
                                 <div className="absolute top-4 left-4 flex items-center gap-1 rounded-full border border-amber-400/30 bg-stone-950/80 px-3 py-1 text-xs font-semibold text-amber-300 shadow-md">
@@ -242,6 +245,13 @@ export default function ProductHighlightSection({
                     </div>
                 </div>
             </div>
+
+            <ProductImageViewer
+                images={productImages}
+                initialIndex={activeIndex}
+                open={viewerOpen}
+                onOpenChange={setViewerOpen}
+            />
         </section>
     );
 }

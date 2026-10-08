@@ -5,6 +5,7 @@ import { BadgeCheck, Leaf } from 'lucide-react';
 import labTestedImage from '../../../images/landing/lab-tested.webp';
 import Magnetic from './motion/magnetic';
 import Reveal from './motion/reveal';
+import TapHint from './motion/tap-hint';
 import OrderButton from './order-button';
 
 const points = [
@@ -81,7 +82,7 @@ export default function LabTestedSection() {
                     <a
                         href="#checkout"
                         aria-label="অর্ডার করতে ক্লিক করুন"
-                        className="relative block aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stone-200 shadow-xl shadow-stone-900/10"
+                        className="relative block aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-2xl border border-stone-200 shadow-xl shadow-stone-900/10"
                     >
                         <img
                             src={labTestedImage}
@@ -94,6 +95,7 @@ export default function LabTestedSection() {
                             <Leaf className="size-3.5" />
                             অর্গানিক ভেষজ উপাদান
                         </span>
+                        <TapHint />
                     </a>
                 </Reveal>
             </div>
