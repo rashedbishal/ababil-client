@@ -7,9 +7,9 @@ interface HeroSlide {
     id: number;
     // 2560x800 — desktop (1024px+).
     imageDesktop: string;
-    // 1600x1200 (4:3 box, object-cover cropped) — tablet (425–1023px).
+    // 1920x1080 (16:9 box, object-cover cropped) — tablet (425–1023px).
     imageTab: string;
-    // 1920x1080 (16:9 box, object-cover cropped) — phones (<425px).
+    // 1600x1200 (4:3 box, object-cover cropped) — phones (<425px).
     imageMobile: string;
     alt: string;
 }
@@ -35,6 +35,20 @@ const heroSlides: HeroSlide[] = [
         imageTab: '/images/hero/003_tab.webp',
         imageMobile: '/images/hero/003_mobile.webp',
         alt: 'শতবর্ষের ভেষজ রত্ন — আবাবিলের ব্যথামুক্তির যত্ন',
+    },
+    {
+        id: 4,
+        imageDesktop: '/images/hero/IMG_3612_desktop.webp',
+        imageTab: '/images/hero/3612_tab.webp',
+        imageMobile: '/images/hero/3612_mobile.webp',
+        alt: 'ব্যথাহীন হোক প্রতিটি ক্ষণ, স্বস্তিতে বাঁচুক শরীর-মন — আবাবিল অর্গানিক পেইন রিলিফ অয়েল',
+    },
+    {
+        id: 5,
+        imageDesktop: '/images/hero/IMG_3613_desktop.webp',
+        imageTab: '/images/hero/3613_tab.webp',
+        imageMobile: '/images/hero/3613_mobile.webp',
+        alt: 'ব্যথাহীন রাত হোক, ঘুম হোক শান্তির — আবাবিল অর্গানিক পেইন রিলিফ অয়েল',
     },
 ];
 
