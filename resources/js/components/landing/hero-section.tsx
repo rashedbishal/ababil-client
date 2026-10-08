@@ -105,7 +105,7 @@ export default function HeroSection() {
         <section
             id="top"
             aria-label="Hero Wallpaper Slider"
-            className="relative flex h-[calc(100svh-4.5rem)] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none lg:aspect-[2560/800] lg:h-auto"
+            className="relative flex aspect-[4/3] w-full flex-col justify-between overflow-hidden bg-stone-950 select-none min-[425px]:aspect-[16/9] lg:aspect-[2560/800]"
         >
             {/* Ambient Lighting */}
             <div
@@ -117,8 +117,11 @@ export default function HeroSection() {
                 className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_top,transparent_0%,rgb(120,72,0,0.15)_100%)]"
             />
 
-            {/* Viewport Slider Container for Mobile/Tab & Aspect Ratio for Desktop */}
-            <div className="relative h-[calc(100svh-4.5rem)] w-full overflow-hidden lg:aspect-[2560/800] lg:h-full">
+            {/* Slider Container — a taller 4:3 crop on mobile (<425px, at
+                least ~1/3 of the viewport height), a shorter 16:9 crop on
+                tablet (425–1023px), and the banner's native 2560:800 ratio
+                on desktop (1024px+) */}
+            <div className="relative aspect-[4/3] w-full overflow-hidden min-[425px]:aspect-[16/9] lg:aspect-[2560/800]">
                 <AnimatePresence initial={false} custom={direction} mode="sync">
                     <motion.div
                         key={page}
@@ -146,7 +149,7 @@ export default function HeroSection() {
                             >
                                 <picture className="size-full">
                                     <source
-                                        media="(max-width: 767px)"
+                                        media="(max-width: 1023px)"
                                         srcSet={currentSlide.imageWebpMobile}
                                         type="image/webp"
                                     />
