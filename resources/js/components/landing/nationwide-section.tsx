@@ -15,14 +15,14 @@ import Reveal from './motion/reveal';
 // so each dot sits on clear land for that division - never on the
 // illustrated figures, the river, or outside the map's silhouette.
 const pins = [
-    { label: 'রংপুর', x: 12.5, y: 13 },
-    { label: 'রাজশাহী', x: 20, y: 34 },
-    { label: 'ময়মনসিংহ', x: 28.5, y: 30.5 },
-    { label: 'সিলেট', x: 63, y: 37 },
-    { label: 'ঢাকা', x: 38, y: 47.5 },
-    { label: 'খুলনা', x: 17.5, y: 71 },
-    { label: 'বরিশাল', x: 36, y: 78 },
-    { label: 'চট্টগ্রাম', x: 77.5, y: 90 },
+    { label: 'রংপুর', x: 24, y: 9 },
+    { label: 'রাজশাহী', x: 18, y: 32 },
+    { label: 'সিলেট', x: 73, y: 26 },
+    { label: 'ঢাকা', x: 52, y: 37 },
+    { label: 'খুলনা', x: 25, y: 58 },
+    { label: 'বরিশাল', x: 52, y: 70 },
+    { label: 'চট্টগ্রাম', x: 87, y: 49 },
+    { label: 'চট্টগ্রাম (পার্বত্য)', x: 92, y: 62 },
 ];
 
 const callouts = [
