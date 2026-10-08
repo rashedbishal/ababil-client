@@ -39,44 +39,80 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
-        const handleScroll = () => {
-            const currentScroll = window.scrollY;
-            const viewportHeight = window.innerHeight;
-            const totalHeight = document.documentElement.scrollHeight;
+        // Section top/bottom offsets only change on resize or late layout
+        // shifts (e.g. images loading in) — caching them means the scroll
+        // handler below never has to force a synchronous layout read.
+        let sectionRanges: { href: string; top: number; bottom: number }[] = [];
+        let totalHeight = 0;
 
-            if (currentScroll < 120) {
-                setActiveHref(null);
-                return;
-            }
-
-            if (currentScroll + viewportHeight >= totalHeight - 140) {
-                setActiveHref('#checkout');
-                return;
-            }
-
-            const viewportTarget = currentScroll + viewportHeight * 0.35;
-            let currentActive: string | null = null;
-
-            for (const link of navLinks) {
+        const measure = () => {
+            const scrollY = window.scrollY;
+            totalHeight = document.documentElement.scrollHeight;
+            sectionRanges = navLinks.flatMap((link) => {
                 const el = document.querySelector(link.href);
-                if (el) {
-                    const rect = el.getBoundingClientRect();
-                    const top = rect.top + currentScroll;
-                    const bottom = top + rect.height;
-                    if (viewportTarget >= top && viewportTarget <= bottom) {
-                        currentActive = link.href;
-                    }
-                }
-            }
-
-            if (currentActive) {
-                setActiveHref(currentActive);
-            }
+                if (!el) return [];
+                const rect = el.getBoundingClientRect();
+                const top = rect.top + scrollY;
+                return [{ href: link.href, top, bottom: top + rect.height }];
+            });
         };
 
+        let ticking = false;
+        const handleScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                ticking = false;
+                const currentScroll = window.scrollY;
+                const viewportHeight = window.innerHeight;
+
+                if (currentScroll < 120) {
+                    setActiveHref(null);
+                    return;
+                }
+
+                if (currentScroll + viewportHeight >= totalHeight - 140) {
+                    setActiveHref('#checkout');
+                    return;
+                }
+
+                const viewportTarget = currentScroll + viewportHeight * 0.35;
+                let currentActive: string | null = null;
+
+                for (const { href, top, bottom } of sectionRanges) {
+                    if (viewportTarget >= top && viewportTarget <= bottom) {
+                        currentActive = href;
+                    }
+                }
+
+                if (currentActive) {
+                    setActiveHref(currentActive);
+                }
+            });
+        };
+
+        measure();
         handleScroll();
+
+        let resizeTicking = false;
+        const handleResize = () => {
+            if (resizeTicking) return;
+            resizeTicking = true;
+            requestAnimationFrame(() => {
+                resizeTicking = false;
+                measure();
+                handleScroll();
+            });
+        };
+
         window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('load', measure);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('load', measure);
+        };
     }, []);
 
     const activeLink = navLinks.find((l) => l.href === activeHref);

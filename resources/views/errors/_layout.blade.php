@@ -8,7 +8,9 @@
         <style>
             @font-face {
                 font-family: 'Kalpurush';
-                src: url('/fonts/kalpurush.ttf') format('truetype');
+                src:
+                    url('/fonts/kalpurush.woff2') format('woff2'),
+                    url('/fonts/kalpurush.ttf') format('truetype');
                 font-weight: 400 700;
                 font-display: swap;
             }
