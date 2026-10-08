@@ -138,29 +138,35 @@ export default function HeroSection() {
                             }}
                             className="relative flex size-full items-center justify-center bg-stone-950"
                         >
-                            <picture className="size-full">
-                                <source
-                                    media="(max-width: 767px)"
-                                    srcSet={currentSlide.imageWebpMobile}
-                                    type="image/webp"
-                                />
-                                <source
-                                    srcSet={currentSlide.imageWebp}
-                                    type="image/webp"
-                                />
-                                <img
-                                    src={currentSlide.imageJpeg}
-                                    alt={currentSlide.alt}
-                                    loading={
-                                        activeIndex === 0 ? 'eager' : 'lazy'
-                                    }
-                                    decoding="async"
-                                    fetchPriority={
-                                        activeIndex === 0 ? 'high' : 'auto'
-                                    }
-                                    className="size-full object-cover object-center"
-                                />
-                            </picture>
+                            <a
+                                href="#checkout"
+                                aria-label="অর্ডার করতে ক্লিক করুন"
+                                className="block size-full"
+                            >
+                                <picture className="size-full">
+                                    <source
+                                        media="(max-width: 767px)"
+                                        srcSet={currentSlide.imageWebpMobile}
+                                        type="image/webp"
+                                    />
+                                    <source
+                                        srcSet={currentSlide.imageWebp}
+                                        type="image/webp"
+                                    />
+                                    <img
+                                        src={currentSlide.imageJpeg}
+                                        alt={currentSlide.alt}
+                                        loading={
+                                            activeIndex === 0 ? 'eager' : 'lazy'
+                                        }
+                                        decoding="async"
+                                        fetchPriority={
+                                            activeIndex === 0 ? 'high' : 'auto'
+                                        }
+                                        className="size-full object-cover object-center"
+                                    />
+                                </picture>
+                            </a>
                         </motion.div>
 
                         {/* Soft Vignette Overlay */}

@@ -63,31 +63,41 @@ export default function ProductHighlightSection({
                                     className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.15),transparent_65%)]"
                                 />
 
-                                <AnimatePresence mode="wait">
-                                    <motion.img
-                                        key={activeProduct.id}
-                                        src={activeProduct.src}
-                                        alt={activeProduct.alt}
-                                        initial={{
-                                            opacity: 0,
-                                            scale: 0.92,
-                                            y: 10,
-                                        }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{
-                                            opacity: 0,
-                                            scale: 0.92,
-                                            y: -10,
-                                        }}
-                                        transition={{
-                                            duration: 0.4,
-                                            ease: [0.16, 1, 0.3, 1],
-                                        }}
-                                        loading="lazy"
-                                        decoding="async"
-                                        className="relative max-h-full w-auto object-contain drop-shadow-[0_20px_25px_rgba(0,0,0,0.8)]"
-                                    />
-                                </AnimatePresence>
+                                <a
+                                    href="#checkout"
+                                    aria-label="অর্ডার করতে ক্লিক করুন"
+                                    className="relative flex size-full items-center justify-center"
+                                >
+                                    <AnimatePresence mode="wait">
+                                        <motion.img
+                                            key={activeProduct.id}
+                                            src={activeProduct.src}
+                                            alt={activeProduct.alt}
+                                            initial={{
+                                                opacity: 0,
+                                                scale: 0.92,
+                                                y: 10,
+                                            }}
+                                            animate={{
+                                                opacity: 1,
+                                                scale: 1,
+                                                y: 0,
+                                            }}
+                                            exit={{
+                                                opacity: 0,
+                                                scale: 0.92,
+                                                y: -10,
+                                            }}
+                                            transition={{
+                                                duration: 0.4,
+                                                ease: [0.16, 1, 0.3, 1],
+                                            }}
+                                            loading="lazy"
+                                            decoding="async"
+                                            className="relative max-h-full w-auto object-contain drop-shadow-[0_20px_25px_rgba(0,0,0,0.8)]"
+                                        />
+                                    </AnimatePresence>
+                                </a>
 
                                 {/* Rating Badge */}
                                 <div className="absolute top-4 left-4 flex items-center gap-1 rounded-full border border-amber-400/30 bg-stone-950/80 px-3 py-1 text-xs font-semibold text-amber-300 shadow-md">

@@ -3,7 +3,9 @@ import { BadgeCheck, Leaf } from 'lucide-react';
 // CC0 — https://commons.wikimedia.org/wiki/File:A_group_of_scientists_working_in_a_laboratory_Esculab.jpg
 // Swap for real product/lab photography when available.
 import labTestedImage from '../../../images/landing/lab-tested.webp';
+import Magnetic from './motion/magnetic';
 import Reveal from './motion/reveal';
+import OrderButton from './order-button';
 
 const points = [
     'প্রতিটি ব্যাচ আলাদাভাবে পরীক্ষা করা হয়, যাতে কোনো ত্রুটিপূর্ণ ব্যাচ আপনার হাতে না পৌঁছায়',
@@ -70,10 +72,17 @@ export default function LabTestedSection() {
                             </li>
                         ))}
                     </ul>
+                    <Magnetic strength={0.25}>
+                        <OrderButton className="mt-6">অর্ডার করুন</OrderButton>
+                    </Magnetic>
                 </Reveal>
 
                 <Reveal delay={0.1}>
-                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stone-200 shadow-xl shadow-stone-900/10">
+                    <a
+                        href="#checkout"
+                        aria-label="অর্ডার করতে ক্লিক করুন"
+                        className="relative block aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stone-200 shadow-xl shadow-stone-900/10"
+                    >
                         <img
                             src={labTestedImage}
                             alt="নিয়ন্ত্রিত ল্যাবে আবাবিলের উপাদান পরীক্ষা করা হচ্ছে"
@@ -85,7 +94,7 @@ export default function LabTestedSection() {
                             <Leaf className="size-3.5" />
                             অর্গানিক ভেষজ উপাদান
                         </span>
-                    </div>
+                    </a>
                 </Reveal>
             </div>
         </section>

@@ -146,7 +146,11 @@ export default function UsageGuideSection() {
                             >
                                 <div className="flex flex-col items-center gap-3 sm:gap-8 lg:flex-row lg:gap-12">
                                     {/* Large Scaled Image Container (Compact on Mobile, Fills/Scaled up from sm) */}
-                                    <div className="group relative aspect-square w-full max-w-[170px] shrink-0 overflow-hidden rounded-2xl border-2 border-amber-100 bg-stone-900 shadow-inner sm:max-w-md lg:w-1/2">
+                                    <a
+                                        href="#checkout"
+                                        aria-label="অর্ডার করতে ক্লিক করুন"
+                                        className="group relative block aspect-square w-full max-w-[170px] shrink-0 overflow-hidden rounded-2xl border-2 border-amber-100 bg-stone-900 shadow-inner sm:max-w-md lg:w-1/2"
+                                    >
                                         <img
                                             src={current.image}
                                             alt={current.title}
@@ -154,7 +158,7 @@ export default function UsageGuideSection() {
                                             decoding="async"
                                             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
-                                    </div>
+                                    </a>
 
                                     {/* Content Area */}
                                     <div className="flex-1 text-center lg:text-left">
