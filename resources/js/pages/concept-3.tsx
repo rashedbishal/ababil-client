@@ -154,12 +154,6 @@ export default function Concept3({
                 <Concept3Banner onOrderClick={openDrawer} />
                 <Concept3MapSection onOrderClick={openDrawer} />
 
-                <Concept3ProductSection
-                    productName={product.name}
-                    images={productImages}
-                    onOrderClick={openDrawer}
-                />
-
                 <Concept3PhotoGallery
                     id="features"
                     heading="নিজের যত্নও জরুরি"
@@ -178,6 +172,12 @@ export default function Concept3({
                     items={campaignItems}
                     onOrderClick={openDrawer}
                     columns={3}
+                />
+
+                <Concept3ProductSection
+                    productName={product.name}
+                    images={productImages}
+                    onOrderClick={openDrawer}
                 />
 
                 <Concept3FaqSection />
