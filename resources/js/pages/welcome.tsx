@@ -18,7 +18,7 @@ import SafetySection from '@/components/landing/safety-section';
 import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
 import StickyOrderBar from '@/components/landing/sticky-order-bar';
-import TestimonialsSection from '@/components/landing/testimonials-section';
+// import TestimonialsSection from '@/components/landing/testimonials-section';
 import TrustSection from '@/components/landing/trust-section';
 import UsageGuideSection from '@/components/landing/usage-guide-section';
 import UspSection from '@/components/landing/usp-section';
@@ -355,7 +355,7 @@ export default function Welcome({
                         title="নিরাপদে ব্যবহার করুন, আজই অর্ডার করুন"
                         subtitle="নির্দেশনা মেনে ব্যবহারে আবাবিল আপনার পাশে আছে"
                     />
-                    <TestimonialsSection />
+                    {/* <TestimonialsSection /> */}
                     <GuaranteeSection />
 
                     <CheckoutSection
