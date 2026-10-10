@@ -10,7 +10,7 @@ import TapHint from './motion/tap-hint';
 import TiltCard from './motion/tilt-card';
 import OrderButton from './order-button';
 
-const steps = [
+export const steps = [
     {
         step: '১',
         title: 'ক্লিনজ',

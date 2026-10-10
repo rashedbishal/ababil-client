@@ -10,7 +10,7 @@ import Reveal from './motion/reveal';
 
 const bnDigits = ['১', '২', '৩', '৪', '৫', '৬'];
 
-const usps = [
+export const usps = [
     {
         title: 'থেরাপিউটিক ওয়ার্মিং',
         description: 'ত্বকে প্রাকৃতিক উষ্ণতা তৈরি করে পেশি শিথিল করে।',

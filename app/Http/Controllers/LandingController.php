@@ -21,15 +21,60 @@ class LandingController extends Controller
      */
     public function show(): Response
     {
-        $product = Product::query()
+        $product = $this->featuredProduct();
+
+        return Inertia::render('welcome', $this->sharedProps($product))
+            ->withViewData('seo', $this->seo($product));
+    }
+
+    /**
+     * Design-trial page, same data as the live storefront (see AGENTS.md /
+     * CLAUDE.md - a frontend-only concept, no business-logic change).
+     *
+     * Deliberately passes no `$seo` view data (unlike `show()`), so the
+     * root Blade view falls back to its default `noindex, nofollow` - these
+     * trial pages must never be indexed or treated as a canonical URL.
+     */
+    public function concept1(): Response
+    {
+        return Inertia::render('concept-1', $this->sharedProps($this->featuredProduct()));
+    }
+
+    /**
+     * Design-trial page, same data as the live storefront. See `concept1()`
+     * - no `$seo` view data, so it stays `noindex, nofollow`.
+     */
+    public function concept2(): Response
+    {
+        return Inertia::render('concept-2', $this->sharedProps($this->featuredProduct()));
+    }
+
+    /**
+     * Design-trial page, same data as the live storefront. See `concept1()`
+     * - no `$seo` view data, so it stays `noindex, nofollow`.
+     */
+    public function concept3(): Response
+    {
+        return Inertia::render('concept-3', $this->sharedProps($this->featuredProduct()));
+    }
+
+    private function featuredProduct(): ?Product
+    {
+        return Product::query()
             ->where('is_active', true)
             ->with([
                 'variants' => fn ($query) => $query->where('is_active', true)->with('size'),
             ])
             ->orderBy('sort_order')
             ->first();
+    }
 
-        return Inertia::render('welcome', [
+    /**
+     * @return array<string, mixed>
+     */
+    private function sharedProps(?Product $product): array
+    {
+        return [
             'product' => $product ? $this->formatProduct($product) : null,
             'shippingAreas' => ShippingArea::query()
                 ->where('is_active', true)
@@ -45,7 +90,7 @@ class LandingController extends Controller
             // shopper needs time to read the page and fill the form - a
             // script submitting instantly doesn't.
             'formToken' => encrypt(now()->timestamp),
-        ])->withViewData('seo', $this->seo($product));
+        ];
     }
 
     /**

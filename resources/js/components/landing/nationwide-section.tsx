@@ -18,9 +18,7 @@ const pins = [
     { label: 'রংপুর', x: 24, y: 9 },
     { label: 'রাজশাহী', x: 18, y: 32 },
     { label: 'সিলেট', x: 73, y: 26 },
-    { label: 'ঢাকা', x: 52, y: 37 },
     { label: 'খুলনা', x: 25, y: 58 },
-    { label: 'বরিশাল', x: 52, y: 70 },
     { label: 'চট্টগ্রাম', x: 87, y: 49 },
     { label: 'চট্টগ্রাম (পার্বত্য)', x: 92, y: 62 },
 ];
@@ -80,7 +78,7 @@ function Pin({
     return (
         <div
             ref={innerRef}
-            className="absolute z-[7] -translate-x-1/2 -translate-y-1/2"
+            className="absolute z-[7] hidden -translate-x-1/2 -translate-y-1/2 lg:block"
             style={{ left: `${x}%`, top: `${y}%` }}
         >
             <span className="relative flex size-2 sm:size-3.5">

@@ -12,7 +12,7 @@ import OrderButton from './order-button';
 
 const bnDigits = ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
-const problems = [
+export const problems = [
     {
         label: 'হাঁটু ও জয়েন্টের ব্যথা',
         badge: 'গিরা ও জয়েন্টের ক্ষয়রোধ',
