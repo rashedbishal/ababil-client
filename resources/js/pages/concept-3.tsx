@@ -13,6 +13,7 @@ import FloatingActions from '@/components/landing/floating-actions';
 import OrderResultDialog from '@/components/landing/order-result-dialog';
 import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
+import TestimonialsSection from '@/components/landing/testimonials-section';
 import { useCheckoutForm } from '@/hooks/use-checkout-form';
 import type { Contact, Product, ShippingArea } from '@/types/storefront';
 
@@ -179,6 +180,8 @@ export default function Concept3({
                     images={productImages}
                     onOrderClick={openDrawer}
                 />
+
+                <TestimonialsSection />
 
                 <Concept3FaqSection />
                 <Concept3ContactSection whatsapp={contact.whatsapp} />

@@ -16,6 +16,7 @@ import PaymentSection from '@/components/landing/payment-section';
 import SafetySectionV2 from '@/components/landing/safety-section-v2';
 import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
+import TestimonialsSection from '@/components/landing/testimonials-section';
 import TrustSectionV2 from '@/components/landing/trust-section-v2';
 import { usps } from '@/components/landing/usp-section';
 import { steps } from '@/components/landing/usage-guide-section';
@@ -130,6 +131,8 @@ export default function Concept2({
                 />
 
                 <GuaranteeSectionV2 />
+
+                <TestimonialsSection />
 
                 <PaymentSection onOrderNowClick={() => setDialogOpen(true)} />
 

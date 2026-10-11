@@ -7,6 +7,7 @@ import OrderResultDialog from '@/components/landing/order-result-dialog';
 import ProductPaymentSection from '@/components/landing/product-payment-section';
 import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
+import TestimonialsSection from '@/components/landing/testimonials-section';
 import { useCheckoutForm } from '@/hooks/use-checkout-form';
 import type { Contact, Product, ShippingArea } from '@/types/storefront';
 import { useEffect, useState } from 'react';
@@ -162,6 +163,8 @@ export default function Concept1({
                     items={uspGallery}
                     layout="image-only"
                 />
+
+                <TestimonialsSection />
 
                 <ProductPaymentSection
                     productName={product.name}

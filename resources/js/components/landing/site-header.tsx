@@ -11,7 +11,7 @@ const navLinks = [
     { href: '#lab-tested', label: 'ল্যাব টেস্ট' },
     { href: '#delivery', label: 'ডেলিভারি' },
     { href: '#usage', label: 'ব্যবহার' },
-    // { href: '#reviews', label: 'রিভিউ' },
+    { href: '#reviews', label: 'রিভিউ' },
     { href: '#checkout', label: 'পেমেন্ট' },
 ];
 
@@ -28,7 +28,7 @@ const mobileNavLinks = [
     { href: '#lab-tested', label: 'ল্যাব টেস্ট', icon: '🧪' },
     { href: '#delivery', label: 'ডেলিভারি', icon: '🚚' },
     { href: '#usage', label: 'ব্যবহার', icon: '📖' },
-    // { href: '#reviews', label: 'রিভিউ', icon: '💬' },
+    { href: '#reviews', label: 'রিভিউ', icon: '💬' },
     { href: '#checkout', label: 'পেমেন্ট', icon: '💳' },
 ];
 
