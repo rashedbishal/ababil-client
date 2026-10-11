@@ -178,6 +178,16 @@ export default function Concept3({
 
     const openDrawer = () => setDrawerOpen(true);
 
+    // Every "অর্ডার করুন" button on the page scrolls to the payment section
+    // first - quantity and the delivery-area picker live there - and only
+    // that section's own button (see Concept3ProductSection below) opens
+    // the drawer directly.
+    const scrollToProduct = () => {
+        document
+            .getElementById('product')
+            ?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     return (
         <div
             id="top"
@@ -190,15 +200,15 @@ export default function Concept3({
             />
 
             <main>
-                <Concept3Banner onOrderClick={openDrawer} />
-                <Concept3MapSection onOrderClick={openDrawer} />
+                <Concept3Banner onOrderClick={scrollToProduct} />
+                <Concept3MapSection onOrderClick={scrollToProduct} />
 
                 <Concept3PhotoGallery
                     id="features"
                     heading="নিজের যত্নও জরুরি"
                     subtitle="সবার খেয়াল রাখেন। এবার একটু নিজেরও।"
                     items={featureItems}
-                    onOrderClick={openDrawer}
+                    onOrderClick={scrollToProduct}
                     columns={3}
                 />
 
@@ -209,7 +219,7 @@ export default function Concept3({
                     heading="চেনা জীবনের যত্ন"
                     subtitle="হাঁটাহাঁটি, কাজ আর আপনজনের পাশে থাকা।"
                     items={campaignItems}
-                    onOrderClick={openDrawer}
+                    onOrderClick={scrollToProduct}
                     columns={3}
                 />
 
@@ -233,7 +243,7 @@ export default function Concept3({
                 facebookUrl={contact.facebookUrl}
             />
 
-            <Concept3StickyBar onOrderClick={openDrawer} />
+            <Concept3StickyBar onOrderClick={scrollToProduct} />
 
             <Concept3OrderDrawer
                 open={drawerOpen}

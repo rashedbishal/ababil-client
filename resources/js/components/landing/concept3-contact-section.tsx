@@ -6,7 +6,7 @@ function whatsappUrl(number: string | null): string | null {
     return `https://wa.me/${number.replace(/[^0-9]/g, '')}`;
 }
 
-/** Concept 3's "আগে একটু কথা হোক" pre-purchase contact box. */
+/** Concept 3's "প্রয়োজনে হোয়াটসঅ্যাপ করুন" fallback contact box. */
 export default function Concept3ContactSection({
     whatsapp,
 }: {
@@ -20,13 +20,14 @@ export default function Concept3ContactSection({
                 <div className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm shadow-amber-900/5 sm:flex-row sm:items-center sm:p-9">
                     <div>
                         <p className="font-bengali text-sm font-semibold text-amber-700">
-                            কেনার আগে জানতে চান?
+                            যেকোনো প্রয়োজনে
                         </p>
                         <h3 className="mt-2 font-bengali text-2xl font-semibold text-stone-900 sm:text-[29px]">
-                            আগে একটু কথা হোক
+                            প্রয়োজনে হোয়াটসঅ্যাপ করুন
                         </h3>
                         <p className="mt-1 font-bengali text-base text-stone-600">
-                            কেনার আগে যা জানতে চান, আমাদের লিখুন।
+                            অর্ডার করতে উপরের ফর্মটি ব্যবহার করুন। জরুরি প্রয়োজনে আমাদের
+                            হোয়াটসঅ্যাপে মেসেজ দিন।
                         </p>
                     </div>
 

@@ -42,7 +42,7 @@ export default function FloatingActions({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Messenger এ মেসেজ করুন"
-                    className="flex size-12 items-center justify-center rounded-full bg-[#0084FF] text-white shadow-lg shadow-black/30 transition hover:scale-105"
+                    className="flex size-12 items-center justify-center rounded-full bg-[#0084FF] text-white shadow-lg shadow-black/30 transition hover:scale-105 focus:ring-2 focus:ring-amber-400 focus:outline-none"
                 >
                     <MessengerIcon className="size-6" />
                 </a>
@@ -53,7 +53,7 @@ export default function FloatingActions({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="WhatsApp এ মেসেজ করুন"
-                    className="flex size-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/30 transition hover:scale-105"
+                    className="flex size-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/30 transition hover:scale-105 focus:ring-2 focus:ring-amber-400 focus:outline-none"
                 >
                     <MessageCircle className="size-6 fill-white" />
                 </a>

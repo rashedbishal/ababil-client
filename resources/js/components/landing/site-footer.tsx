@@ -7,9 +7,7 @@ export default function SiteFooter({ phone }: { phone: string | null }) {
                 <img src={logo} alt="Ababil" className="mx-auto h-12 w-12" />
 
                 <p className="mx-auto max-w-xl text-xs text-stone-500">
-                    এই পণ্যটি কোনো রোগের চিকিৎসা বা নিরাময়ের দাবি করে না। ব্যবহারের আগে
-                    পণ্যের গায়ে দেওয়া নির্দেশনা ও সতর্কতা মনোযোগ সহকারে পড়ুন। গুরুতর বা
-                    দীর্ঘস্থায়ী ব্যথার ক্ষেত্রে চিকিৎসকের পরামর্শ নিন।
+                    সর্বোত্তম ফলাফলের জন্য পণ্যের গায়ে দেওয়া ব্যবহার নির্দেশনা অনুসরণ করুন।
                 </p>
 
                 {phone && <p className="text-sm text-stone-400">{phone}</p>}

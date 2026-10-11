@@ -134,6 +134,10 @@ export default function SiteHeader({
 
     const activeLink = navLinks.find((l) => l.href === activeHref);
     const currentLabel = activeLink ? activeLink.label : 'আবাবিল';
+    // The payment/order section is always the last nav link (see both link
+    // lists above) - reusing it here means the header's own order button
+    // doesn't need a separate target to stay in sync with per-page ids.
+    const orderHref = navLinks[navLinks.length - 1]?.href ?? '#checkout';
 
     return (
         // `sticky` (never `fixed`/`absolute`) — it's a normal, in-flow block
@@ -273,6 +277,7 @@ export default function SiteHeader({
 
                             <Magnetic strength={0.25}>
                                 <OrderButton
+                                    href={orderHref}
                                     size="sm"
                                     showArrow={false}
                                     className="max-sm:gap-0 max-sm:px-3.5 max-sm:py-1.5 max-sm:text-xs"
