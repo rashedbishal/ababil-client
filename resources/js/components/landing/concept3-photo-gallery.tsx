@@ -53,12 +53,12 @@ export default function Concept3PhotoGallery({
                             aria-label={`${item.caption} — অর্ডার করুন`}
                             className="group relative flex flex-col overflow-hidden rounded-2xl border border-amber-200/80 bg-white shadow-sm shadow-amber-900/5 transition-all duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-lg"
                         >
-                            <div className="aspect-square overflow-hidden bg-stone-950">
+                            <div className="aspect-square overflow-hidden">
                                 <img
                                     src={item.image}
                                     alt={item.alt}
                                     loading="lazy"
-                                    className="size-full rounded-xl object-cover p-1 transition-transform duration-500 group-hover:scale-105"
+                                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
                             </div>
                             <span className="flex items-center justify-between gap-2 border-t border-amber-100 px-2.5 py-2 sm:px-3 sm:py-2.5">
