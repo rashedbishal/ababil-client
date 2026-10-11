@@ -31,7 +31,7 @@ export default function Concept3StickyBar({
                         window.scrollTo({ top: 0, behavior: 'smooth' })
                     }
                     aria-label="পেজের উপরে যান"
-                    className="fixed right-4 bottom-36 z-40 grid size-11 place-items-center rounded-full border border-amber-200 bg-white text-stone-700 shadow-lg sm:right-6 sm:bottom-24"
+                    className="fixed right-4 bottom-50 z-40 grid size-11 place-items-center rounded-full border border-amber-200 bg-white text-stone-700 shadow-lg sm:right-6 sm:bottom-36"
                 >
                     <ArrowUp className="size-5" />
                 </button>
