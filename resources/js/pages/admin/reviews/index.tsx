@@ -111,69 +111,114 @@ export default function ReviewsIndex({
                 </Button>
             </div>
 
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Preview</TableHead>
-                        <TableHead>YouTube URL</TableHead>
-                        <TableHead>Sort order</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {reviewList.length === 0 && (
-                        <TableRow>
-                            <TableCell
-                                colSpan={5}
-                                className="text-center text-muted-foreground"
+            {reviewList.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground">
+                    No reviews yet.
+                </p>
+            )}
+
+            {/* Mobile: card list */}
+            <div className="grid gap-3 md:hidden">
+                {reviewList.map((review) => (
+                    <div key={review.id} className="rounded-lg border p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <img
+                                src={`https://img.youtube.com/vi/${review.video_id}/mqdefault.jpg`}
+                                alt=""
+                                className="h-12 w-20 shrink-0 rounded object-cover"
+                            />
+                            {review.is_active ? (
+                                <Badge>Active</Badge>
+                            ) : (
+                                <Badge variant="secondary">Inactive</Badge>
+                            )}
+                        </div>
+                        <p className="mt-3 truncate text-sm font-medium">
+                            {review.youtube_url}
+                        </p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Sort order: {review.sort_order}
+                        </p>
+                        <div className="mt-3 flex justify-end gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEdit(review)}
                             >
-                                No reviews yet.
-                            </TableCell>
+                                Edit
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => remove(review)}
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden md:block">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Preview</TableHead>
+                            <TableHead>YouTube URL</TableHead>
+                            <TableHead>Sort order</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">
+                                Actions
+                            </TableHead>
                         </TableRow>
-                    )}
-                    {reviewList.map((review) => (
-                        <TableRow key={review.id}>
-                            <TableCell>
-                                <img
-                                    src={`https://img.youtube.com/vi/${review.video_id}/mqdefault.jpg`}
-                                    alt=""
-                                    className="h-12 w-20 rounded object-cover"
-                                />
-                            </TableCell>
-                            <TableCell className="max-w-xs truncate font-medium">
-                                {review.youtube_url}
-                            </TableCell>
-                            <TableCell>{review.sort_order}</TableCell>
-                            <TableCell>
-                                {review.is_active ? (
-                                    <Badge>Active</Badge>
-                                ) : (
-                                    <Badge variant="secondary">Inactive</Badge>
-                                )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                                <div className="flex justify-end gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => openEdit(review)}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => remove(review)}
-                                    >
-                                        Delete
-                                    </Button>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {reviewList.map((review) => (
+                            <TableRow key={review.id}>
+                                <TableCell>
+                                    <img
+                                        src={`https://img.youtube.com/vi/${review.video_id}/mqdefault.jpg`}
+                                        alt=""
+                                        className="h-12 w-20 rounded object-cover"
+                                    />
+                                </TableCell>
+                                <TableCell className="max-w-xs truncate font-medium">
+                                    {review.youtube_url}
+                                </TableCell>
+                                <TableCell>{review.sort_order}</TableCell>
+                                <TableCell>
+                                    {review.is_active ? (
+                                        <Badge>Active</Badge>
+                                    ) : (
+                                        <Badge variant="secondary">
+                                            Inactive
+                                        </Badge>
+                                    )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => openEdit(review)}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => remove(review)}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
 
             <Dialog
                 open={editing !== null}
