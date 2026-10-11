@@ -18,8 +18,6 @@ void createInertiaApp({
         switch (true) {
             case name === 'welcome' ||
                 name === 'order-confirmation' ||
-                name === 'concept-1' ||
-                name === 'concept-2' ||
                 name === 'concept-3':
                 return null;
             case name === 'auth/login':

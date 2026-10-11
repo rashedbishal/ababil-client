@@ -14,49 +14,35 @@ use Inertia\Response;
 class LandingController extends Controller
 {
     /**
-     * Show the temporary customer landing/checkout page.
+     * Show the customer landing/checkout page.
      *
-     * Only one product is featured for now (see AGENTS.md - this frontend is
-     * intentionally minimal and will be redesigned later), but the schema
-     * behind it supports many products.
+     * Renders the `concept-3` design (see `resources/js/pages/concept-3.tsx`)
+     * - this was a design-trial page until it was finalized as the live
+     * storefront, replacing `welcome.tsx` (see `legacyWelcome()`).
+     *
+     * Only one product is featured for now, but the schema behind it
+     * supports many products.
      */
     public function show(): Response
     {
         $product = $this->featuredProduct();
 
-        return Inertia::render('welcome', $this->sharedProps($product))
+        return Inertia::render('concept-3', $this->sharedProps($product))
             ->withViewData('seo', $this->seo($product));
     }
 
     /**
-     * Design-trial page, same data as the live storefront (see AGENTS.md /
-     * CLAUDE.md - a frontend-only concept, no business-logic change).
-     *
-     * Deliberately passes no `$seo` view data (unlike `show()`), so the
-     * root Blade view falls back to its default `noindex, nofollow` - these
-     * trial pages must never be indexed or treated as a canonical URL.
+     * The previous live storefront design, kept for reference only - no
+     * route points here anymore (see `show()`), but the page and its
+     * components (`resources/js/pages/welcome.tsx`) are left in place in
+     * case this design needs to be viewed or restored later.
      */
-    public function concept1(): Response
+    public function legacyWelcome(): Response
     {
-        return Inertia::render('concept-1', $this->sharedProps($this->featuredProduct()));
-    }
+        $product = $this->featuredProduct();
 
-    /**
-     * Design-trial page, same data as the live storefront. See `concept1()`
-     * - no `$seo` view data, so it stays `noindex, nofollow`.
-     */
-    public function concept2(): Response
-    {
-        return Inertia::render('concept-2', $this->sharedProps($this->featuredProduct()));
-    }
-
-    /**
-     * Design-trial page, same data as the live storefront. See `concept1()`
-     * - no `$seo` view data, so it stays `noindex, nofollow`.
-     */
-    public function concept3(): Response
-    {
-        return Inertia::render('concept-3', $this->sharedProps($this->featuredProduct()));
+        return Inertia::render('welcome', $this->sharedProps($product))
+            ->withViewData('seo', $this->seo($product));
     }
 
     private function featuredProduct(): ?Product

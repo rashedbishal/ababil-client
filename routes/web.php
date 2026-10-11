@@ -8,10 +8,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'show'])->name('home');
 
-Route::get('/concept-1', [LandingController::class, 'concept1'])->name('concept-1');
-Route::get('/concept-2', [LandingController::class, 'concept2'])->name('concept-2');
-Route::get('/concept-3', [LandingController::class, 'concept3'])->name('concept-3');
-
 Route::get('orders/{orderNumber}/confirmation', [OrderController::class, 'confirmation'])
     ->middleware('throttle:30,1')
     ->name('orders.confirmation');

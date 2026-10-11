@@ -2,7 +2,7 @@
     // Analytics/ad-pixel scripts belong only on the pages a customer
     // actually sees (the storefront and its order-confirmation link) -
     // never on admin/auth pages, which this same root view also renders.
-    $isStorefrontPage = in_array($page['component'], ['welcome', 'order-confirmation'], true);
+    $isStorefrontPage = in_array($page['component'], ['welcome', 'concept-3', 'order-confirmation'], true);
     $gtmId = $isStorefrontPage ? \App\Models\Setting::get('google_tag_manager_id') : null;
     $pixelId = $isStorefrontPage ? \App\Models\Setting::get('facebook_pixel_id') : null;
     $gaId = $isStorefrontPage ? \App\Models\Setting::get('google_analytics_id') : null;

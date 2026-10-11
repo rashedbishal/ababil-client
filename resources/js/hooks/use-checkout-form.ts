@@ -28,11 +28,12 @@ type TrackedField =
     | 'shipping_area_id';
 
 /**
- * Shared checkout state/logic for the design-concept pages (`/concept-1`,
- * `/concept-2`, ...). This is a deliberate copy of the same logic that
- * lives inline in `pages/welcome.tsx` - not an extraction `welcome.tsx`
- * itself imports - so the live storefront page keeps its own independent
- * copy and is completely unaffected by anything built on top of this hook.
+ * Shared checkout state/logic for `pages/concept-3.tsx` (the live
+ * storefront). This is a deliberate copy of the same logic that lives
+ * inline in `pages/welcome.tsx` - the previous (now unrouted) storefront
+ * design - not an extraction `welcome.tsx` itself imports, so that page
+ * keeps its own independent copy and is unaffected by anything built on
+ * top of this hook.
  */
 export function useCheckoutForm({
     product,
