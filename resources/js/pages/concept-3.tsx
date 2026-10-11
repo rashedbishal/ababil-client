@@ -15,7 +15,12 @@ import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
 import TestimonialsSection from '@/components/landing/testimonials-section';
 import { useCheckoutForm } from '@/hooks/use-checkout-form';
-import type { Contact, Product, ShippingArea } from '@/types/storefront';
+import type {
+    Contact,
+    Product,
+    ShippingArea,
+    VideoReview,
+} from '@/types/storefront';
 
 import problemBack from '../../images/landing/cards/problem-back.webp';
 import problemFeet from '../../images/landing/cards/problem-feet.webp';
@@ -117,11 +122,13 @@ export default function Concept3({
     shippingAreas,
     contact,
     formToken,
+    reviews,
 }: {
     product: Product | null;
     shippingAreas: ShippingArea[];
     contact: Contact;
     formToken: string;
+    reviews: VideoReview[];
 }) {
     const checkout = useCheckoutForm({ product, shippingAreas, formToken });
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -181,7 +188,7 @@ export default function Concept3({
                     onOrderClick={openDrawer}
                 />
 
-                <TestimonialsSection />
+                <TestimonialsSection reviews={reviews} />
 
                 <Concept3FaqSection />
                 <Concept3ContactSection whatsapp={contact.whatsapp} />

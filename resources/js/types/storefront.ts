@@ -28,3 +28,8 @@ export type Contact = {
     whatsapp: string | null;
     facebookUrl: string | null;
 };
+
+export type VideoReview = {
+    id: number;
+    video_id: string;
+};

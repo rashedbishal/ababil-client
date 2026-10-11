@@ -21,7 +21,12 @@ import TrustSectionV2 from '@/components/landing/trust-section-v2';
 import { usps } from '@/components/landing/usp-section';
 import { steps } from '@/components/landing/usage-guide-section';
 import { useCheckoutForm } from '@/hooks/use-checkout-form';
-import type { Contact, Product, ShippingArea } from '@/types/storefront';
+import type {
+    Contact,
+    Product,
+    ShippingArea,
+    VideoReview,
+} from '@/types/storefront';
 
 const reliefGallery: GalleryItem[] = problems.map((p) => ({
     id: p.label,
@@ -52,11 +57,13 @@ export default function Concept2({
     shippingAreas,
     contact,
     formToken,
+    reviews,
 }: {
     product: Product | null;
     shippingAreas: ShippingArea[];
     contact: Contact;
     formToken: string;
+    reviews: VideoReview[];
 }) {
     const checkout = useCheckoutForm({ product, shippingAreas, formToken });
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -132,7 +139,7 @@ export default function Concept2({
 
                 <GuaranteeSectionV2 />
 
-                <TestimonialsSection />
+                <TestimonialsSection reviews={reviews} />
 
                 <PaymentSection onOrderNowClick={() => setDialogOpen(true)} />
 

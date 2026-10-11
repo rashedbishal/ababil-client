@@ -9,7 +9,12 @@ import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader from '@/components/landing/site-header';
 import TestimonialsSection from '@/components/landing/testimonials-section';
 import { useCheckoutForm } from '@/hooks/use-checkout-form';
-import type { Contact, Product, ShippingArea } from '@/types/storefront';
+import type {
+    Contact,
+    Product,
+    ShippingArea,
+    VideoReview,
+} from '@/types/storefront';
 import { useEffect, useState } from 'react';
 
 import ingAngelica from '../../images/landing/cards/ing-angelica.webp';
@@ -95,11 +100,13 @@ export default function Concept1({
     shippingAreas,
     contact,
     formToken,
+    reviews,
 }: {
     product: Product | null;
     shippingAreas: ShippingArea[];
     contact: Contact;
     formToken: string;
+    reviews: VideoReview[];
 }) {
     const checkout = useCheckoutForm({ product, shippingAreas, formToken });
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -164,7 +171,7 @@ export default function Concept1({
                     layout="image-only"
                 />
 
-                <TestimonialsSection />
+                <TestimonialsSection reviews={reviews} />
 
                 <ProductPaymentSection
                     productName={product.name}
