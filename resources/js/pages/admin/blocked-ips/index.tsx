@@ -297,6 +297,14 @@ export default function BlockedIpsIndex({
                             <Input
                                 id="ip-expires"
                                 type="datetime-local"
+                                // The native datetime-local widget's segments
+                                // (mm/dd/yyyy, --:-- --) plus its calendar
+                                // icon don't fit at the default text-base
+                                // size inside this dialog on narrow screens -
+                                // the icon ends up clipped against the edge.
+                                // text-sm shrinks the segments enough that
+                                // the icon renders fully inside the input.
+                                className="text-sm"
                                 value={form.data.expires_at}
                                 onChange={(e) =>
                                     form.setData('expires_at', e.target.value)
