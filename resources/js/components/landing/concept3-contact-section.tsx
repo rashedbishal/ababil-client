@@ -6,7 +6,7 @@ function whatsappUrl(number: string | null): string | null {
     return `https://wa.me/${number.replace(/[^0-9]/g, '')}`;
 }
 
-/** Concept 3's "প্রয়োজনে হোয়াটসঅ্যাপ করুন" fallback contact box. */
+/** Concept 3's "হোয়াটসঅ্যাপে মেসেজ করুন" fallback contact box. */
 export default function Concept3ContactSection({
     whatsapp,
 }: {
@@ -23,7 +23,7 @@ export default function Concept3ContactSection({
                             যেকোনো প্রয়োজনে
                         </p>
                         <h3 className="mt-2 font-bengali text-2xl font-semibold text-stone-900 sm:text-[29px]">
-                            প্রয়োজনে হোয়াটসঅ্যাপ করুন
+                            হোয়াটসঅ্যাপে মেসেজ করুন
                         </h3>
                         <p className="mt-1 font-bengali text-base text-stone-600">
                             অর্ডার করতে উপরের ফর্মটি ব্যবহার করুন। জরুরি প্রয়োজনে আমাদের

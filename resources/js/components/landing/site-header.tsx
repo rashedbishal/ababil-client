@@ -39,12 +39,18 @@ export default function SiteHeader({
     phone,
     navLinks = defaultNavLinks,
     mobileNavLinks = defaultMobileNavLinks,
+    orderHref,
 }: {
     phone: string | null;
     // Each concept page has its own section ids, so the nav targets aren't
     // the same everywhere — defaults match the main design (welcome.tsx).
     navLinks?: NavLink[];
     mobileNavLinks?: MobileNavLink[];
+    // Where the header's own order button scrolls to. Defaults to the last
+    // nav link, which matches the main design (welcome.tsx), but pages
+    // whose nav order doesn't end on the payment section must pass this
+    // explicitly.
+    orderHref?: string;
 }) {
     const [activeHref, setActiveHref] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -134,10 +140,10 @@ export default function SiteHeader({
 
     const activeLink = navLinks.find((l) => l.href === activeHref);
     const currentLabel = activeLink ? activeLink.label : 'আবাবিল';
-    // The payment/order section is always the last nav link (see both link
-    // lists above) - reusing it here means the header's own order button
-    // doesn't need a separate target to stay in sync with per-page ids.
-    const orderHref = navLinks[navLinks.length - 1]?.href ?? '#checkout';
+    // Falls back to the last nav link (matches the main design, welcome.tsx)
+    // when the page doesn't pass an explicit target.
+    const resolvedOrderHref =
+        orderHref ?? navLinks[navLinks.length - 1]?.href ?? '#checkout';
 
     return (
         // `sticky` (never `fixed`/`absolute`) — it's a normal, in-flow block
@@ -277,7 +283,7 @@ export default function SiteHeader({
 
                             <Magnetic strength={0.25}>
                                 <OrderButton
-                                    href={orderHref}
+                                    href={resolvedOrderHref}
                                     size="sm"
                                     showArrow={false}
                                     className="max-sm:gap-0 max-sm:px-3.5 max-sm:py-1.5 max-sm:text-xs"

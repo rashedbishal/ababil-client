@@ -1,4 +1,4 @@
-import { Leaf, ShieldCheck, Star, Truck } from 'lucide-react';
+import { Leaf, ShieldCheck, Truck } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
@@ -73,17 +73,12 @@ export default function Concept3ProductSection({
                             type="button"
                             onClick={onOrderClick}
                             aria-label={`${productName} — অর্ডার করুন`}
-                            className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-300/80 bg-stone-950 p-6 shadow-2xl shadow-amber-900/20"
+                            className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-300/80 bg-stone-950 shadow-2xl shadow-amber-900/20"
                         >
                             <div
                                 aria-hidden
                                 className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.18),transparent_70%)]"
                             />
-
-                            <span className="absolute top-4 left-4 flex items-center gap-1 rounded-full border border-amber-400/40 bg-stone-950/85 px-3 py-1 font-bengali text-xs font-semibold text-amber-300 shadow-md backdrop-blur-md">
-                                <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                                ২০০ মি.লি. • অরিজিনাল পণ্য
-                            </span>
 
                             <AnimatePresence mode="wait">
                                 {active && (
@@ -95,7 +90,7 @@ export default function Concept3ProductSection({
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.94 }}
                                         transition={{ duration: 0.4 }}
-                                        className="relative size-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)]"
+                                        className="relative size-full rounded-3xl object-cover"
                                     />
                                 )}
                             </AnimatePresence>
@@ -109,16 +104,16 @@ export default function Concept3ProductSection({
                                     onClick={() => setIndex(i)}
                                     aria-label={`${img.alt} দেখুন`}
                                     aria-pressed={i === index}
-                                    className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border-2 p-1.5 transition-all duration-300 ${
+                                    className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
                                         i === index
-                                            ? 'scale-105 border-amber-500 bg-amber-500/10 shadow-md ring-2 ring-amber-400/50'
-                                            : 'border-amber-200 bg-white opacity-75 hover:border-amber-400 hover:opacity-100'
+                                            ? 'scale-105 border-amber-500 shadow-md ring-2 ring-amber-400/50'
+                                            : 'border-amber-200 opacity-75 hover:border-amber-400 hover:opacity-100'
                                     }`}
                                 >
                                     <img
                                         src={img.src}
                                         alt={img.alt}
-                                        className="size-full object-contain"
+                                        className="size-full rounded-2xl object-cover"
                                     />
                                 </button>
                             ))}
