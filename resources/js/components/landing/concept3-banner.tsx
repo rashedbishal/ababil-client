@@ -72,7 +72,7 @@ export default function Concept3Banner({
 
     return (
         <section className="border-b border-amber-200 bg-amber-50">
-            <div className="relative mx-auto aspect-[4/3] w-full max-w-[1920px] overflow-hidden min-[425px]:aspect-[16/9] lg:aspect-[2560/800]">
+            <div className="relative mx-auto aspect-[4/3] w-full max-w-[1920px] overflow-hidden sm:aspect-[16/9] lg:aspect-[2560/800]">
                 {slides.map((slide, i) => (
                     <button
                         key={slide.id}
@@ -87,11 +87,11 @@ export default function Concept3Banner({
                     >
                         <picture>
                             <source
-                                media="(max-width: 600px)"
+                                media="(max-width: 639px)"
                                 srcSet={slide.mobile}
                             />
                             <source
-                                media="(max-width: 1000px)"
+                                media="(max-width: 1023px)"
                                 srcSet={slide.tab}
                             />
                             <img
