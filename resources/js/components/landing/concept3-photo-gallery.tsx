@@ -32,11 +32,11 @@ export default function Concept3PhotoGallery({
             id={id}
             className="scroll-mt-24 bg-gradient-to-b from-amber-50 via-white to-amber-50"
         >
-            <div className="mx-auto max-w-[1240px] px-4 py-10 sm:px-8 sm:py-14">
-                <h2 className="font-bengali text-[29px] font-bold text-stone-900 sm:text-4xl">
+            <div className="mx-auto max-w-[1240px] px-4 py-6 sm:px-8 sm:py-8">
+                <h2 className="font-bengali text-[29px] leading-tight font-bold text-stone-900 sm:text-4xl">
                     {heading}
                 </h2>
-                <p className="mt-2 font-bengali text-base text-stone-600">
+                <p className="mt-0.5 font-bengali text-base leading-snug text-stone-600">
                     {subtitle}
                 </p>
 
@@ -58,7 +58,7 @@ export default function Concept3PhotoGallery({
                                     src={item.image}
                                     alt={item.alt}
                                     loading="lazy"
-                                    className="size-full object-cover p-1 transition-transform duration-500 group-hover:scale-105"
+                                    className="size-full rounded-xl object-cover p-1 transition-transform duration-500 group-hover:scale-105"
                                 />
                             </div>
                             <span className="flex items-center justify-between gap-2 border-t border-amber-100 px-2.5 py-2 sm:px-3 sm:py-2.5">
