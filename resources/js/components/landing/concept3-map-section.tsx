@@ -8,7 +8,10 @@ export default function Concept3MapSection({
     onOrderClick: () => void;
 }) {
     return (
-        <section className="relative overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 px-4 py-10 text-center sm:px-6 sm:py-16">
+        <section
+            id="delivery"
+            className="relative scroll-mt-24 overflow-hidden bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-400 px-4 py-10 text-center sm:px-6 sm:py-16"
+        >
             <div
                 aria-hidden
                 className="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(255,250,220,0.35),transparent_45%),radial-gradient(circle_at_85%_85%,rgba(120,72,0,0.14),transparent_50%)]"

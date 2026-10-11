@@ -111,7 +111,7 @@ export default function CheckoutSection({
                     <div className="flex flex-col space-y-6 lg:col-span-6">
                         <Reveal>
                             {/* Big Product Image Window */}
-                            <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-300/80 bg-stone-950 p-6 shadow-2xl shadow-amber-900/20">
+                            <div className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-300/80 bg-stone-950 p-6 shadow-2xl shadow-amber-900/20">
                                 <div
                                     aria-hidden
                                     className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.18),transparent_70%)]"
@@ -138,7 +138,7 @@ export default function CheckoutSection({
                                                 duration: 0.35,
                                                 ease: [0.16, 1, 0.3, 1],
                                             }}
-                                            className="relative max-h-full w-auto object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)]"
+                                            className="relative size-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)]"
                                         />
                                     </AnimatePresence>
                                 </button>

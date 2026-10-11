@@ -3,8 +3,6 @@ import { Truck, X } from 'lucide-react';
 import InputError from '@/components/input-error';
 import type { CheckoutForm } from '@/hooks/use-checkout-form';
 import { toEnglishDigits } from '@/lib/bangla-digits';
-import { shippingAreaLabel } from '@/lib/shipping-area';
-import QuantityStepper from './quantity-stepper';
 
 const fieldClass =
     'w-full rounded-md border border-amber-200 px-3 py-3 font-bengali text-base focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:outline-none';
@@ -15,10 +13,9 @@ const fieldClass =
  * primitives `ProductImageViewer` uses for its own non-standard dialog
  * shape, rather than shadcn's centered `DialogContent`.
  *
- * The original static mockup had a two-step "cart summary, then form"
- * flow with fake submission - this always shows the real form (quantity
- * through submit) in one step and posts a real order via `useCheckoutForm`,
- * since there's no persistent multi-item cart to summarize first.
+ * Quantity and the delivery-area (inside/outside Dhaka) picker live on the
+ * page in `Concept3ProductSection` instead of here, so by the time this
+ * opens it only needs to collect name/phone/address.
  */
 export default function Concept3OrderDrawer({
     open,
@@ -34,7 +31,6 @@ export default function Concept3OrderDrawer({
     const {
         data,
         setField,
-        displayShippingAreas,
         subtotal,
         shippingCharge,
         grandTotal,
@@ -79,22 +75,6 @@ export default function Concept3OrderDrawer({
                         </div>
 
                         <p className="text-sm text-stone-500">{productName}</p>
-
-                        <div className="grid gap-2">
-                            <label
-                                htmlFor="drawer_quantity"
-                                className="font-semibold text-stone-700"
-                            >
-                                বোতলের সংখ্যা
-                            </label>
-                            <QuantityStepper
-                                value={data.quantity}
-                                onChange={(value) =>
-                                    setField('quantity', value)
-                                }
-                            />
-                            <InputError message={errors.quantity} />
-                        </div>
 
                         <div className="grid gap-2">
                             <label
@@ -149,7 +129,7 @@ export default function Concept3OrderDrawer({
                                 htmlFor="drawer_address"
                                 className="font-semibold text-stone-700"
                             >
-                                কোথায় পৌঁছে দেব?
+                                ঠিকানা
                             </label>
                             <input
                                 id="drawer_address"
@@ -164,47 +144,6 @@ export default function Concept3OrderDrawer({
                             />
                             <InputError message={errors.delivery_address} />
                         </div>
-
-                        <fieldset className="grid grid-cols-2 gap-2.5">
-                            <legend className="mb-2.5 w-full font-semibold text-stone-700">
-                                কোথায় ডেলিভারি নেবেন?
-                            </legend>
-                            {displayShippingAreas.map((area) => {
-                                const checked =
-                                    data.shipping_area_id === area.id;
-
-                                return (
-                                    <label
-                                        key={area.id}
-                                        className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-3 text-sm transition-colors ${
-                                            checked
-                                                ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
-                                                : 'border-amber-200 hover:border-amber-300'
-                                        }`}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="drawer_shipping_area_id"
-                                            checked={checked}
-                                            onChange={() =>
-                                                setField(
-                                                    'shipping_area_id',
-                                                    area.id,
-                                                )
-                                            }
-                                            className="size-[18px] accent-amber-600"
-                                        />
-                                        <span>
-                                            {shippingAreaLabel(area.name)}
-                                            <strong className="mt-0.5 block text-stone-900">
-                                                ৳{area.charge}
-                                            </strong>
-                                        </span>
-                                    </label>
-                                );
-                            })}
-                        </fieldset>
-                        <InputError message={errors.shipping_area_id} />
 
                         <div className="space-y-3 rounded-2xl border border-stone-800 bg-stone-950 p-5 text-white shadow-lg">
                             <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300">

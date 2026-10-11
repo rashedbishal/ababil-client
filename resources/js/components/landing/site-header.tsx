@@ -5,7 +5,10 @@ import logo from '../../../images/landing/ababil-logo.webp';
 import Magnetic from './motion/magnetic';
 import OrderButton from './order-button';
 
-const navLinks = [
+export type NavLink = { href: string; label: string };
+export type MobileNavLink = NavLink & { icon: string };
+
+const defaultNavLinks: NavLink[] = [
     { href: '#problem', label: 'সমস্যা' },
     { href: '#usp', label: 'কেন আবাবিল' },
     { href: '#lab-tested', label: 'ল্যাব টেস্ট' },
@@ -21,7 +24,7 @@ const navLinks = [
 // white background; only its visual style (padding/radius/border) changes.
 const DOCK_THRESHOLD = 64;
 
-const mobileNavLinks = [
+const defaultMobileNavLinks: MobileNavLink[] = [
     { href: '#top', label: 'হোম', icon: '🏠' },
     { href: '#problem', label: 'সমস্যা', icon: '⚡' },
     { href: '#usp', label: 'কেন আবাবিল', icon: '⭐' },
@@ -32,7 +35,17 @@ const mobileNavLinks = [
     { href: '#checkout', label: 'পেমেন্ট', icon: '💳' },
 ];
 
-export default function SiteHeader({ phone }: { phone: string | null }) {
+export default function SiteHeader({
+    phone,
+    navLinks = defaultNavLinks,
+    mobileNavLinks = defaultMobileNavLinks,
+}: {
+    phone: string | null;
+    // Each concept page has its own section ids, so the nav targets aren't
+    // the same everywhere — defaults match the main design (welcome.tsx).
+    navLinks?: NavLink[];
+    mobileNavLinks?: MobileNavLink[];
+}) {
     const [activeHref, setActiveHref] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     // Docked (flat, full-width) look at the very top of the page so the hero
@@ -76,7 +89,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
                 }
 
                 if (currentScroll + viewportHeight >= totalHeight - 140) {
-                    setActiveHref('#checkout');
+                    setActiveHref(navLinks[navLinks.length - 1]?.href ?? null);
                     return;
                 }
 
@@ -117,7 +130,7 @@ export default function SiteHeader({ phone }: { phone: string | null }) {
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('load', measure);
         };
-    }, []);
+    }, [navLinks]);
 
     const activeLink = navLinks.find((l) => l.href === activeHref);
     const currentLabel = activeLink ? activeLink.label : 'আবাবিল';

@@ -1,7 +1,11 @@
 import { Leaf, ShieldCheck, Star, Truck } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
+import InputError from '@/components/input-error';
+import type { CheckoutForm } from '@/hooks/use-checkout-form';
+import { shippingAreaLabel } from '@/lib/shipping-area';
 import OrderTriggerButton from './order-trigger-button';
+import QuantityStepper from './quantity-stepper';
 
 const trustItems = [
     {
@@ -24,23 +28,28 @@ const trustItems = [
 const AUTO_SLIDE_MS = 2500;
 
 /**
- * Concept 3's product section is deliberately minimal - no price, no
- * quantity stepper here (those live in the order drawer). Just the product
- * photos and a single "অর্ডার করুন" button, matching the design's
- * `.simple-product` treatment.
+ * Concept 3's product section: the quantity stepper and delivery-area
+ * (inside/outside Dhaka) picker live on the page itself, before the
+ * "অর্ডার করুন" button - the order drawer (`Concept3OrderDrawer`) only
+ * collects name/phone/address, since both already have a value by the
+ * time it opens.
  */
 export default function Concept3ProductSection({
     productName,
     images,
+    checkout,
     onOrderClick,
 }: {
     productName: string;
     images: { id: string | number; src: string; alt: string }[];
+    checkout: CheckoutForm;
     onOrderClick: () => void;
 }) {
     const [index, setIndex] = useState(0);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const active = images[index];
+
+    const { data, setField, displayShippingAreas, errors } = checkout;
 
     useEffect(() => {
         timerRef.current = setInterval(() => {
@@ -64,7 +73,7 @@ export default function Concept3ProductSection({
                             type="button"
                             onClick={onOrderClick}
                             aria-label={`${productName} — অর্ডার করুন`}
-                            className="relative grid aspect-square w-full place-items-center overflow-hidden rounded-3xl border-2 border-amber-300/80 bg-stone-950 p-6 shadow-2xl shadow-amber-900/20"
+                            className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-amber-300/80 bg-stone-950 p-6 shadow-2xl shadow-amber-900/20"
                         >
                             <div
                                 aria-hidden
@@ -86,7 +95,7 @@ export default function Concept3ProductSection({
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.94 }}
                                         transition={{ duration: 0.4 }}
-                                        className="relative max-h-full w-auto object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)]"
+                                        className="relative size-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.85)]"
                                     />
                                 )}
                             </AnimatePresence>
@@ -120,6 +129,60 @@ export default function Concept3ProductSection({
                         <h1 className="font-bengali text-3xl font-extrabold text-stone-900 sm:text-4xl">
                             {productName}
                         </h1>
+
+                        <div className="mt-6 grid gap-2">
+                            <span className="font-bengali font-semibold text-stone-700">
+                                বোতলের সংখ্যা
+                            </span>
+                            <QuantityStepper
+                                value={data.quantity}
+                                onChange={(value) =>
+                                    setField('quantity', value)
+                                }
+                            />
+                            <InputError message={errors.quantity} />
+                        </div>
+
+                        <fieldset className="mt-5 grid grid-cols-2 gap-2.5">
+                            <legend className="mb-2.5 w-full font-bengali font-semibold text-stone-700">
+                                কোথায় ডেলিভারি নেবেন?
+                            </legend>
+                            {displayShippingAreas.map((area) => {
+                                const checked =
+                                    data.shipping_area_id === area.id;
+
+                                return (
+                                    <label
+                                        key={area.id}
+                                        className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-3 font-bengali text-sm transition-colors ${
+                                            checked
+                                                ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
+                                                : 'border-amber-200 hover:border-amber-300'
+                                        }`}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="product_shipping_area_id"
+                                            checked={checked}
+                                            onChange={() =>
+                                                setField(
+                                                    'shipping_area_id',
+                                                    area.id,
+                                                )
+                                            }
+                                            className="size-[18px] accent-amber-600"
+                                        />
+                                        <span>
+                                            {shippingAreaLabel(area.name)}
+                                            <strong className="mt-0.5 block text-stone-900">
+                                                ৳{area.charge}
+                                            </strong>
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </fieldset>
+                        <InputError message={errors.shipping_area_id} />
 
                         <div className="mt-6">
                             <OrderTriggerButton

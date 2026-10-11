@@ -39,7 +39,7 @@ export default function Concept3RoutineSection() {
     return (
         <section
             id="routine"
-            className="relative overflow-hidden bg-stone-950 py-10 sm:py-16"
+            className="relative scroll-mt-24 overflow-hidden bg-stone-950 py-10 sm:py-16"
         >
             <div
                 aria-hidden

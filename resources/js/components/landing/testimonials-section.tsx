@@ -175,11 +175,7 @@ export default function TestimonialsSection({
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
                 {/* Header */}
                 <Reveal className="text-center">
-                    <span className="mx-auto inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 font-bengali text-xs font-semibold tracking-wide text-amber-400 backdrop-blur-md">
-                        <Play className="size-3.5 fill-amber-400 text-amber-400" />
-                        ৫০০০+ ভিডিও রিভিউ
-                    </span>
-                    <h2 className="mt-4 text-center font-bengali text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
+                    <h2 className="text-center font-bengali text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
                         গ্রাহকদের ভিডিও অভিজ্ঞতা
                     </h2>
                     <p className="mx-auto mt-3 max-w-2xl font-bengali text-sm text-neutral-400 sm:text-base">
@@ -244,53 +240,49 @@ export default function TestimonialsSection({
                                             width: `${100 / visibleCount}%`,
                                         }}
                                     >
-                                        <div className="relative overflow-hidden rounded-[1.75rem] border border-amber-400/20 bg-gradient-to-b from-stone-900/90 via-stone-900/60 to-stone-950/90 p-4 shadow-2xl shadow-black/70 backdrop-blur-md transition-transform duration-300 hover:border-amber-400/40">
-                                            {/* 1080x1080p Square Video Container (Aspect Ratio 1:1) */}
-                                            <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner">
-                                                {Math.abs(
-                                                    index - currentIndex,
-                                                ) <=
-                                                    visibleCount + 1 ||
-                                                activeVideos[index] ? (
-                                                    <iframe
-                                                        src={embedUrl}
-                                                        title={`Customer video review ${index + 1}`}
+                                        {/* Reels-style Video Container (Aspect Ratio 9:16) */}
+                                        <div className="group relative aspect-[9/16] w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner">
+                                            {Math.abs(index - currentIndex) <=
+                                                visibleCount + 1 ||
+                                            activeVideos[index] ? (
+                                                <iframe
+                                                    src={embedUrl}
+                                                    title={`Customer video review ${index + 1}`}
+                                                    loading="lazy"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowFullScreen
+                                                    className={`h-full w-full rounded-2xl object-cover ${
+                                                        isDragging
+                                                            ? 'pointer-events-none'
+                                                            : ''
+                                                    }`}
+                                                />
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setActiveVideos(
+                                                            (prev) => ({
+                                                                ...prev,
+                                                                [index]: true,
+                                                            }),
+                                                        )
+                                                    }
+                                                    aria-label={`Play customer video review ${index + 1}`}
+                                                    className="relative flex size-full items-center justify-center bg-stone-900"
+                                                >
+                                                    <img
+                                                        src={`https://img.youtube.com/vi/${item.video_id}/hqdefault.jpg`}
+                                                        alt="Customer video review"
                                                         loading="lazy"
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                        allowFullScreen
-                                                        className={`h-full w-full rounded-2xl object-cover ${
-                                                            isDragging
-                                                                ? 'pointer-events-none'
-                                                                : ''
-                                                        }`}
+                                                        decoding="async"
+                                                        className="size-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
                                                     />
-                                                ) : (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            setActiveVideos(
-                                                                (prev) => ({
-                                                                    ...prev,
-                                                                    [index]: true,
-                                                                }),
-                                                            )
-                                                        }
-                                                        aria-label={`Play customer video review ${index + 1}`}
-                                                        className="relative flex size-full items-center justify-center bg-stone-900"
-                                                    >
-                                                        <img
-                                                            src={`https://img.youtube.com/vi/${item.video_id}/hqdefault.jpg`}
-                                                            alt="Customer video review"
-                                                            loading="lazy"
-                                                            decoding="async"
-                                                            className="size-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
-                                                        />
-                                                        <span className="absolute flex size-14 items-center justify-center rounded-full border border-amber-400/40 bg-stone-950/80 text-amber-400 shadow-xl backdrop-blur-sm transition-transform group-hover:scale-110">
-                                                            <Play className="size-6 fill-amber-400" />
-                                                        </span>
-                                                    </button>
-                                                )}
-                                            </div>
+                                                    <span className="absolute flex size-14 items-center justify-center rounded-full border border-amber-400/40 bg-stone-950/80 text-amber-400 shadow-xl backdrop-blur-sm transition-transform group-hover:scale-110">
+                                                        <Play className="size-6 fill-amber-400" />
+                                                    </span>
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 );

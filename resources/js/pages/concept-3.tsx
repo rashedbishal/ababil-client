@@ -12,7 +12,10 @@ import Concept3StickyBar from '@/components/landing/concept3-sticky-bar';
 import FloatingActions from '@/components/landing/floating-actions';
 import OrderResultDialog from '@/components/landing/order-result-dialog';
 import SiteFooter from '@/components/landing/site-footer';
-import SiteHeader from '@/components/landing/site-header';
+import SiteHeader, {
+    type MobileNavLink,
+    type NavLink,
+} from '@/components/landing/site-header';
 import TestimonialsSection from '@/components/landing/testimonials-section';
 import { useCheckoutForm } from '@/hooks/use-checkout-form';
 import type {
@@ -117,6 +120,30 @@ const campaignItems: Concept3PhotoItem[] = [
     },
 ];
 
+// Concept 3's sections have their own ids (set on Concept3MapSection,
+// Concept3PhotoGallery, Concept3RoutineSection and Concept3ProductSection
+// below) rather than the main design's #problem/#usp/#lab-tested/#checkout,
+// so the shared SiteHeader needs its own nav list for this page, ordered to
+// match how the sections actually appear on the page.
+const navLinks: NavLink[] = [
+    { href: '#delivery', label: 'ডেলিভারি' },
+    { href: '#features', label: 'কেন আবাবিল' },
+    { href: '#routine', label: 'ব্যবহার' },
+    { href: '#campaign', label: 'সমস্যা' },
+    { href: '#product', label: 'পেমেন্ট' },
+    { href: '#reviews', label: 'রিভিউ' },
+];
+
+const mobileNavLinks: MobileNavLink[] = [
+    { href: '#top', label: 'হোম', icon: '🏠' },
+    { href: '#delivery', label: 'ডেলিভারি', icon: '🚚' },
+    { href: '#features', label: 'কেন আবাবিল', icon: '⭐' },
+    { href: '#routine', label: 'ব্যবহার', icon: '📖' },
+    { href: '#campaign', label: 'সমস্যা', icon: '⚡' },
+    { href: '#product', label: 'পেমেন্ট', icon: '💳' },
+    { href: '#reviews', label: 'রিভিউ', icon: '💬' },
+];
+
 export default function Concept3({
     product,
     shippingAreas,
@@ -156,7 +183,11 @@ export default function Concept3({
             id="top"
             className="min-h-screen bg-white font-sans text-stone-900"
         >
-            <SiteHeader phone={contact.phone} />
+            <SiteHeader
+                phone={contact.phone}
+                navLinks={navLinks}
+                mobileNavLinks={mobileNavLinks}
+            />
 
             <main>
                 <Concept3Banner onOrderClick={openDrawer} />
@@ -185,6 +216,7 @@ export default function Concept3({
                 <Concept3ProductSection
                     productName={product.name}
                     images={productImages}
+                    checkout={checkout}
                     onOrderClick={openDrawer}
                 />
 
