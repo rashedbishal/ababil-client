@@ -4,10 +4,12 @@ namespace Database\Seeders;
 
 use App\Models\Media;
 use App\Models\Product;
+use App\Models\Review;
 use App\Models\Setting;
 use App\Models\ShippingArea;
 use App\Models\Size;
 use App\Models\User;
+use App\Support\YouTube;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
@@ -55,6 +57,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $this->seedReviews();
+
         Product::query()->create([
             'name' => 'আবাবিল অর্গানিক পেইন রিলিফ অয়েল',
             'slug' => 'ababil-organic-pain-relief-oil',
@@ -98,6 +102,35 @@ class DatabaseSeeder extends Seeder
             'mime_type' => 'image/jpeg',
             'size' => Storage::disk('public')->size($path),
         ])->id;
+    }
+
+    /**
+     * Placeholder video links so the storefront's review carousel isn't
+     * empty on a fresh install - replace these from the admin Review
+     * Management page before going live.
+     */
+    private function seedReviews(): void
+    {
+        $videoIds = [
+            'dQw4w9WgXcQ',
+            'L_LUpnjgPso',
+            'tgbNymZ7vqY',
+            '3JZ_D3ELwOQ',
+            'kJQP7kiw5Fk',
+            'fJ9rUzIMcZQ',
+            '9bZkp7q19f0',
+        ];
+
+        foreach ($videoIds as $index => $videoId) {
+            $youtubeUrl = "https://www.youtube.com/watch?v={$videoId}";
+
+            Review::query()->create([
+                'youtube_url' => $youtubeUrl,
+                'video_id' => YouTube::extractVideoId($youtubeUrl),
+                'sort_order' => $index,
+                'is_active' => true,
+            ]);
+        }
     }
 
     private function seedSettings(): void

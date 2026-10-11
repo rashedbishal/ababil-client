@@ -1,95 +1,28 @@
-import { ChevronLeft, ChevronRight, Play, Star, VolumeX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Reveal from './motion/reveal';
 
-interface VideoTestimonial {
-    id: string;
-    videoId: string;
-    name: string;
-    location: string;
-    rating: number;
-    title: string;
-    ring: string;
+interface VideoReview {
+    id: number;
+    video_id: string;
 }
 
-const videoTestimonials: VideoTestimonial[] = [
-    {
-        id: '1',
-        videoId: 'dQw4w9WgXcQ',
-        name: 'রফিকুল ইসলাম',
-        location: 'ঢাকা',
-        rating: 5,
-        title: 'হাঁটুর ব্যথায় ১ সপ্তাহেই দারুণ স্বস্তি পেয়েছেন',
-        ring: 'from-amber-400 to-yellow-600',
-    },
-    {
-        id: '2',
-        videoId: 'L_LUpnjgPso',
-        name: 'সাবিনা ইয়াসমিন',
-        location: 'চট্টগ্রাম',
-        rating: 5,
-        title: 'দীর্ঘদিনের কোমর ব্যথায় উপশম পেয়েছেন',
-        ring: 'from-yellow-400 to-amber-600',
-    },
-    {
-        id: '3',
-        videoId: 'tgbNymZ7vqY',
-        name: 'আব্দুল করিম',
-        location: 'সিলেট',
-        rating: 5,
-        title: 'ঘাড় ও কাঁধের ব্যথায় কার্যকরী অভিজ্ঞতা',
-        ring: 'from-amber-400 to-amber-700',
-    },
-    {
-        id: '4',
-        videoId: '3JZ_D3ELwOQ',
-        name: 'নুরুল হুদা',
-        location: 'রাজশাহী',
-        rating: 5,
-        title: 'নিয়মিত ম্যাসাজে হাঁটুর চলাফেরা সহজ হয়েছে',
-        ring: 'from-amber-300 to-yellow-500',
-    },
-    {
-        id: '5',
-        videoId: 'kJQP7kiw5Fk',
-        name: 'মাহমুদা আক্তার',
-        location: 'খুলনা',
-        rating: 5,
-        title: 'মেঝের কাজে পিঠের ব্যথায় দারুণ ফলাফল',
-        ring: 'from-yellow-500 to-amber-600',
-    },
-    {
-        id: '6',
-        videoId: 'fJ9rUzIMcZQ',
-        name: 'ফারুক হোসেন',
-        location: 'বরিশাল',
-        rating: 5,
-        title: 'দ্রুত শোষণে কাপড়ে দাগ না লাগার অভিজ্ঞতা',
-        ring: 'from-amber-500 to-amber-800',
-    },
-    {
-        id: '7',
-        videoId: '9bZkp7q19f0',
-        name: 'শাহানা পারভীন',
-        location: 'কুমিল্লা',
-        rating: 5,
-        title: 'পারিবারিকভাবে ব্যবহারের পর আমাদের মতামত',
-        ring: 'from-yellow-400 to-amber-700',
-    },
-];
+export default function TestimonialsSection({
+    reviews,
+}: {
+    reviews: VideoReview[];
+}) {
+    const TOTAL_ORIGINAL = reviews.length;
 
-const TOTAL_ORIGINAL = videoTestimonials.length;
-
-export default function TestimonialsSection() {
     // 5-set extended array for 100% gapless infinite loop protection
     const EXTENDED_ITEMS = [
-        ...videoTestimonials,
-        ...videoTestimonials,
-        ...videoTestimonials,
-        ...videoTestimonials,
-        ...videoTestimonials,
+        ...reviews,
+        ...reviews,
+        ...reviews,
+        ...reviews,
+        ...reviews,
     ];
-    // Start at middle set (index = TOTAL_ORIGINAL * 2 = 14)
+    // Start at middle set (index = TOTAL_ORIGINAL * 2)
     const [currentIndex, setCurrentIndex] = useState(TOTAL_ORIGINAL * 2);
     const [isTransitioning, setIsTransitioning] = useState(true);
     const [visibleCount, setVisibleCount] = useState(3);
@@ -128,7 +61,7 @@ export default function TestimonialsSection() {
             }
             return prev + 1;
         });
-    }, []);
+    }, [TOTAL_ORIGINAL]);
 
     const slidePrev = useCallback(() => {
         setIsTransitioning(true);
@@ -138,14 +71,18 @@ export default function TestimonialsSection() {
             }
             return prev - 1;
         });
-    }, []);
+    }, [TOTAL_ORIGINAL]);
 
-    const resetLoopPosition = useCallback((targetIndex: number) => {
-        const realIndex =
-            ((targetIndex % TOTAL_ORIGINAL) + TOTAL_ORIGINAL) % TOTAL_ORIGINAL;
-        setIsTransitioning(false);
-        setCurrentIndex(TOTAL_ORIGINAL * 2 + realIndex);
-    }, []);
+    const resetLoopPosition = useCallback(
+        (targetIndex: number) => {
+            const realIndex =
+                ((targetIndex % TOTAL_ORIGINAL) + TOTAL_ORIGINAL) %
+                TOTAL_ORIGINAL;
+            setIsTransitioning(false);
+            setCurrentIndex(TOTAL_ORIGINAL * 2 + realIndex);
+        },
+        [TOTAL_ORIGINAL],
+    );
 
     // Handle seamless infinite loop jump when transition ends
     const handleTransitionEnd = () => {
@@ -168,7 +105,7 @@ export default function TestimonialsSection() {
             }, 550);
             return () => clearTimeout(fallbackTimer);
         }
-    }, [currentIndex, resetLoopPosition]);
+    }, [currentIndex, resetLoopPosition, TOTAL_ORIGINAL]);
 
     // Pointer / Touch / Mouse Drag event handlers
     const handlePointerDown = (e: React.PointerEvent) => {
@@ -208,9 +145,13 @@ export default function TestimonialsSection() {
         setCurrentIndex((prev) => prev + diff);
     };
 
-    // Calculate real active index for indicator dots (0 to 6)
+    // Calculate real active index for indicator dots
     const activeDotIndex =
         ((currentIndex % TOTAL_ORIGINAL) + TOTAL_ORIGINAL) % TOTAL_ORIGINAL;
+
+    if (TOTAL_ORIGINAL === 0) {
+        return null;
+    }
 
     return (
         <section
@@ -293,7 +234,7 @@ export default function TestimonialsSection() {
                         >
                             {EXTENDED_ITEMS.map((item, index) => {
                                 // Embed URL with autoplay=1&mute=1 for automatic muted play
-                                const embedUrl = `https://www.youtube.com/embed/${item.videoId}?autoplay=1&mute=1&enablejsapi=1&loop=1&playlist=${item.videoId}&controls=1&rel=0&modestbranding=1`;
+                                const embedUrl = `https://www.youtube.com/embed/${item.video_id}?autoplay=1&mute=1&enablejsapi=1&loop=1&playlist=${item.video_id}&controls=1&rel=0&modestbranding=1`;
 
                                 return (
                                     <div
@@ -304,29 +245,6 @@ export default function TestimonialsSection() {
                                         }}
                                     >
                                         <div className="relative overflow-hidden rounded-[1.75rem] border border-amber-400/20 bg-gradient-to-b from-stone-900/90 via-stone-900/60 to-stone-950/90 p-4 shadow-2xl shadow-black/70 backdrop-blur-md transition-transform duration-300 hover:border-amber-400/40">
-                                            {/* Top Header Badge inside Card */}
-                                            <div className="mb-3 flex items-center justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <span
-                                                        className={`flex size-8 items-center justify-center rounded-xl bg-gradient-to-br text-xs font-bold text-stone-950 shadow-md ${item.ring}`}
-                                                    >
-                                                        {item.name.charAt(0)}
-                                                    </span>
-                                                    <div>
-                                                        <p className="font-bengali text-sm font-semibold text-white">
-                                                            {item.name}
-                                                        </p>
-                                                        <p className="font-bengali text-xs text-amber-400/80">
-                                                            {item.location}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-1 rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300">
-                                                    <VolumeX className="size-3" />
-                                                    <span>Muted HD</span>
-                                                </div>
-                                            </div>
-
                                             {/* 1080x1080p Square Video Container (Aspect Ratio 1:1) */}
                                             <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner">
                                                 {Math.abs(
@@ -336,7 +254,7 @@ export default function TestimonialsSection() {
                                                 activeVideos[index] ? (
                                                     <iframe
                                                         src={embedUrl}
-                                                        title={`Testimonial video by ${item.name}`}
+                                                        title={`Customer video review ${index + 1}`}
                                                         loading="lazy"
                                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                         allowFullScreen
@@ -357,12 +275,12 @@ export default function TestimonialsSection() {
                                                                 }),
                                                             )
                                                         }
-                                                        aria-label={`Play testimonial video by ${item.name}`}
+                                                        aria-label={`Play customer video review ${index + 1}`}
                                                         className="relative flex size-full items-center justify-center bg-stone-900"
                                                     >
                                                         <img
-                                                            src={`https://img.youtube.com/vi/${item.videoId}/hqdefault.jpg`}
-                                                            alt={item.title}
+                                                            src={`https://img.youtube.com/vi/${item.video_id}/hqdefault.jpg`}
+                                                            alt="Customer video review"
                                                             loading="lazy"
                                                             decoding="async"
                                                             className="size-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
@@ -373,23 +291,6 @@ export default function TestimonialsSection() {
                                                     </button>
                                                 )}
                                             </div>
-
-                                            {/* Bottom Card Meta & Stars */}
-                                            <div className="mt-4 border-t border-amber-400/10 pt-2">
-                                                <div className="flex items-center gap-1 text-amber-400">
-                                                    {Array.from({
-                                                        length: item.rating,
-                                                    }).map((_, i) => (
-                                                        <Star
-                                                            key={i}
-                                                            className="size-4 fill-current"
-                                                        />
-                                                    ))}
-                                                </div>
-                                                <p className="mt-2 line-clamp-2 font-bengali text-sm leading-snug font-medium text-neutral-200">
-                                                    “{item.title}”
-                                                </p>
-                                            </div>
                                         </div>
                                     </div>
                                 );
@@ -399,7 +300,7 @@ export default function TestimonialsSection() {
 
                     {/* Pagination / Indicator Dots */}
                     <div className="mt-8 flex items-center justify-center gap-2">
-                        {videoTestimonials.map((_, index) => (
+                        {reviews.map((_, index) => (
                             <button
                                 key={index}
                                 type="button"

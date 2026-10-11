@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderCourierController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShippingAreaController;
 use App\Http\Controllers\Admin\SizeController;
@@ -49,6 +50,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('blocked-ips', BlockedIpController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::resource('shipping-areas', ShippingAreaController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('reviews', ReviewController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
     Route::put('courier/default', [CourierController::class, 'setDefault'])->name('courier.default');

@@ -59,6 +59,11 @@ type Contact = {
     facebookUrl: string | null;
 };
 
+type VideoReview = {
+    id: number;
+    video_id: string;
+};
+
 // Checkout form fields that already render their own inline <InputError> -
 // any validation error on a field outside this set would otherwise have no
 // visible effect on the page at all.
@@ -76,11 +81,13 @@ export default function Welcome({
     shippingAreas,
     contact,
     formToken,
+    reviews,
 }: {
     product: Product | null;
     shippingAreas: ShippingArea[];
     contact: Contact;
     formToken: string;
+    reviews: VideoReview[];
 }) {
     // Most orders ship within Dhaka, so it's pre-selected rather than making
     // every shopper pick it manually. Matched by name rather than assuming
@@ -355,7 +362,7 @@ export default function Welcome({
                         title="নিরাপদে ব্যবহার করুন, আজই অর্ডার করুন"
                         subtitle="নির্দেশনা মেনে ব্যবহারে আবাবিল আপনার পাশে আছে"
                     />
-                    <TestimonialsSection />
+                    <TestimonialsSection reviews={reviews} />
                     <GuaranteeSection />
 
                     <CheckoutSection

@@ -13,6 +13,7 @@ import {
     Truck,
     Undo2,
     UserCog,
+    Video,
 } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -38,6 +39,7 @@ import { dashboard } from '@/routes/admin';
 import incompleteOrders from '@/routes/admin/incomplete-orders';
 import orders from '@/routes/admin/orders';
 import products from '@/routes/admin/products';
+import reviews from '@/routes/admin/reviews';
 import settings from '@/routes/admin/settings';
 import shippingAreas from '@/routes/admin/shipping-areas';
 import sizes from '@/routes/admin/sizes';
@@ -105,6 +107,16 @@ function buildGroups(
                     title: 'Courier Integration',
                     href: courier.index(),
                     icon: Undo2,
+                },
+            ],
+        },
+        {
+            label: 'Content',
+            items: [
+                {
+                    title: 'Review Management',
+                    href: reviews.index(),
+                    icon: Video,
                 },
             ],
         },

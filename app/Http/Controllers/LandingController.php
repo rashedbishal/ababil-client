@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\Review;
 use App\Models\Setting;
 use App\Models\ShippingArea;
 use App\Support\StorefrontSeo;
@@ -80,6 +81,10 @@ class LandingController extends Controller
                 ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->get(['id', 'name', 'charge']),
+            'reviews' => Review::query()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get(['id', 'video_id']),
             'contact' => [
                 'phone' => Setting::get('site_phone'),
                 'whatsapp' => Setting::get('whatsapp_number'),
