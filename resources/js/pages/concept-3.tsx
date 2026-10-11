@@ -52,14 +52,14 @@ const featureItems: Concept3PhotoItem[] = [
     {
         id: 'herbal',
         image: uspHerbal,
-        alt: 'প্রাকৃতিক উপাদানের পরিচয়',
-        caption: 'প্রকৃতির ছোঁয়া',
+        alt: 'পরিবারের আস্থার ছবি',
+        caption: 'সবার আস্থার ভরসা',
     },
     {
         id: 'absorption',
         image: uspAbsorption,
-        alt: 'আবাবিল দৈনন্দিন যত্ন',
-        caption: 'প্রিয়জনের খেয়াল',
+        alt: 'দ্রুত আরামের অভিজ্ঞতা',
+        caption: 'দ্রুত আরামের নিশ্চয়তা',
     },
     {
         id: 'massage',
@@ -82,8 +82,8 @@ const featureItems: Concept3PhotoItem[] = [
     {
         id: 'warming',
         image: uspWarming,
-        alt: 'ঘাড়ের ব্যথায় যত্নের ছবি',
-        caption: 'ঘাড়ের ব্যথায় একটু যত্ন',
+        alt: 'কাঁধের ব্যথায় যত্নের ছবি',
+        caption: 'কাঁধের ব্যথায় স্বস্তি',
     },
 ];
 
@@ -91,7 +91,7 @@ const campaignItems: Concept3PhotoItem[] = [
     {
         id: 'knee',
         image: problemKnee,
-        alt: 'হাঁটুর যত্ন',
+        alt: 'হাঁটুর ব্যথার যত্ন',
         caption: 'পথচলা থাকুক আপন',
     },
     {
@@ -103,20 +103,20 @@ const campaignItems: Concept3PhotoItem[] = [
     {
         id: 'back',
         image: problemBack,
-        alt: 'পিঠের যত্ন',
+        alt: 'কাজের ফাঁকে পিঠের যত্ন',
         caption: 'কাজের ফাঁকে নিজের যত্ন',
     },
     {
         id: 'muscle',
         image: problemMuscle,
-        alt: 'দৈনন্দিন চলাফেরা',
+        alt: 'বাবার পিঠের যত্নে ছেলের পাশে থাকা',
         caption: 'আপনজনের সঙ্গে সময়',
     },
     {
         id: 'feet',
         image: problemFeet,
-        alt: 'পায়ের যত্ন',
-        caption: 'সারাদিনের পরে বিরতি',
+        alt: 'নামাজে স্বস্তির যত্ন',
+        caption: 'নামাজে স্বস্তি, সিজদায় আরাম',
     },
 ];
 
