@@ -1,37 +1,53 @@
-import usageAmount from '../../../images/landing/cards/usage-amount-full.webp';
-import usageCleanArea from '../../../images/landing/cards/usage-clean-area-full.webp';
-import usageMassage from '../../../images/landing/cards/usage-massage-full.webp';
-import usageRoutine from '../../../images/landing/cards/usage-routine-full.webp';
+import problemKnee from '../../../images/landing/cards/problem-knee.webp';
+import routineBackStairs from '../../../images/landing/cards/routine-back-stairs.webp';
+import routineFootSole from '../../../images/landing/cards/routine-foot-sole.webp';
+import routineKneeStairs from '../../../images/landing/cards/routine-knee-stairs.webp';
+import routineShoulderShop from '../../../images/landing/cards/routine-shoulder-shop.webp';
+import routineWaistChores from '../../../images/landing/cards/routine-waist-chores.webp';
 
+// One photo per place on the body that commonly hurts, top to bottom - the
+// section heading names them. Photos aren't used anywhere else on the page.
 const steps = [
     {
-        id: 'cleanse',
-        image: usageCleanArea,
-        alt: 'ম্যাসাজের প্রস্তুতি',
-        title: 'যেখানে ব্যথা, সেখানে যত্ন',
+        id: 'shoulder-shop',
+        image: routineShoulderShop,
+        alt: 'দোকান বন্ধের পর কাঁধে হাত রেখে বিশ্রাম নিচ্ছেন একজন দোকানি',
+        title: 'সারাদিনের কাজে কাঁধে ব্যথা',
     },
     {
-        id: 'dispense',
-        image: usageAmount,
-        alt: 'অয়েল নেওয়া',
-        title: 'অল্প অয়েলেই শুরু',
+        id: 'back-stairs',
+        image: routineBackStairs,
+        alt: 'সিঁড়ি ভাঙতে পিঠ-কোমরে ব্যথা পাচ্ছেন একজন বয়স্ক মানুষ',
+        title: 'সিঁড়ি ভাঙতে পিঠে ব্যথা',
     },
     {
-        id: 'massage',
-        image: usageMassage,
-        alt: 'ম্যাসাজ করা',
-        title: 'আলতো হাতে ম্যাসাজ',
+        id: 'waist-chores',
+        image: routineWaistChores,
+        alt: 'ভারী বালতি নামিয়ে কোমরে হাত রেখেছেন একজন নারী',
+        title: 'ভারী কাজের পর কোমরে টান',
     },
     {
-        id: 'routine',
-        image: usageRoutine,
-        alt: 'দৈনন্দিন যত্ন',
-        title: 'যত্ন হোক নিয়মিত',
+        id: 'knee',
+        image: problemKnee,
+        alt: 'হাঁটু ভাঁজ করতে ব্যথায় কষ্ট পাচ্ছেন একজন যুবক',
+        title: 'হাঁটু ভাঁজে কষ্ট',
+    },
+    {
+        id: 'knee-stairs',
+        image: routineKneeStairs,
+        alt: 'হাঁটুর ব্যথা নিয়ে সিঁড়ি দিয়ে উঠছেন একজন মা',
+        title: 'সিঁড়িতে হাঁটুর ব্যথা',
+    },
+    {
+        id: 'foot-sole',
+        image: routineFootSole,
+        alt: 'পায়ের তলার ব্যথা',
+        title: 'পায়ের তলার ব্যথা',
     },
 ];
 
 /**
- * Concept 3's usage-steps section is purely illustrative - unlike the
+ * Concept 3's "where it hurts" section is purely illustrative - unlike the
  * other photo grids, these images are not click-to-order (matches the
  * design's `.usage-photo{cursor:default}` treatment).
  */
@@ -47,13 +63,13 @@ export default function Concept3RoutineSection() {
             />
             <div className="relative mx-auto max-w-[1240px] px-4 text-center sm:px-8">
                 <h2 className="font-bengali text-[29px] font-bold text-white sm:text-4xl">
-                    ব্যস্ত দিনের শেষে নিজের যত্ন
+                    কাঁধ থেকে পায়ের তলা
                 </h2>
                 <p className="mt-2 font-bengali text-base text-amber-200/80">
-                    অল্প অয়েল, আলতো হাতে ম্যাসাজ — নিজের জন্য একটু সময়।
+                    কাঁধ, পিঠ, কোমর, হাঁটু কিংবা পা — ব্যথা যেখানেই, আবাবিল সেখানেই।
                 </p>
 
-                <div className="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:gap-6 lg:grid-cols-4">
+                <div className="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:gap-6 lg:grid-cols-3">
                     {steps.map((step) => (
                         <div key={step.id} className="text-left">
                             <div className="aspect-square overflow-hidden rounded-2xl border border-amber-500/20 bg-stone-900">

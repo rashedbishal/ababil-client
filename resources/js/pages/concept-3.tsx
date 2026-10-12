@@ -25,16 +25,17 @@ import type {
     VideoReview,
 } from '@/types/storefront';
 
+import campaignFatherShoulders from '../../images/landing/cards/campaign-father-shoulders.webp';
+import campaignGrandpaGrandson from '../../images/landing/cards/campaign-grandpa-grandson.webp';
+import campaignNeckKitchen from '../../images/landing/cards/campaign-neck-kitchen.webp';
+import campaignSonFather from '../../images/landing/cards/campaign-son-father.webp';
+import careFootWalk from '../../images/landing/cards/care-foot-walk.webp';
+import careKneeBazaar from '../../images/landing/cards/care-knee-bazaar.webp';
+import careNeckWarmth from '../../images/landing/cards/care-neck-warmth.webp';
 import problemBack from '../../images/landing/cards/problem-back.webp';
 import problemFeet from '../../images/landing/cards/problem-feet.webp';
-import problemKnee from '../../images/landing/cards/problem-knee.webp';
-import problemMuscle from '../../images/landing/cards/problem-muscle.webp';
 import problemNeck from '../../images/landing/cards/problem-neck.webp';
-import uspAbsorption from '../../images/landing/cards/usp-absorption-original.webp';
 import uspHerbal from '../../images/landing/cards/usp-herbal-original.webp';
-import uspMassage from '../../images/landing/cards/usp-massage-original.webp';
-import uspNonsticky from '../../images/landing/cards/usp-nonsticky-original.webp';
-import uspSkincare from '../../images/landing/cards/usp-skincare-original.webp';
 import uspWarming from '../../images/landing/cards/usp-warming-original.webp';
 import product1 from '../../images/landing/product/product-1.webp';
 import product2 from '../../images/landing/product/product-2.webp';
@@ -48,75 +49,86 @@ const productImages = [
     { id: 4, src: product4, alt: 'আবাবিল পণ্যের ৪ নম্বর ছবি' },
 ];
 
+// No photo appears in more than one section of the page. "নিজের যত্নও
+// জরুরি" is about caring for yourself, so its photos show people dealing
+// with their own pain (not someone else massaging them), across every body
+// area - neck, shoulder, back, knee and foot. "চেনা জীবনের যত্ন" is the
+// emotional, family-centred section.
 const featureItems: Concept3PhotoItem[] = [
     {
         id: 'herbal',
         image: uspHerbal,
-        alt: 'পরিবারের আস্থার ছবি',
-        caption: 'সবার আস্থার ভরসা',
+        alt: 'আবাবিল অয়েল হাতে হাসিমুখে একজন মা',
+        caption: 'সংসারের সবার ভরসা',
     },
     {
-        id: 'absorption',
-        image: uspAbsorption,
-        alt: 'দ্রুত আরামের অভিজ্ঞতা',
-        caption: 'দ্রুত আরামের নিশ্চয়তা',
+        id: 'knee-bazaar',
+        image: careKneeBazaar,
+        alt: 'বাজারের ব্যাগ হাতে সিঁড়ি দিয়ে নামছেন একজন বয়স্ক মানুষ',
+        caption: 'বাজার-সিঁড়িতে হাঁটু থাকুক সচল',
     },
     {
-        id: 'massage',
-        image: uspMassage,
-        alt: 'ম্যাসাজের যত্ন',
-        caption: 'ব্যস্ত দিনের বিরতি',
+        id: 'foot-walk',
+        image: careFootWalk,
+        alt: 'সারাদিন হাঁটার পর পায়ের গোড়ালিতে ব্যথা',
+        caption: 'সারাদিন হাঁটার পর পায়ে আরাম',
     },
     {
-        id: 'nonsticky',
-        image: uspNonsticky,
-        alt: 'ম্যাসাজের অভিজ্ঞতা',
-        caption: 'একটু নিজের সময়',
+        id: 'back',
+        image: problemBack,
+        alt: 'অফিস চেয়ারে বসে নিজের পিঠে হাত রেখেছেন একজন যুবক',
+        caption: 'পিঠের খবর নিন নিজেই',
     },
     {
-        id: 'skincare',
-        image: uspSkincare,
-        alt: 'নিজের যত্ন',
-        caption: 'যত্নের ছোট্ট অভ্যাস',
+        id: 'neck-warmth',
+        image: careNeckWarmth,
+        alt: 'ঘাড়ের ব্যথায় হাত রেখেছেন একজন যুবক',
+        caption: 'ঘাড়ে লাগাতেই আরামের উষ্ণতা',
     },
     {
         id: 'warming',
         image: uspWarming,
-        alt: 'কাঁধের ব্যথায় যত্নের ছবি',
-        caption: 'কাঁধের ব্যথায় স্বস্তি',
+        alt: 'স্কুলব্যাগ কাঁধে হাসিমুখে এক শিশু',
+        caption: 'ব্যাগের ভারে কাঁধ ব্যথায় আরাম',
     },
 ];
 
 const campaignItems: Concept3PhotoItem[] = [
     {
-        id: 'knee',
-        image: problemKnee,
-        alt: 'হাঁটুর ব্যথার যত্ন',
-        caption: 'পথচলা থাকুক আপন',
+        id: 'grandpa-grandson',
+        image: campaignGrandpaGrandson,
+        alt: 'লাঠি ছাড়াই নাতির হাত ধরে হাঁটছেন দাদু',
+        caption: 'লাঠি নয়, নাতির হাত ধরে দাদু',
     },
     {
         id: 'neck',
         image: problemNeck,
-        alt: 'ঘাড়ের যত্ন',
-        caption: 'মায়ের জন্য একটু সময়',
+        alt: 'মায়ের কাঁধে মেয়ের যত্নের হাত',
+        caption: 'মায়ের কাঁধেও একটু যত্ন',
     },
     {
-        id: 'back',
-        image: problemBack,
-        alt: 'কাজের ফাঁকে পিঠের যত্ন',
-        caption: 'কাজের ফাঁকে নিজের যত্ন',
+        id: 'father-shoulders',
+        image: campaignFatherShoulders,
+        alt: 'বাবার কাঁধে চড়ে আনন্দে দুই হাত মেলে দিয়েছে সন্তান',
+        caption: 'বাবার কাঁধেই সন্তানের আশ্রয়',
     },
     {
-        id: 'muscle',
-        image: problemMuscle,
-        alt: 'বাবার পিঠের যত্নে ছেলের পাশে থাকা',
-        caption: 'আপনজনের সঙ্গে সময়',
+        id: 'son-father',
+        image: campaignSonFather,
+        alt: 'বৃদ্ধ বাবার কাঁধে হাত রেখে পাশে দাঁড়িয়ে ছেলে',
+        caption: 'মা-বাবার জন্য সেরা উপহার',
     },
     {
         id: 'feet',
         image: problemFeet,
-        alt: 'নামাজে স্বস্তির যত্ন',
+        alt: 'জায়নামাজে সিজদারত একজন মুসল্লি',
         caption: 'নামাজে স্বস্তি, সিজদায় আরাম',
+    },
+    {
+        id: 'neck-kitchen',
+        image: campaignNeckKitchen,
+        alt: 'রান্নার ফাঁকে ঘাড়ে হাত রেখেছেন একজন গৃহিণী',
+        caption: 'রান্নাঘরেও ঘাড় থাকুক আরামে',
     },
 ];
 
@@ -128,8 +140,8 @@ const campaignItems: Concept3PhotoItem[] = [
 const navLinks: NavLink[] = [
     { href: '#delivery', label: 'ডেলিভারি' },
     { href: '#features', label: 'কেন আবাবিল' },
-    { href: '#routine', label: 'ব্যবহার' },
-    { href: '#campaign', label: 'সমস্যা' },
+    { href: '#routine', label: 'ব্যথার জায়গা' },
+    { href: '#campaign', label: 'আপনজন' },
     { href: '#product', label: 'পেমেন্ট' },
     { href: '#reviews', label: 'রিভিউ' },
 ];
@@ -138,8 +150,8 @@ const mobileNavLinks: MobileNavLink[] = [
     { href: '#top', label: 'হোম', icon: '🏠' },
     { href: '#delivery', label: 'ডেলিভারি', icon: '🚚' },
     { href: '#features', label: 'কেন আবাবিল', icon: '⭐' },
-    { href: '#routine', label: 'ব্যবহার', icon: '📖' },
-    { href: '#campaign', label: 'সমস্যা', icon: '⚡' },
+    { href: '#routine', label: 'ব্যথার জায়গা', icon: '📍' },
+    { href: '#campaign', label: 'আপনজন', icon: '❤️' },
     { href: '#product', label: 'পেমেন্ট', icon: '💳' },
     { href: '#reviews', label: 'রিভিউ', icon: '💬' },
 ];
@@ -218,7 +230,7 @@ export default function Concept3({
                 <Concept3PhotoGallery
                     id="campaign"
                     heading="চেনা জীবনের যত্ন"
-                    subtitle="হাঁটাহাঁটি, কাজ আর আপনজনের পাশে থাকা।"
+                    subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
                     items={campaignItems}
                     onOrderClick={scrollToProduct}
                     columns={3}
