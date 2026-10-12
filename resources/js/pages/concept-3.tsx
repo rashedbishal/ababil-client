@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Concept3Banner from '@/components/landing/concept3-banner';
+import Concept3CertificationSection from '@/components/landing/concept3-certification-section';
 import Concept3ContactSection from '@/components/landing/concept3-contact-section';
 import Concept3FaqSection from '@/components/landing/concept3-faq-section';
 import Concept3MapSection from '@/components/landing/concept3-map-section';
@@ -49,11 +50,11 @@ const productImages = [
     { id: 4, src: product4, alt: 'আবাবিল পণ্যের ৪ নম্বর ছবি' },
 ];
 
-// No photo appears in more than one section of the page. "নিজের যত্নও
-// জরুরি" is about caring for yourself, so its photos show people dealing
-// with their own pain (not someone else massaging them), across every body
-// area - neck, shoulder, back, knee and foot. "চেনা জীবনের যত্ন" is the
-// emotional, family-centred section.
+// No photo appears in more than one section of the page. "সবার স্বস্তি,
+// সবার যত্ন" shows people of every age - a child to a grandparent - each
+// dealing with their own pain (not being massaged by someone else), across
+// every body area - neck, shoulder, back, knee and foot. "চেনা জীবনের যত্ন"
+// is the emotional, family-centred section.
 const featureItems: Concept3PhotoItem[] = [
     {
         id: 'herbal',
@@ -214,12 +215,13 @@ export default function Concept3({
 
             <main>
                 <Concept3Banner onOrderClick={scrollToProduct} />
+                <Concept3CertificationSection />
                 <Concept3MapSection onOrderClick={scrollToProduct} />
 
                 <Concept3PhotoGallery
                     id="features"
-                    heading="নিজের যত্নও জরুরি"
-                    subtitle="সবার খেয়াল রাখেন। এবার একটু নিজেরও।"
+                    heading="সবার স্বস্তি, সবার যত্ন"
+                    subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল"
                     items={featureItems}
                     onOrderClick={scrollToProduct}
                     columns={3}

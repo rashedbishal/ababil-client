@@ -8,7 +8,7 @@ export type Concept3PhotoItem = {
 /**
  * A grid of clickable photo cards, each with a caption and a small
  * "অর্ডার করুন →" pill grained into the corner. Used for both the "ছবিতে
- * আবাবিল" (campaign/problem) and "নিজের যত্নও জরুরি" (USP) galleries -
+ * আবাবিল" (campaign/problem) and "সবার স্বস্তি, সবার যত্ন" (USP) galleries -
  * clicking any card opens the order drawer directly (matching the design's
  * behaviour), there's no separate lightbox step.
  */
