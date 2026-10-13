@@ -23,9 +23,8 @@ class SettingRequest extends FormRequest
             'site_email' => ['nullable', 'email', 'max:255'],
             'currency' => ['nullable', 'string', 'max:10'],
             'order_prefix' => ['nullable', 'string', 'max:10', 'alpha_dash'],
-            'facebook_pixel_id' => ['nullable', 'string', 'max:100'],
-            'google_analytics_id' => ['nullable', 'string', 'max:100'],
-            'google_tag_manager_id' => ['nullable', 'string', 'max:100'],
+            'head_code' => ['nullable', 'string', 'max:20000'],
+            'body_code' => ['nullable', 'string', 'max:20000'],
             'whatsapp_number' => ['nullable', 'string', 'max:20'],
             'facebook_page_url' => ['nullable', 'url', 'max:255'],
         ];

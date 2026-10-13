@@ -3,9 +3,11 @@
     // actually sees (the storefront and its order-confirmation link) -
     // never on admin/auth pages, which this same root view also renders.
     $isStorefrontPage = in_array($page['component'], ['welcome', 'concept-3', 'order-confirmation'], true);
-    $gtmId = $isStorefrontPage ? \App\Models\Setting::get('google_tag_manager_id') : null;
-    $pixelId = $isStorefrontPage ? \App\Models\Setting::get('facebook_pixel_id') : null;
-    $gaId = $isStorefrontPage ? \App\Models\Setting::get('google_analytics_id') : null;
+    // Raw, admin-pasted tracking snippets (GTM/Pixel/GA/etc. install code) - not generated here.
+    // Trusted because only admins can write these settings; injected verbatim like any site owner
+    // pasting a vendor's install snippet into their template.
+    $headCode = $isStorefrontPage ? \App\Models\Setting::get('head_code') : null;
+    $bodyCode = $isStorefrontPage ? \App\Models\Setting::get('body_code') : null;
 @endphp
 <!DOCTYPE html>
 <html lang="{{ isset($seo) ? 'bn' : str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
@@ -84,40 +86,15 @@
             @endunless
         </x-inertia::head>
 
-        @if ($gtmId)
-            {{-- Google Tag Manager --}}
-            <script>
-                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',{!! \Illuminate\Support\Js::from($gtmId) !!});
-            </script>
-        @endif
-
-        @if ($pixelId)
-            {{-- Meta (Facebook) Pixel --}}
-            <script>
-                !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', {!! \Illuminate\Support\Js::from($pixelId) !!});
-                fbq('track', 'PageView');
-            </script>
-        @endif
-
-        @if ($gaId)
-            {{-- Google Analytics --}}
-            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
-            <script>
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', {!! \Illuminate\Support\Js::from($gaId) !!});
-            </script>
+        @if ($headCode)
+            {{-- Admin-pasted head code (Settings → Head code injection) --}}
+            {!! $headCode !!}
         @endif
     </head>
     <body class="font-sans antialiased">
-        @if ($gtmId)
-            <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmId }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        @endif
-
-        @if ($pixelId)
-            <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ $pixelId }}&ev=PageView&noscript=1" /></noscript>
+        @if ($bodyCode)
+            {{-- Admin-pasted body code (Settings → Body code injection) --}}
+            {!! $bodyCode !!}
         @endif
 
         <x-inertia::app />
