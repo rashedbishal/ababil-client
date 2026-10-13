@@ -2,6 +2,7 @@ import { router, useForm, useHttp } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { OrderResult } from '@/components/landing/order-result-dialog';
 import { useCheckoutSession } from '@/hooks/use-checkout-session';
+import { pushPurchaseEvent } from '@/lib/analytics';
 import { shippingAreaLabel } from '@/lib/shipping-area';
 import incompleteOrders from '@/routes/incomplete-orders';
 import orders from '@/routes/orders';
@@ -98,7 +99,17 @@ export function useCheckoutForm({
                             order_number: string;
                             customer_name: string;
                             shipping_area_name: string;
+                            subtotal: string;
+                            shipping_charge: string;
+                            discount: string;
                             grand_total: string;
+                            items: {
+                                sku: string | null;
+                                product_name: string;
+                                size_name: string | null;
+                                unit_price: string;
+                                quantity: number;
+                            }[];
                         };
                     };
                 }>
@@ -108,6 +119,11 @@ export function useCheckoutForm({
             if (!placed) {
                 return;
             }
+
+            // This flash - not the separate /orders/{orderNumber}/confirmation
+            // route - is what real customers actually see (a dialog on this
+            // same page), so this is where the purchase event has to fire.
+            pushPurchaseEvent(placed);
 
             setOrderResult({
                 type: 'success',

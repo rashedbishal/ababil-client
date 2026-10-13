@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingArea;
 use App\Models\Size;
+use Inertia\Support\SessionKey;
 
 function validOrderPayload(Product $product, ShippingArea $shippingArea, array $overrides = []): array
 {
@@ -38,6 +39,33 @@ test('a customer can place an order without authentication', function () {
     // of navigating to a separate confirmation route.
     $response->assertSessionHasNoErrors();
     $response->assertRedirect();
+});
+
+test('the orderPlaced flash carries everything the storefront needs for the dataLayer purchase event', function () {
+    // The storefront never navigates to the separate /orders/{number}/confirmation
+    // route - it shows a dialog on this same page driven by this flash, so this
+    // payload (not that route's props) is what the dataLayer push actually reads.
+    $product = Product::factory()->create(['name' => 'Classic Tee', 'sku' => 'TEE-001', 'regular_price' => 500, 'sale_price' => null, 'track_stock' => true, 'stock' => 10]);
+    $shippingArea = ShippingArea::factory()->create(['charge' => 60, 'is_active' => true]);
+
+    $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, ['quantity' => 3]));
+
+    $response->assertSessionHas(SessionKey::FLASH_DATA, function (array $flash) {
+        expect($flash)->toHaveKey('orderPlaced');
+        $placed = $flash['orderPlaced'];
+
+        expect($placed['subtotal'])->toBe('1500.00')
+            ->and($placed['shipping_charge'])->toBe('60.00')
+            ->and($placed['discount'])->toBe('0.00')
+            ->and($placed['grand_total'])->toBe('1560.00')
+            ->and($placed['items'])->toHaveCount(1)
+            ->and($placed['items'][0]['sku'])->toBe('TEE-001')
+            ->and($placed['items'][0]['product_name'])->toBe('Classic Tee')
+            ->and($placed['items'][0]['quantity'])->toBe(3)
+            ->and($placed['items'][0]['unit_price'])->toBe('500.00');
+
+        return true;
+    });
 });
 
 test('order creation persists a matching order item snapshot', function () {
