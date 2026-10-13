@@ -31,6 +31,7 @@ class OrderController extends Controller
                 'grand_total' => (string) $order->grand_total,
                 'status' => $order->status->label(),
                 'items' => $order->items->map(fn (OrderItem $item) => [
+                    'sku' => $item->sku,
                     'product_name' => $item->product_name,
                     'size_name' => $item->size_name,
                     'quantity' => $item->quantity,

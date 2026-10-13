@@ -6,6 +6,14 @@ declare module 'react' {
     }
 }
 
+declare global {
+    interface Window {
+        // Populated by the GTM snippet an admin pastes into Settings → Head
+        // code injection; not guaranteed to exist if nothing is configured.
+        dataLayer?: unknown[];
+    }
+}
+
 declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {

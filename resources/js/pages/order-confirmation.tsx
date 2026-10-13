@@ -1,6 +1,8 @@
 import { Head, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 type OrderItem = {
+    sku: string;
     product_name: string;
     size_name: string | null;
     quantity: number;
@@ -20,8 +22,46 @@ type Order = {
     items: OrderItem[];
 };
 
+// GA4/GTM's standard ecommerce "purchase" event shape - see
+// https://developers.google.com/tag-platform/tag-manager/web/datalayer#ecommerce
+// Configure tags/triggers for this event inside the GTM container itself
+// (tagmanager.google.com); this only needs to ship the data once.
+function pushPurchaseEvent(order: Order) {
+    // Guard against double counting if the confirmation page is reloaded.
+    const dedupeKey = `purchase_tracked_${order.order_number}`;
+    if (sessionStorage.getItem(dedupeKey)) {
+        return;
+    }
+
+    window.dataLayer = window.dataLayer ?? [];
+    window.dataLayer.push({
+        event: 'purchase',
+        ecommerce: {
+            transaction_id: order.order_number,
+            value: Number(order.grand_total),
+            shipping: Number(order.shipping_charge),
+            discount: Number(order.discount),
+            currency: 'BDT',
+            items: order.items.map((item) => ({
+                item_id: item.sku,
+                item_name: item.product_name,
+                item_variant: item.size_name ?? undefined,
+                price: Number(item.unit_price),
+                quantity: item.quantity,
+            })),
+        },
+    });
+
+    sessionStorage.setItem(dedupeKey, '1');
+}
+
 export default function OrderConfirmation({ order }: { order: Order }) {
     const { name: siteName } = usePage<{ name: string }>().props;
+
+    useEffect(() => {
+        pushPurchaseEvent(order);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [order.order_number]);
 
     return (
         <>
