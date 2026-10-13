@@ -29,6 +29,10 @@ export function pushPurchaseEvent(order: PurchaseOrder) {
     window.dataLayer = window.dataLayer ?? [];
     window.dataLayer.push({
         event: 'purchase',
+        // Lets GTM pass the same id to both a browser-side Pixel/GA4 tag and
+        // a future server-side Conversions API call, so the platform can
+        // dedupe the two into a single event instead of double-counting.
+        event_id: order.order_number,
         ecommerce: {
             transaction_id: order.order_number,
             value: Number(order.grand_total),
