@@ -66,7 +66,8 @@ export default function Concept3RoutineSection() {
                     কাঁধ থেকে পায়ের তলা
                 </h2>
                 <p className="mt-2 font-bengali text-base text-amber-200/80">
-                    কাঁধ, পিঠ, কোমর, হাঁটু কিংবা পা — ব্যথা যেখানেই, আবাবিল সেখানেই।
+                    কাঁধ, পিঠ, কোমর, হাঁটু কিংবা পা — ব্যথা যেখানেই,{' '}
+                    <span className="whitespace-nowrap">আবাবিল সেখানেই।</span>
                 </p>
 
                 <div className="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:gap-6 lg:grid-cols-3">
