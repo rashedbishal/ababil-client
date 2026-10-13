@@ -40,30 +40,37 @@ export default function TrashedOrdersIndex({
     const [pendingAction, setPendingAction] = useState<PendingAction | null>(
         null,
     );
+    const [processing, setProcessing] = useState(false);
 
     function confirmAction() {
-        if (!pendingAction) {
+        // Without this guard, a double-click fires the request twice; the
+        // second one can no longer find the row in its now-already-changed
+        // state (restored/force-deleted) and 404s instead of silently no-oping.
+        if (!pendingAction || processing) {
             return;
         }
+
+        setProcessing(true);
+        const onFinish = () => {
+            setProcessing(false);
+            setPendingAction(null);
+        };
 
         if (pendingAction.type === 'restore') {
             router.post(
                 orders.restore(pendingAction.order.id).url,
                 {},
-                {
-                    preserveScroll: true,
-                    onFinish: () => setPendingAction(null),
-                },
+                { preserveScroll: true, onFinish },
             );
         } else if (pendingAction.type === 'delete') {
             router.delete(orders.forceDelete(pendingAction.order.id).url, {
                 preserveScroll: true,
-                onFinish: () => setPendingAction(null),
+                onFinish,
             });
         } else {
             router.delete(orders.clearTrash().url, {
                 preserveScroll: true,
-                onFinish: () => setPendingAction(null),
+                onFinish,
             });
         }
     }
@@ -227,7 +234,9 @@ export default function TrashedOrdersIndex({
 
             <ConfirmDialog
                 open={pendingAction !== null}
-                onOpenChange={(open) => !open && setPendingAction(null)}
+                onOpenChange={(open) =>
+                    !open && !processing && setPendingAction(null)
+                }
                 title={
                     pendingAction?.type === 'restore'
                         ? 'Restore order?'
@@ -252,6 +261,7 @@ export default function TrashedOrdersIndex({
                           : 'Clear trash'
                 }
                 destructive={pendingAction?.type !== 'restore'}
+                processing={processing}
                 onConfirm={confirmAction}
             />
         </>

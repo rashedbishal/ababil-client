@@ -113,15 +113,23 @@ export default function OrdersIndex({
     ).length;
 
     const [pendingDelete, setPendingDelete] = useState<OrderRow | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     function confirmDelete() {
-        if (!pendingDelete) {
+        // Without this guard, a double-click fires the request twice; the
+        // second one can no longer find the now-already-trashed order and
+        // 404s instead of silently no-oping.
+        if (!pendingDelete || deleting) {
             return;
         }
 
+        setDeleting(true);
         router.delete(orders.destroy(pendingDelete.id).url, {
             preserveScroll: true,
-            onFinish: () => setPendingDelete(null),
+            onFinish: () => {
+                setDeleting(false);
+                setPendingDelete(null);
+            },
         });
     }
 
@@ -366,13 +374,16 @@ export default function OrdersIndex({
 
             <ConfirmDialog
                 open={pendingDelete !== null}
-                onOpenChange={(open) => !open && setPendingDelete(null)}
+                onOpenChange={(open) =>
+                    !open && !deleting && setPendingDelete(null)
+                }
                 title="Move order to trash?"
                 description={
                     pendingDelete
                         ? `Order "${pendingDelete.order_number}" will be moved to trash. You can restore it later from Trashed Orders.`
                         : undefined
                 }
+                processing={deleting}
                 confirmLabel="Move to trash"
                 onConfirm={confirmDelete}
             />
