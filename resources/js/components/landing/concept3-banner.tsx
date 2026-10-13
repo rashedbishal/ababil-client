@@ -94,18 +94,9 @@ export default function Concept3Banner({
 
     const jumpOffClone = () => {
         setIsAnimating(false);
-        // Without forcing a paint between disabling the transition and
-        // changing position, some browsers still animate the rebase -
-        // sliding backward through every slide instead of jumping
-        // instantly. A double rAF guarantees the no-transition style is
-        // committed first.
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                setPosition((p) =>
-                    p === 0 ? SLIDE_COUNT : p === SLIDE_COUNT + 1 ? 1 : p,
-                );
-            });
-        });
+        setPosition((p) =>
+            p === 0 ? SLIDE_COUNT : p === SLIDE_COUNT + 1 ? 1 : p,
+        );
     };
 
     // Fallback in case `transitionend` never fires (e.g. the tab was hidden
@@ -193,14 +184,16 @@ export default function Concept3Banner({
                 onPointerCancel={() => endDrag(false)}
             >
                 <div
-                    className={`flex size-full ${
-                        isAnimating && !isDragging
-                            ? 'transition-transform ease-out'
-                            : ''
-                    }`}
+                    className="flex size-full"
                     style={{
                         transform: `translateX(calc(${-position * 100}% + ${dragX}px))`,
-                        transitionDuration: `${SLIDE_MS}ms`,
+                        // Must be explicit: transition-property defaults to
+                        // `all`, so a bare duration would animate the silent
+                        // clone-to-real jump back across every slide.
+                        transition:
+                            isAnimating && !isDragging
+                                ? `transform ${SLIDE_MS}ms ease-out`
+                                : 'none',
                     }}
                     onTransitionEnd={(e) => {
                         if (e.target === e.currentTarget && isOnClone) {
