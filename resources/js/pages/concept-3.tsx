@@ -65,8 +65,8 @@ const featureItems: Concept3PhotoItem[] = [
     {
         id: 'knee-bazaar',
         image: careKneeBazaar,
-        alt: 'বাজারের ব্যাগ হাতে সিঁড়ি দিয়ে নামছেন একজন বয়স্ক মানুষ',
-        caption: 'বাজার-সিঁড়িতে হাঁটু থাকুক সচল',
+        alt: 'রাস্তায় হাসিমুখে থাম্বস আপ দেখিয়ে দৌড়াচ্ছেন একজন পুরুষ',
+        caption: 'ব্যথাকে পিছনে ফেলে এগিয়ে চলুন',
     },
     {
         id: 'foot-walk',
