@@ -18,7 +18,7 @@ const steps = [
         id: 'back-stairs',
         image: routineBackStairs,
         alt: 'সিঁড়ি ভাঙতে পিঠ-কোমরে ব্যথা পাচ্ছেন একজন বয়স্ক মানুষ',
-        title: 'সিঁড়ি ভাঙতে পিঠে ব্যথা',
+        title: 'সিঁড়ি বেয়ে ওঠায় পিঠে ব্যথা',
     },
     {
         id: 'waist-chores',

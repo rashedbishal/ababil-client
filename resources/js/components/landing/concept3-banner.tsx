@@ -94,9 +94,18 @@ export default function Concept3Banner({
 
     const jumpOffClone = () => {
         setIsAnimating(false);
-        setPosition((p) =>
-            p === 0 ? SLIDE_COUNT : p === SLIDE_COUNT + 1 ? 1 : p,
-        );
+        // Without forcing a paint between disabling the transition and
+        // changing position, some browsers still animate the rebase -
+        // sliding backward through every slide instead of jumping
+        // instantly. A double rAF guarantees the no-transition style is
+        // committed first.
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                setPosition((p) =>
+                    p === 0 ? SLIDE_COUNT : p === SLIDE_COUNT + 1 ? 1 : p,
+                );
+            });
+        });
     };
 
     // Fallback in case `transitionend` never fires (e.g. the tab was hidden

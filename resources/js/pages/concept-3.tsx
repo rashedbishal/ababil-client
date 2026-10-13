@@ -221,7 +221,7 @@ export default function Concept3({
                 <Concept3PhotoGallery
                     id="features"
                     heading="সবার স্বস্তি, সবার যত্ন"
-                    subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল"
+                    subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
                     items={featureItems}
                     onOrderClick={scrollToProduct}
                     columns={3}
