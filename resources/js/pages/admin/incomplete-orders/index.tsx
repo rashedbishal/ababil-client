@@ -1,5 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import ConfirmDialog from '@/components/confirm-dialog';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Pagination } from '@/components/pagination';
@@ -56,16 +57,25 @@ export default function IncompleteOrdersIndex({
     const [converting, setConverting] = useState<Row | null>(null);
     const form = useForm({ customer_name: '', delivery_address: '' });
 
-    function remove(row: Row) {
-        if (
-            confirm(
-                `Delete the incomplete checkout from "${row.customer_name ?? 'this visitor'}"?`,
-            )
-        ) {
-            router.delete(incompleteOrders.destroy(row.id).url, {
-                preserveScroll: true,
-            });
+    const [pendingDelete, setPendingDelete] = useState<Row | null>(null);
+    const [deleting, setDeleting] = useState(false);
+
+    function confirmDelete() {
+        // Without this guard, a double-click fires the request twice; the
+        // second one can no longer find the already-deleted row and 404s
+        // instead of silently no-oping.
+        if (!pendingDelete || deleting) {
+            return;
         }
+
+        setDeleting(true);
+        router.delete(incompleteOrders.destroy(pendingDelete.id).url, {
+            preserveScroll: true,
+            onFinish: () => {
+                setDeleting(false);
+                setPendingDelete(null);
+            },
+        });
     }
 
     function openConvert(row: Row) {
@@ -154,7 +164,7 @@ export default function IncompleteOrdersIndex({
                                 size="sm"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    remove(row);
+                                    setPendingDelete(row);
                                 }}
                             >
                                 Delete
@@ -221,7 +231,7 @@ export default function IncompleteOrdersIndex({
                                         size="sm"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            remove(row);
+                                            setPendingDelete(row);
                                         }}
                                     >
                                         Delete
@@ -327,6 +337,18 @@ export default function IncompleteOrdersIndex({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmDialog
+                open={pendingDelete !== null}
+                onOpenChange={(open) =>
+                    !open && !deleting && setPendingDelete(null)
+                }
+                title="Delete this incomplete checkout?"
+                description={`The incomplete checkout from "${pendingDelete?.customer_name ?? 'this visitor'}" will be permanently deleted.`}
+                confirmLabel="Delete"
+                processing={deleting}
+                onConfirm={confirmDelete}
+            />
         </>
     );
 }
