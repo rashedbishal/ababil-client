@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BlockedIpController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\IncompleteOrderController;
+use App\Http\Controllers\Admin\MetaEventLogController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderCourierController;
 use App\Http\Controllers\Admin\ProductController;
@@ -63,6 +64,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::patch('settings', [SettingController::class, 'update'])->name('settings.update');
+
+    Route::get('meta-events', [MetaEventLogController::class, 'index'])->name('meta-events.index');
+    Route::delete('meta-events', [MetaEventLogController::class, 'destroyAll'])->name('meta-events.destroy-all');
 
     Route::resource('admins', AdminUserController::class)->only(['index', 'store', 'update', 'destroy']);
 });

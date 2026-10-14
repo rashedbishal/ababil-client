@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\FacebookEventLogStatus;
 use App\Jobs\SendFacebookPurchaseEvent;
+use App\Models\FacebookEventLog;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Setting;
@@ -17,6 +19,7 @@ test('it does nothing when the pixel id or access token is not configured', func
     (new FacebookConversionsApiService)->sendPurchaseEvent($order);
 
     Http::assertNothingSent();
+    expect(FacebookEventLog::query()->count())->toBe(0);
 });
 
 test('it sends a purchase event matching the client-side dataLayer event id', function () {
@@ -56,6 +59,13 @@ test('it sends a purchase event matching the client-side dataLayer event id', fu
             && $event['custom_data']['currency'] === 'BDT'
             && (float) $event['custom_data']['value'] === 1069.0;
     });
+
+    $log = FacebookEventLog::first();
+    expect($log)->not->toBeNull()
+        ->and($log->order_id)->toBe($order->id)
+        ->and($log->order_number)->toBe($order->order_number)
+        ->and($log->status)->toBe(FacebookEventLogStatus::Success)
+        ->and($log->http_status)->toBe(200);
 });
 
 test('a failed graph api response causes the queued job to retry rather than silently drop the event', function () {
@@ -73,4 +83,10 @@ test('a failed graph api response causes the queued job to retry rather than sil
 
     expect(fn () => $job->handle(app(FacebookConversionsApiService::class)))
         ->toThrow(RequestException::class);
+
+    $log = FacebookEventLog::first();
+    expect($log)->not->toBeNull()
+        ->and($log->status)->toBe(FacebookEventLogStatus::Failed)
+        ->and($log->http_status)->toBe(400)
+        ->and($log->message)->toBe('Invalid token');
 });

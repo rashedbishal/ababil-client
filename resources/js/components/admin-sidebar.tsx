@@ -6,6 +6,7 @@ import {
     LayoutGrid,
     ListOrdered,
     Package,
+    Radio,
     Rows3,
     Settings as SettingsIcon,
     ShoppingCart,
@@ -37,6 +38,7 @@ import blockedIps from '@/routes/admin/blocked-ips';
 import courier from '@/routes/admin/courier';
 import { dashboard } from '@/routes/admin';
 import incompleteOrders from '@/routes/admin/incomplete-orders';
+import metaEvents from '@/routes/admin/meta-events';
 import orders from '@/routes/admin/orders';
 import products from '@/routes/admin/products';
 import reviews from '@/routes/admin/reviews';
@@ -142,6 +144,11 @@ function buildGroups(
                     title: 'Settings',
                     href: settings.edit(),
                     icon: SettingsIcon,
+                },
+                {
+                    title: 'Meta Event Log',
+                    href: metaEvents.index(),
+                    icon: Radio,
                 },
             ],
         },

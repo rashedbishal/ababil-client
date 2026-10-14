@@ -2,10 +2,15 @@
 
 namespace App\Services\Facebook;
 
+use App\Enums\FacebookEventLogStatus;
+use App\Models\FacebookEventLog;
 use App\Models\Order;
 use App\Models\Setting;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * Sends a server-side "Purchase" event to Meta's Conversions API for a
@@ -65,16 +70,72 @@ class FacebookConversionsApiService
             'custom_data' => $this->customData($order),
         ];
 
-        // Meta's documented examples post `data` as a JSON-encoded string
-        // field alongside `access_token`, not a nested JSON body - form
-        // encoding here matches that shape exactly rather than guessing
-        // whether the endpoint also accepts a raw JSON payload.
-        Http::asForm()
-            ->post('https://graph.facebook.com/'.self::GRAPH_API_VERSION."/{$pixelId}/events", [
-                'access_token' => $accessToken,
-                'data' => json_encode([$event]),
-            ])
-            ->throw();
+        try {
+            // Meta's documented examples post `data` as a JSON-encoded
+            // string field alongside `access_token`, not a nested JSON
+            // body - form encoding here matches that shape exactly rather
+            // than guessing whether the endpoint also accepts a raw JSON
+            // payload.
+            $response = Http::asForm()
+                ->post('https://graph.facebook.com/'.self::GRAPH_API_VERSION."/{$pixelId}/events", [
+                    'access_token' => $accessToken,
+                    'data' => json_encode([$event]),
+                ])
+                ->throw();
+        } catch (Throwable $exception) {
+            $this->log($order, FacebookEventLogStatus::Failed, $this->httpStatusOf($exception), $this->describeFailure($exception));
+
+            // Re-thrown (not swallowed) so the queued job's retry
+            // mechanism still runs - logging is observability, not error
+            // handling.
+            throw $exception;
+        }
+
+        $this->log($order, FacebookEventLogStatus::Success, $response->status(), $this->describeSuccess($response));
+    }
+
+    private function log(Order $order, FacebookEventLogStatus $status, ?int $httpStatus, ?string $message): void
+    {
+        FacebookEventLog::query()->create([
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'event_name' => 'Purchase',
+            'status' => $status,
+            'http_status' => $httpStatus,
+            'message' => $message,
+        ]);
+    }
+
+    /**
+     * A connection-level failure (DNS, timeout, refused) never reaches a
+     * response at all, so only a RequestException - thrown by the
+     * ->throw() above once a response did come back - has a status to read.
+     */
+    private function httpStatusOf(Throwable $exception): ?int
+    {
+        return $exception instanceof RequestException ? $exception->response->status() : null;
+    }
+
+    private function describeFailure(Throwable $exception): string
+    {
+        if (! $exception instanceof RequestException) {
+            return $exception->getMessage();
+        }
+
+        $body = $exception->response->json();
+
+        if (is_array($body) && isset($body['error']['message']) && is_string($body['error']['message'])) {
+            return $body['error']['message'];
+        }
+
+        return $exception->response->body() ?: $exception->getMessage();
+    }
+
+    private function describeSuccess(Response $response): string
+    {
+        $body = $response->json();
+
+        return is_array($body) ? (json_encode($body) ?: $response->body()) : $response->body();
     }
 
     /**
