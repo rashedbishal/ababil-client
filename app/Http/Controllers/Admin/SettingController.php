@@ -6,11 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SettingRequest;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SettingController extends Controller
 {
+    /**
+     * Facebook's Conversions API access token is a secret: it is handled
+     * separately below (never sent back to the browser, blank input on
+     * save keeps the existing value) rather than through this plain
+     * key/value loop, the same way courier credentials are. The pixel ID
+     * is not secret - it's visible in any client-side pixel snippet - so
+     * it's a normal key here.
+     */
+    private const SECRET_KEY = 'facebook_conversions_api_access_token';
+
     private const KEYS = [
         'site_name',
         'site_phone',
@@ -21,11 +32,15 @@ class SettingController extends Controller
         'body_code',
         'whatsapp_number',
         'facebook_page_url',
+        'facebook_pixel_id',
     ];
 
     public function edit(): Response
     {
-        $settings = collect(self::KEYS)->mapWithKeys(fn (string $key) => [$key => Setting::get($key)]);
+        $settings = [
+            ...collect(self::KEYS)->mapWithKeys(fn (string $key) => [$key => Setting::get($key)])->all(),
+            'facebook_conversions_api_configured' => Setting::getEncrypted(self::SECRET_KEY) !== null,
+        ];
 
         return Inertia::render('admin/settings/edit', [
             'settings' => $settings,
@@ -34,8 +49,15 @@ class SettingController extends Controller
 
     public function update(SettingRequest $request): RedirectResponse
     {
-        foreach ($request->validated() as $key => $value) {
+        $data = $request->validated();
+        $accessToken = Arr::pull($data, self::SECRET_KEY);
+
+        foreach ($data as $key => $value) {
             Setting::set($key, $value);
+        }
+
+        if (filled($accessToken)) {
+            Setting::setEncrypted(self::SECRET_KEY, $accessToken);
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Settings updated.']);

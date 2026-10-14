@@ -27,6 +27,11 @@ class SettingRequest extends FormRequest
             'body_code' => ['nullable', 'string', 'max:20000'],
             'whatsapp_number' => ['nullable', 'string', 'max:20'],
             'facebook_page_url' => ['nullable', 'url', 'max:255'],
+            'facebook_pixel_id' => ['nullable', 'string', 'max:50'],
+            // Blank means "leave the saved token alone" (see SettingController)
+            // - validation only has to constrain what an actual, non-blank
+            // value may look like.
+            'facebook_conversions_api_access_token' => ['nullable', 'string', 'max:500'],
         ];
     }
 }

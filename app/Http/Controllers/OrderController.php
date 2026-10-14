@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Orders\PlaceOrderAction;
 use App\Exceptions\OrderPlacementException;
 use App\Http\Requests\PlaceOrderRequest;
+use App\Jobs\SendFacebookPurchaseEvent;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\RedirectResponse;
@@ -40,6 +41,18 @@ class OrderController extends Controller
         } catch (OrderPlacementException $exception) {
             return back()->withErrors(['order' => $exception->getMessage()])->withInput();
         }
+
+        // Queued (not called inline) so a slow/unreachable Graph API never
+        // delays this response. _fbp/_fbc are read here, not inside the job,
+        // because they're cookies on this request - the pixel's own base
+        // code sets them on the customer's browser, and since the pixel
+        // snippet and this backend share an origin, they ride along with
+        // this same POST automatically.
+        SendFacebookPurchaseEvent::dispatch(
+            $order->id,
+            is_string($request->cookie('_fbp')) ? $request->cookie('_fbp') : null,
+            is_string($request->cookie('_fbc')) ? $request->cookie('_fbc') : null,
+        );
 
         // The storefront shows the result in a modal on the same page rather
         // than navigating to the confirmation route above, so this flash -

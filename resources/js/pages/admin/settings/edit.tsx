@@ -17,12 +17,21 @@ type Settings = {
     order_prefix: string | null;
     whatsapp_number: string | null;
     facebook_page_url: string | null;
+    facebook_pixel_id: string | null;
+    facebook_conversions_api_configured: boolean;
     head_code: string | null;
     body_code: string | null;
 };
 
+// Excludes facebook_conversions_api_configured - that one is a derived
+// boolean flag, not a plain text setting these two field lists render.
+type TextSettingKey = Exclude<
+    keyof Settings,
+    'facebook_conversions_api_configured'
+>;
+
 const fields: {
-    name: keyof Settings;
+    name: TextSettingKey;
     label: string;
     type?: string;
 }[] = [
@@ -33,10 +42,11 @@ const fields: {
     { name: 'order_prefix', label: 'Order number prefix' },
     { name: 'whatsapp_number', label: 'WhatsApp number (with country code)' },
     { name: 'facebook_page_url', label: 'Facebook Page URL' },
+    { name: 'facebook_pixel_id', label: 'Facebook Pixel ID' },
 ];
 
 const codeFields: {
-    name: keyof Settings;
+    name: TextSettingKey;
     label: string;
     description: string;
 }[] = [
@@ -88,6 +98,39 @@ export default function SettingsEdit({
                                 <InputError message={errors[field.name]} />
                             </div>
                         ))}
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="facebook_conversions_api_access_token">
+                                Facebook Conversions API access token
+                                {values.facebook_conversions_api_configured && (
+                                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                                        (set)
+                                    </span>
+                                )}
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                                Generate this in Facebook Events Manager (Data
+                                sources → your pixel → Settings → Conversions
+                                API). Leave blank to keep the currently saved
+                                token.
+                            </p>
+                            <Input
+                                id="facebook_conversions_api_access_token"
+                                name="facebook_conversions_api_access_token"
+                                type="password"
+                                autoComplete="off"
+                                placeholder={
+                                    values.facebook_conversions_api_configured
+                                        ? '••••••••'
+                                        : 'Not set'
+                                }
+                            />
+                            <InputError
+                                message={
+                                    errors.facebook_conversions_api_access_token
+                                }
+                            />
+                        </div>
 
                         {codeFields.map((field) => (
                             <div key={field.name} className="grid gap-2">

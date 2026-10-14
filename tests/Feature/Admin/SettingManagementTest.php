@@ -56,6 +56,45 @@ test('an invalid facebook page url is rejected', function () {
     $response->assertSessionHasErrors('facebook_page_url');
 });
 
+test('an admin can save the facebook pixel id and conversions api access token', function () {
+    $this->actingAsAdmin();
+
+    $response = $this->patch(route('admin.settings.update'), [
+        'facebook_pixel_id' => '123456789',
+        'facebook_conversions_api_access_token' => 'EAAtest-token',
+    ]);
+
+    $response->assertRedirect();
+    expect(Setting::get('facebook_pixel_id'))->toBe('123456789')
+        ->and(Setting::getEncrypted('facebook_conversions_api_access_token'))->toBe('EAAtest-token')
+        // Never stored in plaintext, unlike the pixel ID which isn't secret.
+        ->and(Setting::get('facebook_conversions_api_access_token'))->not->toBe('EAAtest-token');
+});
+
+test('leaving the conversions api access token blank keeps the existing one', function () {
+    $this->actingAsAdmin();
+    Setting::setEncrypted('facebook_conversions_api_access_token', 'already-saved-token');
+
+    $response = $this->patch(route('admin.settings.update'), [
+        'facebook_pixel_id' => '123456789',
+        'facebook_conversions_api_access_token' => '',
+    ]);
+
+    $response->assertRedirect();
+    expect(Setting::getEncrypted('facebook_conversions_api_access_token'))->toBe('already-saved-token');
+});
+
+test('the settings edit page reports whether the access token is configured without exposing it', function () {
+    $this->actingAsAdmin();
+    Setting::setEncrypted('facebook_conversions_api_access_token', 'secret-value');
+
+    $response = $this->get(route('admin.settings.edit'));
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('settings.facebook_conversions_api_configured', true)
+        ->missing('settings.facebook_conversions_api_access_token'));
+});
+
 test('a non-admin cannot view or update settings', function () {
     $user = User::factory()->create(['is_admin' => false]);
 
