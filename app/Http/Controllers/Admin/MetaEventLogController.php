@@ -23,6 +23,7 @@ class MetaEventLogController extends Controller
                 'order_id' => $log->order_id,
                 'order_number' => $log->order_number,
                 'event_name' => $log->event_name,
+                'event_id' => $log->event_id,
                 'status' => $log->status->value,
                 'status_label' => $log->status->label(),
                 'http_status' => $log->http_status,

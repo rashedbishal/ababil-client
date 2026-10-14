@@ -83,7 +83,7 @@ class FacebookConversionsApiService
                 ])
                 ->throw();
         } catch (Throwable $exception) {
-            $this->log($order, FacebookEventLogStatus::Failed, $this->httpStatusOf($exception), $this->describeFailure($exception));
+            $this->log($order, $event['event_id'], FacebookEventLogStatus::Failed, $this->httpStatusOf($exception), $this->describeFailure($exception));
 
             // Re-thrown (not swallowed) so the queued job's retry
             // mechanism still runs - logging is observability, not error
@@ -91,15 +91,16 @@ class FacebookConversionsApiService
             throw $exception;
         }
 
-        $this->log($order, FacebookEventLogStatus::Success, $response->status(), $this->describeSuccess($response));
+        $this->log($order, $event['event_id'], FacebookEventLogStatus::Success, $response->status(), $this->describeSuccess($response));
     }
 
-    private function log(Order $order, FacebookEventLogStatus $status, ?int $httpStatus, ?string $message): void
+    private function log(Order $order, string $eventId, FacebookEventLogStatus $status, ?int $httpStatus, ?string $message): void
     {
         FacebookEventLog::query()->create([
             'order_id' => $order->id,
             'order_number' => $order->order_number,
             'event_name' => 'Purchase',
+            'event_id' => $eventId,
             'status' => $status,
             'http_status' => $httpStatus,
             'message' => $message,

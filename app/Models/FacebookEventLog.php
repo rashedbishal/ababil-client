@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $order_id
  * @property string|null $order_number
  * @property string $event_name
+ * @property string|null $event_id
  * @property FacebookEventLogStatus $status
  * @property int|null $http_status
  * @property string|null $message
@@ -30,6 +31,7 @@ class FacebookEventLog extends Model
         'order_id',
         'order_number',
         'event_name',
+        'event_id',
         'status',
         'http_status',
         'message',

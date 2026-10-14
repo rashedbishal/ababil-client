@@ -23,6 +23,7 @@ type MetaEventLog = {
     order_id: number | null;
     order_number: string | null;
     event_name: string;
+    event_id: string | null;
     status: 'success' | 'failed';
     status_label: string;
     http_status: number | null;
@@ -86,6 +87,7 @@ export default function MetaEventLogIndex({
                                 <TableHead>Event</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>HTTP</TableHead>
+                                <TableHead>Event ID</TableHead>
                                 <TableHead>Message</TableHead>
                                 <TableHead>Date</TableHead>
                             </TableRow>
@@ -127,6 +129,9 @@ export default function MetaEventLogIndex({
                                     </TableCell>
                                     <TableCell>
                                         {log.http_status ?? '—'}
+                                    </TableCell>
+                                    <TableCell className="font-mono text-xs">
+                                        {log.event_id ?? '—'}
                                     </TableCell>
                                     <TableCell
                                         className="max-w-[320px] truncate"

@@ -12,6 +12,7 @@ test('an admin can view the meta event log', function () {
         'order_id' => $order->id,
         'order_number' => $order->order_number,
         'event_name' => 'Purchase',
+        'event_id' => $order->order_number,
         'status' => FacebookEventLogStatus::Success,
         'http_status' => 200,
         'message' => '{"events_received":1}',
@@ -21,6 +22,7 @@ test('an admin can view the meta event log', function () {
 
     $response->assertInertia(fn ($page) => $page
         ->where('logs.data.0.order_number', $order->order_number)
+        ->where('logs.data.0.event_id', $order->order_number)
         ->where('logs.data.0.status', 'success'));
 });
 

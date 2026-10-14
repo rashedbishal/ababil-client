@@ -64,6 +64,7 @@ test('it sends a purchase event matching the client-side dataLayer event id', fu
     expect($log)->not->toBeNull()
         ->and($log->order_id)->toBe($order->id)
         ->and($log->order_number)->toBe($order->order_number)
+        ->and($log->event_id)->toBe($order->order_number)
         ->and($log->status)->toBe(FacebookEventLogStatus::Success)
         ->and($log->http_status)->toBe(200);
 });
@@ -86,6 +87,7 @@ test('a failed graph api response causes the queued job to retry rather than sil
 
     $log = FacebookEventLog::first();
     expect($log)->not->toBeNull()
+        ->and($log->event_id)->toBe($order->order_number)
         ->and($log->status)->toBe(FacebookEventLogStatus::Failed)
         ->and($log->http_status)->toBe(400)
         ->and($log->message)->toBe('Invalid token');
