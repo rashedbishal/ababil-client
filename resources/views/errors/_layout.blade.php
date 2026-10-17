@@ -138,7 +138,12 @@
             <div class="code">Error {{ $code }}</div>
             <h1>{{ $title }}</h1>
             <p>{{ $message }}</p>
-            <a class="btn" id="back-link" href="{{ route('home') }}">হোমপেজে ফিরে যান</a>
+            {{-- target="_top": Inertia shows a non-Inertia response like this
+            one (e.g. a 429 during checkout) inside a hidden iframe overlay,
+            not a real navigation - without _top, clicking this link only
+            navigates that invisible iframe and looks like the button does
+            nothing. _top is a no-op when this page is loaded standalone. --}}
+            <a class="btn" id="back-link" href="{{ route('home') }}" target="_top">হোমপেজে ফিরে যান</a>
         </div>
         <script>
             (function () {
