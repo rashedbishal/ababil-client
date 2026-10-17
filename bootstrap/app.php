@@ -20,7 +20,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+        // _fbp/_fbc are set by Meta's pixel JS in plaintext, not by this app -
+        // without this exception, EncryptCookies tries to decrypt them as if
+        // Laravel had written them, fails, and silently nulls them out before
+        // OrderController::store() ever reads them for the Conversions API
+        // call, which is why every server-side Purchase event reached Meta
+        // missing fbp/fbc (confirmed via Meta's match-quality diagnostics).
+        $middleware->encryptCookies(except: ['appearance', 'sidebar_state', '_fbp', '_fbc']);
 
         // Unset (the default) trusts no proxy, preserving $request->ip()'s
         // current behavior. Set TRUSTED_PROXIES in production when this app
