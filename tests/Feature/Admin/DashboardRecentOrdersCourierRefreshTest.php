@@ -44,7 +44,7 @@ test('visiting the dashboard refreshes the courier status of automated, in-fligh
 
     $this->get(route('admin.dashboard'))
         ->assertInertia(fn ($page) => $page
-            ->where('recentOrders.0.status', 'Delivery'));
+            ->where('recentOrders.0.status', 'Delivered'));
 
     expect($order->fresh()->status)->toBe(OrderStatus::Delivered)
         // Pathao's getParcelStatus() never reports a tracking code itself,

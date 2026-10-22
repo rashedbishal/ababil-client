@@ -43,7 +43,7 @@ enum CourierStatus: string
             self::OnHold => 'On Hold',
             self::ReattemptRequested => 'Reattempt Requested',
             self::PickupCancelled => 'Pickup Cancelled',
-            self::Delivery => 'Delivery',
+            self::Delivery => 'Delivered',
             self::PartialDelivery => 'Partial Delivery',
             self::Exchange => 'Exchange',
             self::ReturnRequested => 'Return Requested',

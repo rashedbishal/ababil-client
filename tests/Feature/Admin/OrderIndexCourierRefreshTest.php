@@ -47,7 +47,7 @@ test('visiting the orders index refreshes the courier status of automated, in-fl
 
     $this->get(route('admin.orders.index'))
         ->assertInertia(fn ($page) => $page
-            ->where('orders.data.0.display_status_label', 'Delivery'));
+            ->where('orders.data.0.display_status_label', 'Delivered'));
 
     expect($order->fresh()->status)->toBe(OrderStatus::Delivered);
 });
