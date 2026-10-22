@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Orders\RefreshCourierStatusAction;
 use App\Enums\OrderStatus;
+use App\Exceptions\CourierException;
 use App\Http\Controllers\Controller;
 use App\Models\IncompleteOrder;
 use App\Models\Order;
@@ -17,7 +19,7 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, RefreshCourierStatusAction $action): Response
     {
         $request->validate([
             'from' => ['sometimes', 'nullable', 'date'],
@@ -61,18 +63,7 @@ class DashboardController extends Controller
                 'amount_received' => $this->formatMoney($rangeQuery()->where('status', OrderStatus::Delivered)->sum('grand_total')),
             ],
             'series' => $this->buildSeries($rangeFrom, $rangeTo),
-            'recentOrders' => Order::query()
-                ->latest()
-                ->limit(10)
-                ->get(['id', 'order_number', 'customer_name', 'status', 'grand_total', 'created_at'])
-                ->map(fn (Order $order) => [
-                    'id' => $order->id,
-                    'order_number' => $order->order_number,
-                    'customer_name' => $order->customer_name,
-                    'status' => $order->status->label(),
-                    'grand_total' => (string) $order->grand_total,
-                    'created_at' => $order->created_at?->toIso8601String(),
-                ]),
+            'recentOrders' => $this->recentOrders($request, $action),
         ]);
     }
 
@@ -136,5 +127,46 @@ class DashboardController extends Controller
     private function formatMoney(int|float|string|null $amount): string
     {
         return number_format((float) $amount, 2, '.', '');
+    }
+
+    /**
+     * The 10 most recent orders, refreshing each "Automated" one's courier
+     * status first (best-effort, same as the orders index) so this widget
+     * doesn't go stale between cron runs just because nobody opened it.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function recentOrders(Request $request, RefreshCourierStatusAction $action): array
+    {
+        $orders = Order::query()
+            ->latest()
+            ->limit(10)
+            // courier_tracking_code must be selected even though it's never
+            // rendered below: RefreshCourierStatusAction reads it as a
+            // fallback when the courier doesn't report one, and a column
+            // this model never loaded would read back as null, overwriting
+            // any tracking code already on file for the order.
+            ->get(['id', 'order_number', 'customer_name', 'status', 'status_sync_mode', 'courier_consignment_id', 'courier_status', 'courier_raw_status', 'courier_tracking_code', 'grand_total', 'created_at']);
+
+        foreach ($orders as $order) {
+            if ($order->needsCourierRefresh()) {
+                try {
+                    $action->execute($order, $request->user());
+                } catch (CourierException) {
+                    // Best-effort; the order just keeps showing its last known status.
+                }
+            }
+        }
+
+        return $orders
+            ->map(fn (Order $order) => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_name' => $order->customer_name,
+                'status' => $order->displayStatusLabel(),
+                'grand_total' => (string) $order->grand_total,
+                'created_at' => $order->created_at?->toIso8601String(),
+            ])
+            ->all();
     }
 }

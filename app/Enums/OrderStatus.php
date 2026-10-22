@@ -36,4 +36,14 @@ enum OrderStatus: string
     {
         return [self::Pending, self::Confirmed, self::Processing, self::CourierSubmitted, self::Shipped, self::Delivered];
     }
+
+    /**
+     * Statuses that will never usefully change again via courier polling.
+     *
+     * @return array<int, self>
+     */
+    public static function terminal(): array
+    {
+        return [self::Cancelled, self::Returned, self::Delivered];
+    }
 }

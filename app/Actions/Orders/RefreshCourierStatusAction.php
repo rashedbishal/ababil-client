@@ -23,24 +23,44 @@ class RefreshCourierStatusAction
     public function execute(Order $order, ?User $changedBy): Order
     {
         $parcel = $this->courier->getParcelStatus($order->courier_consignment_id);
+        $trackingCode = $parcel->trackingCode ?? $order->courier_tracking_code;
 
-        $order->update([
-            'courier_status' => $parcel->status,
-            'courier_raw_status' => $parcel->rawStatus,
-            'courier_tracking_code' => $parcel->trackingCode ?? $order->courier_tracking_code,
-        ]);
+        // Skip the write entirely when nothing's actually different - this
+        // runs on every page visit to an in-flight order (plus the 2-minute
+        // cron for every such order at once), and most polls see no change.
+        // update() would otherwise still touch updated_at on every one of
+        // those no-op polls, since Eloquent always counts a timestamp bump
+        // as "dirty" even when every real column is identical.
+        $courierFieldsChanged = $order->courier_status !== $parcel->status
+            || $order->courier_raw_status !== $parcel->rawStatus
+            || $order->courier_tracking_code !== $trackingCode;
+
+        if ($courierFieldsChanged) {
+            $order->update([
+                'courier_status' => $parcel->status,
+                'courier_raw_status' => $parcel->rawStatus,
+                'courier_tracking_code' => $trackingCode,
+            ]);
+        }
+
+        $statusChanged = false;
 
         if ($order->status_sync_mode === OrderStatusSyncMode::Automated) {
             $implied = $parcel->status->toOrderStatus();
 
             if ($implied !== null && $implied !== $order->status) {
                 try {
+                    // Executed against a freshly locked copy of this order,
+                    // not this $order instance - hence the refresh() below
+                    // whenever this branch runs, to pull that change back
+                    // into the instance we're about to return.
                     app(UpdateOrderStatusAction::class)->execute(
                         $order,
                         $implied,
                         $changedBy,
                         'Synced from courier status: '.$parcel->status->label(),
                     );
+                    $statusChanged = true;
                 } catch (InvalidOrderStatusTransitionException $exception) {
                     // The courier's status would imply a move our own
                     // pipeline doesn't allow (e.g. a stale/out-of-order
@@ -56,6 +76,6 @@ class RefreshCourierStatusAction
             }
         }
 
-        return $order->refresh();
+        return $courierFieldsChanged || $statusChanged ? $order->refresh() : $order;
     }
 }

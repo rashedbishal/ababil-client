@@ -311,6 +311,7 @@ test('it maps a known courier status and preserves the raw text', function (stri
     'return requested' => ['Return Requested', CourierStatus::ReturnRequested],
     'reattempt requested' => ['Reattempt Requested', CourierStatus::ReattemptRequested],
     'delivery' => ['Delivery', CourierStatus::Delivery],
+    'delivered (the raw text Pathao actually sends for this status)' => ['Delivered', CourierStatus::Delivery],
     'partial delivery' => ['Partial Delivery', CourierStatus::PartialDelivery],
     'exchange' => ['Exchange', CourierStatus::Exchange],
     'returned' => ['Returned', CourierStatus::Returned],
@@ -322,6 +323,40 @@ test('it maps a known courier status and preserves the raw text', function (stri
     'pickup cancelled' => ['Pickup_Cancelled', CourierStatus::PickupCancelled],
     'unrecognized status falls back to Unknown' => ['Some_New_Status_Pathao_Might_Add', CourierStatus::Unknown],
 ]);
+
+/**
+ * Structural guard against the exact class of bug that let Pathao's raw
+ * "Delivered" silently fall through to Unknown (see the dataset above): if
+ * a future CourierStatus case is ever added without also adding a raw-text
+ * mapping for it in PathaoCourierService::mapStatus(), this fails
+ * immediately instead of only being caught by chance in production. It
+ * can't catch an alternate real-world spelling nobody's seen yet (Pathao
+ * doesn't document its full status vocabulary), only a case with zero
+ * mapping at all - that gap is why CourierStatus::displayStatusLabel()
+ * falls back to the humanized raw text instead of "Unknown".
+ */
+test('every courier status Pathao can actually report is reachable via its own canonical value', function (CourierStatus $status) {
+    pathaoConfig();
+
+    CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'token',
+        'expires_at' => now()->addDay(),
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/orders/CONSIGN-1/info' => Http::response([
+            'data' => ['consignment_id' => 'CONSIGN-1', 'order_status_slug' => $status->value],
+        ]),
+    ]);
+
+    $result = (new PathaoCourierService)->getParcelStatus('CONSIGN-1');
+
+    expect($result->status)->toBe($status);
+})->with(array_filter(
+    CourierStatus::cases(),
+    fn (CourierStatus $status) => ! in_array($status, [CourierStatus::NotSubmitted, CourierStatus::Unknown], true),
+));
 
 test('it throws when store_id is not configured', function () {
     pathaoConfig(['store_id' => null]);

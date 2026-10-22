@@ -59,6 +59,7 @@ type OrderDetail = {
     discount: string;
     grand_total: string;
     status: string;
+    display_status_label: string;
     courier_status: string | null;
     courier_raw_status: string | null;
     status_sync_mode: 'automated' | 'manual';
@@ -104,6 +105,18 @@ export default function OrderShow({
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
+
+        // Automated orders have no editable status (see the Update order
+        // card below) - only admin_note is actually being saved here, so
+        // don't resubmit the unchanged status value as if it were a real
+        // transition. Re-set on every submit (rather than once) since the
+        // sync mode can change between saves.
+        form.transform((data) =>
+            order.status_sync_mode === 'automated'
+                ? { admin_note: data.admin_note }
+                : data,
+        );
+
         form.patch(orders.update(order.id).url, { preserveScroll: true });
     }
 
@@ -496,27 +509,35 @@ export default function OrderShow({
                 <form onSubmit={submit} className="space-y-4">
                     <div className="grid gap-2">
                         <Label htmlFor="status">Status</Label>
-                        <Select
-                            value={form.data.status}
-                            disabled={isAutomated}
-                            onValueChange={(value) =>
-                                form.setData('status', value)
-                            }
-                        >
-                            <SelectTrigger id="status" className="w-full">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {statuses.map((status) => (
-                                    <SelectItem
-                                        key={status.value}
-                                        value={status.value}
-                                    >
-                                        {status.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        {isAutomated ? (
+                            <div
+                                id="status"
+                                className="flex h-9 w-full items-center rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground"
+                            >
+                                {order.display_status_label}
+                            </div>
+                        ) : (
+                            <Select
+                                value={form.data.status}
+                                onValueChange={(value) =>
+                                    form.setData('status', value)
+                                }
+                            >
+                                <SelectTrigger id="status" className="w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statuses.map((status) => (
+                                        <SelectItem
+                                            key={status.value}
+                                            value={status.value}
+                                        >
+                                            {status.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                         <InputError message={form.errors.status} />
                     </div>
                     <div className="grid gap-2">
@@ -605,8 +626,7 @@ export default function OrderShow({
                     description={`Placed ${order.created_at ? new Date(order.created_at).toLocaleString() : ''}`}
                 />
                 <Badge variant="outline" className="w-fit text-sm">
-                    {statuses.find((s) => s.value === order.status)?.label ??
-                        order.status}
+                    {order.display_status_label}
                 </Badge>
             </div>
 

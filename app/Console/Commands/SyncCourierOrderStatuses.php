@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Actions\Orders\RefreshCourierStatusAction;
-use App\Enums\OrderStatus;
-use App\Enums\OrderStatusSyncMode;
 use App\Exceptions\CourierException;
 use App\Models\Order;
 use Illuminate\Console\Attributes\Description;
@@ -21,27 +19,21 @@ use Illuminate\Support\Facades\Log;
  * Scheduled in routes/console.php. Processes orders one at a time (never
  * floods the courier API with concurrent requests) and skips orders in a
  * terminal status (Cancelled, Returned, Delivered) - those will never
- * usefully change again via polling.
+ * usefully change again via polling. Same selection criteria as
+ * Order::needsCourierRefresh(), which also gates the on-visit refreshes on
+ * the order page, orders index, and dashboard.
  */
 #[Signature('courier:sync-order-statuses')]
 #[Description('Refreshes the courier status of every in-flight, automated-sync order')]
 class SyncCourierOrderStatuses extends Command
 {
-    private const TERMINAL_STATUSES = [
-        OrderStatus::Cancelled,
-        OrderStatus::Returned,
-        OrderStatus::Delivered,
-    ];
-
     public function handle(RefreshCourierStatusAction $action): int
     {
         $synced = 0;
         $failed = 0;
 
         Order::query()
-            ->where('status_sync_mode', OrderStatusSyncMode::Automated)
-            ->whereNotNull('courier_consignment_id')
-            ->whereNotIn('status', array_map(fn (OrderStatus $s) => $s->value, self::TERMINAL_STATUSES))
+            ->needsCourierRefresh()
             ->orderBy('id')
             ->chunkById(50, function ($orders) use ($action, &$synced, &$failed): void {
                 foreach ($orders as $order) {

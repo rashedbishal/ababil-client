@@ -25,7 +25,7 @@ use Inertia\Response;
 
 class OrderController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, RefreshCourierStatusAction $action): Response
     {
         $request->validate([
             'status' => ['sometimes', 'nullable', new Enum(OrderStatus::class)],
@@ -54,6 +54,20 @@ class OrderController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        // Keeps "Automated" orders' statuses current for whichever page an
+        // admin happens to be looking at, not just the single order page -
+        // same best-effort, one-at-a-time refresh as RefreshCourierStatusAction
+        // everywhere else, so a slow/unreachable courier never blocks the list.
+        foreach ($orders as $order) {
+            if ($order->needsCourierRefresh()) {
+                try {
+                    $action->execute($order, $request->user());
+                } catch (CourierException) {
+                    // Best-effort; the order just keeps showing its last known status.
+                }
+            }
+        }
+
         return Inertia::render('admin/orders/index', [
             'orders' => $orders->through(fn (Order $order) => [
                 'id' => $order->id,
@@ -62,6 +76,7 @@ class OrderController extends Controller
                 'customer_phone' => $order->customer_phone,
                 'status' => $order->status->value,
                 'status_label' => $order->status->label(),
+                'display_status_label' => $order->displayStatusLabel(),
                 'grand_total' => (string) $order->grand_total,
                 'created_at' => $order->created_at?->toIso8601String(),
                 'is_new' => $order->viewed_at === null,
@@ -77,7 +92,7 @@ class OrderController extends Controller
             $order->update(['viewed_at' => now()]);
         }
 
-        if ($order->courier_consignment_id !== null && $order->status !== OrderStatus::Cancelled) {
+        if ($order->courierConsignmentInFlight()) {
             try {
                 $order = $action->execute($order, $request->user());
             } catch (CourierException) {
@@ -102,6 +117,7 @@ class OrderController extends Controller
                 'discount' => (string) $order->discount,
                 'grand_total' => (string) $order->grand_total,
                 'status' => $order->status->value,
+                'display_status_label' => $order->displayStatusLabel(),
                 'courier_status' => $order->courier_status?->label(),
                 'courier_raw_status' => $order->courier_raw_status,
                 'status_sync_mode' => $order->status_sync_mode->value,

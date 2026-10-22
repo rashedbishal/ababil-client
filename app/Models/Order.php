@@ -6,6 +6,7 @@ use App\Enums\CourierStatus;
 use App\Enums\OrderStatus;
 use App\Enums\OrderStatusSyncMode;
 use Database\Factories\OrderFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -128,5 +130,71 @@ class Order extends Model
     public function incompleteOrder(): HasOne
     {
         return $this->hasOne(IncompleteOrder::class);
+    }
+
+    /**
+     * Whether this order is still submitted to a courier and in a status
+     * that could still usefully change via polling - independent of sync
+     * mode, since even a manually-managed order's Courier card should still
+     * reflect Pathao's latest reported status. Once an order is Delivered,
+     * Cancelled, or Returned, the shipment is settled and polling it again
+     * on every page visit would just be a wasted call.
+     */
+    public function courierConsignmentInFlight(): bool
+    {
+        return $this->courier_consignment_id !== null
+            && ! in_array($this->status, OrderStatus::terminal(), true);
+    }
+
+    /**
+     * Whether this order's courier status is worth polling right now:
+     * automated sync mode, already submitted to the courier, and not yet in
+     * a status that will never usefully change again via polling.
+     */
+    public function needsCourierRefresh(): bool
+    {
+        return $this->status_sync_mode === OrderStatusSyncMode::Automated
+            && $this->courierConsignmentInFlight();
+    }
+
+    /**
+     * Query-level equivalent of needsCourierRefresh(), for selecting which
+     * orders to poll without loading every order into memory first.
+     *
+     * @param  Builder<Order>  $query
+     * @return Builder<Order>
+     */
+    public function scopeNeedsCourierRefresh(Builder $query): Builder
+    {
+        return $query
+            ->where('status_sync_mode', OrderStatusSyncMode::Automated)
+            ->whereNotNull('courier_consignment_id')
+            ->whereNotIn('status', array_map(fn (OrderStatus $s) => $s->value, OrderStatus::terminal()));
+    }
+
+    /**
+     * The status text to show an admin. For a manually-managed order this is
+     * just our own status label. For an automated order, Pathao's own status
+     * is shown instead (e.g. "Assigned for Delivery") rather than the
+     * coarser internal status it implies (e.g. "Shipped") - falling back to
+     * a humanized version of the raw courier text when it's one we don't
+     * recognize yet, rather than showing "Unknown".
+     */
+    public function displayStatusLabel(): string
+    {
+        if ($this->status_sync_mode === OrderStatusSyncMode::Automated) {
+            if ($this->courier_status !== null && $this->courier_status !== CourierStatus::Unknown) {
+                return $this->courier_status->label();
+            }
+
+            if ($this->courier_raw_status !== null && trim($this->courier_raw_status) !== '') {
+                return (string) Str::of($this->courier_raw_status)
+                    ->replace(['_', '-'], ' ')
+                    ->squish()
+                    ->title();
+            }
+        }
+
+        return $this->status->label();
     }
 }

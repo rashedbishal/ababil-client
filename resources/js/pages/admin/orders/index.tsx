@@ -39,6 +39,7 @@ type OrderRow = {
     customer_phone: string;
     status: string;
     status_label: string;
+    display_status_label: string;
     grand_total: string;
     created_at: string | null;
     is_new: boolean;
@@ -262,7 +263,7 @@ export default function OrdersIndex({
                                     {order.order_number}
                                 </span>
                                 <Badge variant="outline">
-                                    {order.status_label}
+                                    {order.display_status_label}
                                 </Badge>
                             </div>
                             <p
@@ -341,7 +342,7 @@ export default function OrdersIndex({
                                 <TableCell>{order.customer_phone}</TableCell>
                                 <TableCell>
                                     <Badge variant="outline">
-                                        {order.status_label}
+                                        {order.display_status_label}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>৳{order.grand_total}</TableCell>

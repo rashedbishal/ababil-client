@@ -235,3 +235,72 @@ test('refreshing courier status on a manual order does not change the order stat
     expect($order->status)->toBe(OrderStatus::CourierSubmitted)
         ->and($order->courier_status->value)->toBe('delivery');
 });
+
+test('visiting a delivered order\'s page does not poll the courier again', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    Setting::set('courier_default_provider', 'pathao');
+    CourierProvider::query()->create([
+        'name' => 'pathao',
+        'credentials' => [
+            'base_url' => 'https://courier-api-sandbox.pathao.com',
+            'client_id' => 'id',
+            'client_secret' => 'secret',
+            'username' => 'test@pathao.com',
+            'password' => 'lovePathao',
+            'store_id' => '123',
+        ],
+    ]);
+
+    $order = Order::factory()->create([
+        'status' => OrderStatus::Delivered,
+        'courier_consignment_id' => 'CONSIGN-1',
+        'courier_provider' => 'pathao',
+    ]);
+
+    Http::fake();
+
+    $this->actingAs($admin)->get(route('admin.orders.show', $order));
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'pathao'));
+});
+
+test('visiting a manually-managed, still in-flight order\'s page still refreshes the courier card for display', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    Setting::set('courier_default_provider', 'pathao');
+    CourierProvider::query()->create([
+        'name' => 'pathao',
+        'credentials' => [
+            'base_url' => 'https://courier-api-sandbox.pathao.com',
+            'client_id' => 'id',
+            'client_secret' => 'secret',
+            'username' => 'test@pathao.com',
+            'password' => 'lovePathao',
+            'store_id' => '123',
+        ],
+    ]);
+
+    $order = Order::factory()->create([
+        'status' => OrderStatus::CourierSubmitted,
+        'status_sync_mode' => 'manual',
+        'courier_consignment_id' => 'CONSIGN-1',
+        'courier_provider' => 'pathao',
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::response([
+            'expires_in' => 432000,
+            'access_token' => 'token',
+            'refresh_token' => 'refresh',
+        ]),
+        '*/aladdin/api/v1/orders/CONSIGN-1/info' => Http::response([
+            'data' => ['consignment_id' => 'CONSIGN-1', 'order_status_slug' => 'In_Transit'],
+        ]),
+    ]);
+
+    $this->actingAs($admin)->get(route('admin.orders.show', $order));
+
+    expect($order->fresh()->status)->toBe(OrderStatus::CourierSubmitted)
+        ->and($order->fresh()->courier_status->value)->toBe('in_transit');
+});

@@ -9,11 +9,11 @@ return [
     |
     | How often the courier:sync-order-statuses command runs (see
     | routes/console.php). A standard cron expression - the default is every
-    | 15 minutes.
+    | 2 minutes.
     |
     */
 
-    'status_sync_cron' => env('COURIER_STATUS_SYNC_CRON', '*/15 * * * *'),
+    'status_sync_cron' => env('COURIER_STATUS_SYNC_CRON', '*/2 * * * *'),
 
     /*
     |--------------------------------------------------------------------------

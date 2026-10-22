@@ -142,6 +142,12 @@ class PathaoCourierService implements CourierServiceInterface
             ->withToken($this->accessToken())
             ->acceptJson()
             ->asJson()
+            // Admin pages now refresh several orders' statuses sequentially
+            // on a single page load (orders index, dashboard) - a short
+            // timeout here bounds how long a slow/unreachable Pathao can
+            // stall that page, instead of each call hanging on Laravel's
+            // much longer default.
+            ->timeout(8)
             // Pathao's documented API never redirects. Guzzle only strips
             // Authorization on a cross-origin redirect for 301/302/303 (and
             // empties the body); a 307/308 preserves the request exactly,
@@ -210,6 +216,7 @@ class PathaoCourierService implements CourierServiceInterface
         $response = Http::baseUrl(rtrim((string) $config['base_url'], '/'))
             ->acceptJson()
             ->asJson()
+            ->timeout(8)
             // See client()'s comment: a 307/308 redirect preserves the POST
             // body verbatim, which here contains the Pathao credentials
             // themselves, not just a bearer token.
@@ -232,6 +239,7 @@ class PathaoCourierService implements CourierServiceInterface
         $response = Http::baseUrl(rtrim((string) $config['base_url'], '/'))
             ->acceptJson()
             ->asJson()
+            ->timeout(8)
             ->withOptions(['allow_redirects' => false])
             ->post('/aladdin/api/v1/issue-token', [
                 'client_id' => $config['client_id'],
@@ -362,7 +370,7 @@ class PathaoCourierService implements CourierServiceInterface
             'on_hold' => CourierStatus::OnHold,
             'reattempt_requested' => CourierStatus::ReattemptRequested,
             'pickup_cancelled' => CourierStatus::PickupCancelled,
-            'delivery' => CourierStatus::Delivery,
+            'delivery', 'delivered' => CourierStatus::Delivery,
             'partial_delivery' => CourierStatus::PartialDelivery,
             'exchange' => CourierStatus::Exchange,
             'return_requested' => CourierStatus::ReturnRequested,
