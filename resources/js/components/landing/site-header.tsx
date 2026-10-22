@@ -40,6 +40,7 @@ export default function SiteHeader({
     navLinks = defaultNavLinks,
     mobileNavLinks = defaultMobileNavLinks,
     orderHref,
+    onOrderClick,
 }: {
     phone: string | null;
     // Each concept page has its own section ids, so the nav targets aren't
@@ -51,6 +52,9 @@ export default function SiteHeader({
     // whose nav order doesn't end on the payment section must pass this
     // explicitly.
     orderHref?: string;
+    // When provided, the header's order button opens the order drawer
+    // directly instead of scrolling to `orderHref`.
+    onOrderClick?: () => void;
 }) {
     const [activeHref, setActiveHref] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -284,6 +288,7 @@ export default function SiteHeader({
                             <Magnetic strength={0.25}>
                                 <OrderButton
                                     href={resolvedOrderHref}
+                                    onClick={onOrderClick}
                                     size="sm"
                                     showArrow={false}
                                     className="max-sm:gap-0 max-sm:px-3.5 max-sm:py-1.5 max-sm:text-xs"

@@ -6,12 +6,17 @@ import { type ReactNode, useRef } from 'react';
 export default function OrderButton({
     children,
     href = '#checkout',
+    onClick,
     size = 'lg',
     showArrow = true,
     className = '',
 }: {
     children: ReactNode;
     href?: string;
+    // When provided, the anchor's default scroll is suppressed and this
+    // runs instead (e.g. opening the order drawer rather than jumping to
+    // `href`).
+    onClick?: () => void;
     size?: 'sm' | 'lg';
     showArrow?: boolean;
     className?: string;
@@ -26,6 +31,14 @@ export default function OrderButton({
         <motion.a
             ref={ref}
             href={href}
+            onClick={
+                onClick
+                    ? (e) => {
+                          e.preventDefault();
+                          onClick();
+                      }
+                    : undefined
+            }
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 font-bengali font-bold whitespace-nowrap text-stone-950 shadow-xl ring-2 shadow-amber-500/25 ring-amber-200/80 transition-shadow hover:shadow-amber-500/40 ${

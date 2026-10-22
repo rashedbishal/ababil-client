@@ -1,11 +1,17 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Truck, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
 import InputError from '@/components/input-error';
 import type { CheckoutForm } from '@/hooks/use-checkout-form';
 import { toEnglishDigits } from '@/lib/bangla-digits';
+import { shippingAreaLabel } from '@/lib/shipping-area';
+import QuantityStepper from './quantity-stepper';
 
 const fieldClass =
     'w-full rounded-md border border-amber-200 px-3 py-3 font-bengali text-base focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:outline-none';
+
+type DrawerImage = { id: string | number; src: string; alt: string };
 
 /**
  * Concept 3's cart/checkout drawer - a right-side slide-in panel (matching
@@ -13,24 +19,30 @@ const fieldClass =
  * primitives `ProductImageViewer` uses for its own non-standard dialog
  * shape, rather than shadcn's centered `DialogContent`.
  *
- * Quantity and the delivery-area (inside/outside Dhaka) picker live on the
- * page in `Concept3ProductSection` instead of here, so by the time this
- * opens it only needs to collect name/phone/address.
+ * Every "অর্ডার করুন" button on the page opens this drawer directly now,
+ * so it carries its own (smaller) image preview, quantity stepper and
+ * delivery-area picker in the same order as the page's payment section -
+ * reading/writing the same `checkout` state, so a choice made on the page
+ * before opening the drawer (or in the drawer itself) is reflected in both
+ * places.
  */
 export default function Concept3OrderDrawer({
     open,
     onOpenChange,
     productName,
+    images,
     checkout,
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     productName: string;
+    images: DrawerImage[];
     checkout: CheckoutForm;
 }) {
     const {
         data,
         setField,
+        displayShippingAreas,
         subtotal,
         shippingCharge,
         grandTotal,
@@ -38,6 +50,9 @@ export default function Concept3OrderDrawer({
         processing,
         submit,
     } = checkout;
+
+    const [imageIndex, setImageIndex] = useState(0);
+    const activeImage = images[imageIndex];
 
     return (
         <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -75,6 +90,113 @@ export default function Concept3OrderDrawer({
                         </div>
 
                         <p className="text-sm text-stone-500">{productName}</p>
+
+                        {activeImage && (
+                            <div className="flex gap-2">
+                                <div className="relative aspect-square w-full max-w-[160px] overflow-hidden rounded-2xl border border-amber-200 shadow-md">
+                                    <AnimatePresence mode="wait">
+                                        <motion.img
+                                            key={activeImage.id}
+                                            src={activeImage.src}
+                                            alt={activeImage.alt}
+                                            initial={{
+                                                opacity: 0,
+                                                scale: 0.94,
+                                            }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.94 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="absolute inset-0 size-full object-cover"
+                                        />
+                                    </AnimatePresence>
+                                </div>
+
+                                {images.length > 1 && (
+                                    <div className="flex flex-col gap-1.5">
+                                        {images.map((img, idx) => (
+                                            <button
+                                                key={img.id}
+                                                type="button"
+                                                onClick={() =>
+                                                    setImageIndex(idx)
+                                                }
+                                                aria-label={`${img.alt} দেখুন`}
+                                                aria-pressed={
+                                                    idx === imageIndex
+                                                }
+                                                className={`flex size-9 items-center justify-center overflow-hidden rounded-lg border-2 transition-all ${
+                                                    idx === imageIndex
+                                                        ? 'border-amber-500 ring-1 ring-amber-400/50'
+                                                        : 'border-amber-200 opacity-75 hover:opacity-100'
+                                                }`}
+                                            >
+                                                <img
+                                                    src={img.src}
+                                                    alt={img.alt}
+                                                    className="size-full object-cover"
+                                                />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="grid gap-2">
+                            <span className="font-semibold text-stone-700">
+                                বোতলের সংখ্যা
+                            </span>
+                            <QuantityStepper
+                                value={data.quantity}
+                                onChange={(value) =>
+                                    setField('quantity', value)
+                                }
+                            />
+                            <InputError message={errors.quantity} />
+                        </div>
+
+                        <fieldset className="grid gap-2">
+                            <legend className="mb-1 font-semibold text-stone-700">
+                                কোথায় ডেলিভারি নেবেন?
+                            </legend>
+                            <div className="grid grid-cols-2 gap-2">
+                                {displayShippingAreas.map((area) => {
+                                    const checked =
+                                        data.shipping_area_id === area.id;
+
+                                    return (
+                                        <label
+                                            key={area.id}
+                                            className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-2.5 text-sm transition-colors ${
+                                                checked
+                                                    ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
+                                                    : 'border-amber-200 hover:border-amber-300'
+                                            }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="drawer_shipping_area_id"
+                                                checked={checked}
+                                                onChange={() =>
+                                                    setField(
+                                                        'shipping_area_id',
+                                                        area.id,
+                                                    )
+                                                }
+                                                className="size-[18px] accent-amber-600"
+                                            />
+                                            <span>
+                                                {shippingAreaLabel(area.name)}
+                                                <strong className="mt-0.5 block text-stone-900">
+                                                    ৳{area.charge}
+                                                </strong>
+                                            </span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                            <InputError message={errors.shipping_area_id} />
+                        </fieldset>
 
                         <div className="grid gap-2">
                             <label

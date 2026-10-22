@@ -191,16 +191,6 @@ export default function Concept3({
 
     const openDrawer = () => setDrawerOpen(true);
 
-    // Every "অর্ডার করুন" button on the page scrolls to the payment section
-    // first - quantity and the delivery-area picker live there - and only
-    // that section's own button (see Concept3ProductSection below) opens
-    // the drawer directly.
-    const scrollToProduct = () => {
-        document
-            .getElementById('product')
-            ?.scrollIntoView({ behavior: 'smooth' });
-    };
-
     return (
         <div
             id="top"
@@ -211,19 +201,20 @@ export default function Concept3({
                 navLinks={navLinks}
                 mobileNavLinks={mobileNavLinks}
                 orderHref="#product"
+                onOrderClick={openDrawer}
             />
 
             <main>
-                <Concept3Banner onOrderClick={scrollToProduct} />
+                <Concept3Banner onOrderClick={openDrawer} />
                 <Concept3CertificationSection />
-                <Concept3MapSection onOrderClick={scrollToProduct} />
+                <Concept3MapSection onOrderClick={openDrawer} />
 
                 <Concept3PhotoGallery
                     id="features"
                     heading="সবার স্বস্তি, সবার যত্ন"
                     subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
                     items={featureItems}
-                    onOrderClick={scrollToProduct}
+                    onOrderClick={openDrawer}
                     columns={3}
                 />
 
@@ -234,7 +225,7 @@ export default function Concept3({
                     heading="চেনা জীবনের যত্ন"
                     subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
                     items={campaignItems}
-                    onOrderClick={scrollToProduct}
+                    onOrderClick={openDrawer}
                     columns={3}
                 />
 
@@ -258,12 +249,13 @@ export default function Concept3({
                 facebookUrl={contact.facebookUrl}
             />
 
-            <Concept3StickyBar onOrderClick={scrollToProduct} />
+            <Concept3StickyBar onOrderClick={openDrawer} />
 
             <Concept3OrderDrawer
                 open={drawerOpen}
                 onOpenChange={setDrawerOpen}
                 productName={product.name}
+                images={productImages}
                 checkout={checkout}
             />
 
