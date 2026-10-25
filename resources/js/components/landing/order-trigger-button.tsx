@@ -33,7 +33,7 @@ export default function OrderTriggerButton({
             whileTap={{ scale: 0.95 }}
             className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 font-bengali whitespace-nowrap text-stone-950 shadow-xl ring-2 shadow-amber-500/25 ring-amber-200/80 transition-shadow hover:shadow-amber-500/40 ${
                 size === 'xl'
-                    ? 'px-10 py-6 text-2xl font-black sm:text-3xl'
+                    ? 'px-10 py-4 text-3xl leading-none font-black tracking-tight sm:text-4xl'
                     : size === 'lg'
                       ? 'px-10 py-4 text-lg font-bold sm:text-xl'
                       : 'px-6 py-2.5 text-sm font-bold'
@@ -45,7 +45,16 @@ export default function OrderTriggerButton({
                     isInView ? 'animate-cta-sheen-sweep' : ''
                 }`}
             />
-            <span className="relative">{children}</span>
+            <span
+                className="relative"
+                style={
+                    size === 'xl'
+                        ? { WebkitTextStroke: '0.6px currentColor' }
+                        : undefined
+                }
+            >
+                {children}
+            </span>
             {showArrow && (
                 <span
                     aria-hidden
