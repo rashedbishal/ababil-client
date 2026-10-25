@@ -17,11 +17,10 @@ export default function OrderTriggerButton({
 }: {
     children: ReactNode;
     onClick: () => void;
-    size?: 'sm' | 'lg';
+    size?: 'sm' | 'lg' | 'xl';
     showArrow?: boolean;
     className?: string;
 }) {
-    const large = size === 'lg';
     const ref = useRef<HTMLButtonElement>(null);
     const isInView = useInView(ref, { margin: '200px' });
 
@@ -32,8 +31,12 @@ export default function OrderTriggerButton({
             onClick={onClick}
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 font-bengali font-bold whitespace-nowrap text-stone-950 shadow-xl ring-2 shadow-amber-500/25 ring-amber-200/80 transition-shadow hover:shadow-amber-500/40 ${
-                large ? 'px-10 py-4 text-lg sm:text-xl' : 'px-6 py-2.5 text-sm'
+            className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 font-bengali whitespace-nowrap text-stone-950 shadow-xl ring-2 shadow-amber-500/25 ring-amber-200/80 transition-shadow hover:shadow-amber-500/40 ${
+                size === 'xl'
+                    ? 'px-10 py-6 text-2xl font-black sm:text-3xl'
+                    : size === 'lg'
+                      ? 'px-10 py-4 text-lg font-bold sm:text-xl'
+                      : 'px-6 py-2.5 text-sm font-bold'
             } ${className}`}
         >
             <span
@@ -50,7 +53,9 @@ export default function OrderTriggerButton({
                         isInView ? 'animate-cta-arrow-nudge' : ''
                     }`}
                 >
-                    <ArrowRight className={large ? 'size-5' : 'size-4'} />
+                    <ArrowRight
+                        className={size === 'sm' ? 'size-4' : 'size-5'}
+                    />
                 </span>
             )}
         </motion.button>

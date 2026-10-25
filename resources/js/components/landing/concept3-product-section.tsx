@@ -121,7 +121,7 @@ export default function Concept3ProductSection({
                     </div>
 
                     <div className="flex flex-col justify-center pt-3">
-                        <h1 className="font-bengali text-3xl font-extrabold text-stone-900 sm:text-4xl">
+                        <h1 className="font-bengali text-5xl font-black tracking-tight text-stone-900 sm:text-6xl">
                             {productName}
                         </h1>
 
@@ -182,6 +182,7 @@ export default function Concept3ProductSection({
                         <div className="mt-6">
                             <OrderTriggerButton
                                 onClick={onOrderClick}
+                                size="xl"
                                 className="w-full max-w-[360px] justify-center"
                             >
                                 অর্ডার করুন
