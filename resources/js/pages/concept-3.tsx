@@ -1,23 +1,16 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import Concept3Banner from '@/components/landing/concept3-banner';
 import Concept3CertificationSection from '@/components/landing/concept3-certification-section';
-import Concept3ContactSection from '@/components/landing/concept3-contact-section';
-import Concept3FaqSection from '@/components/landing/concept3-faq-section';
 import Concept3MapSection from '@/components/landing/concept3-map-section';
-import Concept3OrderDrawer from '@/components/landing/concept3-order-drawer';
 import type { Concept3PhotoItem } from '@/components/landing/concept3-photo-gallery';
-import Concept3PhotoGallery from '@/components/landing/concept3-photo-gallery';
 import Concept3ProductSection from '@/components/landing/concept3-product-section';
-import Concept3RoutineSection from '@/components/landing/concept3-routine-section';
 import Concept3StickyBar from '@/components/landing/concept3-sticky-bar';
 import FloatingActions from '@/components/landing/floating-actions';
-import OrderResultDialog from '@/components/landing/order-result-dialog';
 import SiteFooter from '@/components/landing/site-footer';
 import SiteHeader, {
     type MobileNavLink,
     type NavLink,
 } from '@/components/landing/site-header';
-import TestimonialsSection from '@/components/landing/testimonials-section';
 import { useCheckoutForm } from '@/hooks/use-checkout-form';
 import type {
     Contact,
@@ -25,6 +18,33 @@ import type {
     ShippingArea,
     VideoReview,
 } from '@/types/storefront';
+
+// Everything below the first couple of viewports (and the order
+// drawer/result dialog, which only render once the shopper interacts) is
+// code-split out of the main page chunk - Lighthouse flagged this page's
+// initial JS as a Total Blocking Time contributor, and none of this needs
+// to be parsed/executed before the hero banner and nav are interactive.
+const Concept3PhotoGallery = lazy(
+    () => import('@/components/landing/concept3-photo-gallery'),
+);
+const Concept3RoutineSection = lazy(
+    () => import('@/components/landing/concept3-routine-section'),
+);
+const TestimonialsSection = lazy(
+    () => import('@/components/landing/testimonials-section'),
+);
+const Concept3FaqSection = lazy(
+    () => import('@/components/landing/concept3-faq-section'),
+);
+const Concept3ContactSection = lazy(
+    () => import('@/components/landing/concept3-contact-section'),
+);
+const Concept3OrderDrawer = lazy(
+    () => import('@/components/landing/concept3-order-drawer'),
+);
+const OrderResultDialog = lazy(
+    () => import('@/components/landing/order-result-dialog'),
+);
 
 import campaignFatherShoulders from '../../images/landing/cards/campaign-father-shoulders.webp';
 import campaignGrandpaGrandson from '../../images/landing/cards/campaign-grandpa-grandson.webp';
@@ -209,25 +229,31 @@ export default function Concept3({
                 <Concept3CertificationSection />
                 <Concept3MapSection onOrderClick={openDrawer} />
 
-                <Concept3PhotoGallery
-                    id="features"
-                    heading="সবার স্বস্তি, সবার যত্ন"
-                    subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
-                    items={featureItems}
-                    onOrderClick={openDrawer}
-                    columns={3}
-                />
+                <Suspense fallback={<div className="min-h-[400px]" />}>
+                    <Concept3PhotoGallery
+                        id="features"
+                        heading="সবার স্বস্তি, সবার যত্ন"
+                        subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
+                        items={featureItems}
+                        onOrderClick={openDrawer}
+                        columns={3}
+                    />
+                </Suspense>
 
-                <Concept3RoutineSection />
+                <Suspense fallback={<div className="min-h-[300px]" />}>
+                    <Concept3RoutineSection />
+                </Suspense>
 
-                <Concept3PhotoGallery
-                    id="campaign"
-                    heading="চেনা জীবনের যত্ন"
-                    subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
-                    items={campaignItems}
-                    onOrderClick={openDrawer}
-                    columns={3}
-                />
+                <Suspense fallback={<div className="min-h-[400px]" />}>
+                    <Concept3PhotoGallery
+                        id="campaign"
+                        heading="চেনা জীবনের যত্ন"
+                        subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
+                        items={campaignItems}
+                        onOrderClick={openDrawer}
+                        columns={3}
+                    />
+                </Suspense>
 
                 <Concept3ProductSection
                     productName={product.name}
@@ -236,10 +262,16 @@ export default function Concept3({
                     onOrderClick={openDrawer}
                 />
 
-                <TestimonialsSection reviews={reviews} />
+                <Suspense fallback={<div className="min-h-[300px]" />}>
+                    <TestimonialsSection reviews={reviews} />
+                </Suspense>
 
-                <Concept3FaqSection />
-                <Concept3ContactSection whatsapp={contact.whatsapp} />
+                <Suspense fallback={<div className="min-h-[300px]" />}>
+                    <Concept3FaqSection />
+                </Suspense>
+                <Suspense fallback={<div className="min-h-[200px]" />}>
+                    <Concept3ContactSection whatsapp={contact.whatsapp} />
+                </Suspense>
             </main>
 
             <SiteFooter phone={contact.phone} />
@@ -251,18 +283,22 @@ export default function Concept3({
 
             <Concept3StickyBar onOrderClick={openDrawer} />
 
-            <Concept3OrderDrawer
-                open={drawerOpen}
-                onOpenChange={setDrawerOpen}
-                productName={product.name}
-                images={productImages}
-                checkout={checkout}
-            />
+            <Suspense fallback={null}>
+                <Concept3OrderDrawer
+                    open={drawerOpen}
+                    onOpenChange={setDrawerOpen}
+                    productName={product.name}
+                    images={productImages}
+                    checkout={checkout}
+                />
+            </Suspense>
 
-            <OrderResultDialog
-                result={checkout.orderResult}
-                onClose={checkout.clearOrderResult}
-            />
+            <Suspense fallback={null}>
+                <OrderResultDialog
+                    result={checkout.orderResult}
+                    onClose={checkout.clearOrderResult}
+                />
+            </Suspense>
         </div>
     );
 }
