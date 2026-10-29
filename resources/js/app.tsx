@@ -1,12 +1,22 @@
 import { createInertiaApp } from '@inertiajs/react';
+import { lazy, Suspense } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
-import AdminLayout from '@/layouts/admin-layout';
-import AppLayout from '@/layouts/app-layout';
-import AuthBrandedLayout from '@/layouts/auth/auth-branded-layout';
-import AuthLayout from '@/layouts/auth-layout';
-import SettingsLayout from '@/layouts/settings/layout';
+
+// Lazy so the storefront (which uses none of these) never bundles admin's
+// sidebar/nav chrome, settings' nav, or the auth layouts into its own
+// initial JS - Lighthouse flagged these as unused bytes on the landing
+// page. `layout` only needs to resolve to a component, and Inertia's own
+// page resolution is already async, so a lazy layout just adds a Suspense
+// boundary around the first render of whichever one a given route uses.
+const AdminLayout = lazy(() => import('@/layouts/admin-layout'));
+const AppLayout = lazy(() => import('@/layouts/app-layout'));
+const AuthBrandedLayout = lazy(
+    () => import('@/layouts/auth/auth-branded-layout'),
+);
+const AuthLayout = lazy(() => import('@/layouts/auth-layout'));
+const SettingsLayout = lazy(() => import('@/layouts/settings/layout'));
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -36,7 +46,7 @@ void createInertiaApp({
     withApp(app) {
         return (
             <TooltipProvider delayDuration={0}>
-                {app}
+                <Suspense fallback={null}>{app}</Suspense>
                 <Toaster />
             </TooltipProvider>
         );
