@@ -77,6 +77,46 @@ export default function Concept3Banner({
     // on release doesn't also trigger the slide's order action.
     const didSwipeRef = useRef(false);
 
+    // `track` has SLIDE_COUNT + 2 full-bleed photos (two clones included),
+    // and `position` indexes it 1:1. Requesting all of them up front
+    // (as this component used to) means 7 concurrent image downloads
+    // competing with the one the user can actually see, which is this
+    // page's LCP element on mobile - so only `position` itself, plus its
+    // immediate neighbours, are ever given a real `src`. Neighbours are
+    // added with a short delay so they don't compete with the initial
+    // slide's own fetch, but are ready well before AUTO_PLAY_MS advances
+    // the carousel or a swipe reaches them.
+    const [loadedPositions, setLoadedPositions] = useState<Set<number>>(
+        () => new Set([1]),
+    );
+
+    useEffect(() => {
+        setLoadedPositions((prev) => {
+            if (prev.has(position)) return prev;
+            const next = new Set(prev);
+            next.add(position);
+            return next;
+        });
+    }, [position]);
+
+    useEffect(() => {
+        const timer = setTimeout(
+            () => {
+                setLoadedPositions((prev) => {
+                    const a = Math.max(0, position - 1);
+                    const b = Math.min(SLIDE_COUNT + 1, position + 1);
+                    if (prev.has(a) && prev.has(b)) return prev;
+                    const next = new Set(prev);
+                    next.add(a);
+                    next.add(b);
+                    return next;
+                });
+            },
+            position === 1 ? 1500 : 300,
+        );
+        return () => clearTimeout(timer);
+    }, [position]);
+
     const activeIndex = (position - 1 + SLIDE_COUNT) % SLIDE_COUNT;
     const isOnClone = position === 0 || position === SLIDE_COUNT + 1;
 
@@ -211,28 +251,40 @@ export default function Concept3Banner({
                             tabIndex={i === position ? 0 : -1}
                             className="size-full shrink-0 cursor-[inherit]"
                         >
-                            <picture>
-                                <source
-                                    media="(max-width: 639px)"
-                                    srcSet={slide.mobile}
+                            {loadedPositions.has(i) ? (
+                                <picture>
+                                    <source
+                                        media="(max-width: 639px)"
+                                        srcSet={slide.mobile}
+                                    />
+                                    <source
+                                        media="(max-width: 1023px)"
+                                        srcSet={slide.tab}
+                                    />
+                                    <img
+                                        src={slide.desktop}
+                                        alt={slide.isClone ? '' : slide.alt}
+                                        // Off-screen slides of a translated
+                                        // track may never count as "near the
+                                        // viewport", so lazy loading could
+                                        // leave them blank as they slide in -
+                                        // `loadedPositions` is what gates the
+                                        // request instead, so this can stay
+                                        // eager once a slide is in that set.
+                                        loading="eager"
+                                        fetchPriority={
+                                            i === 1 ? 'high' : 'auto'
+                                        }
+                                        draggable={false}
+                                        className="size-full object-cover"
+                                    />
+                                </picture>
+                            ) : (
+                                <div
+                                    aria-hidden
+                                    className="size-full bg-amber-100"
                                 />
-                                <source
-                                    media="(max-width: 1023px)"
-                                    srcSet={slide.tab}
-                                />
-                                <img
-                                    src={slide.desktop}
-                                    alt={slide.isClone ? '' : slide.alt}
-                                    // Off-screen slides of a translated track
-                                    // may never count as "near the viewport",
-                                    // so lazy loading could leave them blank
-                                    // as they slide in.
-                                    loading="eager"
-                                    fetchPriority={i === 1 ? 'high' : 'auto'}
-                                    draggable={false}
-                                    className="size-full object-cover"
-                                />
-                            </picture>
+                            )}
                         </button>
                     ))}
                 </div>

@@ -86,6 +86,7 @@ export default function Concept3ProductSection({
                                         key={active.id}
                                         src={active.src}
                                         alt={active.alt}
+                                        loading="lazy"
                                         initial={{ opacity: 0, scale: 0.94 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.94 }}
@@ -113,6 +114,7 @@ export default function Concept3ProductSection({
                                     <img
                                         src={img.src}
                                         alt={img.alt}
+                                        loading="lazy"
                                         className="size-full rounded-2xl object-cover"
                                     />
                                 </button>
