@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import mapImage from '../../../images/landing/bangladesh-map.webp';
+import mapImage from '../../../images/landing/bangladesh-map-legacy.webp';
 import Reveal from './motion/reveal';
 
 // Coordinates (% of the map image) were picked by hand against the artwork
