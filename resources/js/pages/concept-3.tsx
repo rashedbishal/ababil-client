@@ -1,3 +1,4 @@
+import { LazyMotion } from 'motion/react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import Concept3Banner from '@/components/landing/concept3-banner';
 import Concept3CertificationSection from '@/components/landing/concept3-certification-section';
@@ -45,6 +46,11 @@ const Concept3OrderDrawer = lazy(
 const OrderResultDialog = lazy(
     () => import('@/components/landing/order-result-dialog'),
 );
+
+// Also code-splits `motion`'s animation engine itself out of the main page
+// chunk - see components/landing/motion/features.ts.
+const loadMotionFeatures = () =>
+    import('@/components/landing/motion/features').then((mod) => mod.default);
 
 import campaignFatherShoulders from '../../images/landing/cards/campaign-father-shoulders.webp';
 import campaignGrandpaGrandson from '../../images/landing/cards/campaign-grandpa-grandson.webp';
@@ -212,93 +218,95 @@ export default function Concept3({
     const openDrawer = () => setDrawerOpen(true);
 
     return (
-        <div
-            id="top"
-            className="min-h-screen bg-white font-sans text-stone-900"
-        >
-            <SiteHeader
-                phone={contact.phone}
-                navLinks={navLinks}
-                mobileNavLinks={mobileNavLinks}
-                orderHref="#product"
-                onOrderClick={openDrawer}
-            />
-
-            <main>
-                <Concept3Banner onOrderClick={openDrawer} />
-                <Concept3CertificationSection />
-                <Concept3MapSection onOrderClick={openDrawer} />
-
-                <Suspense fallback={<div className="min-h-[400px]" />}>
-                    <Concept3PhotoGallery
-                        id="features"
-                        heading="সবার স্বস্তি, সবার যত্ন"
-                        subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
-                        items={featureItems}
-                        onOrderClick={openDrawer}
-                        columns={3}
-                    />
-                </Suspense>
-
-                <Suspense fallback={<div className="min-h-[300px]" />}>
-                    <Concept3RoutineSection />
-                </Suspense>
-
-                <Suspense fallback={<div className="min-h-[400px]" />}>
-                    <Concept3PhotoGallery
-                        id="campaign"
-                        heading="চেনা জীবনের যত্ন"
-                        subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
-                        items={campaignItems}
-                        onOrderClick={openDrawer}
-                        columns={3}
-                    />
-                </Suspense>
-
-                <Concept3ProductSection
-                    productName={product.name}
-                    images={productImages}
-                    checkout={checkout}
+        <LazyMotion features={loadMotionFeatures}>
+            <div
+                id="top"
+                className="min-h-screen bg-white font-sans text-stone-900"
+            >
+                <SiteHeader
+                    phone={contact.phone}
+                    navLinks={navLinks}
+                    mobileNavLinks={mobileNavLinks}
+                    orderHref="#product"
                     onOrderClick={openDrawer}
                 />
 
-                <Suspense fallback={<div className="min-h-[300px]" />}>
-                    <TestimonialsSection reviews={reviews} />
-                </Suspense>
+                <main>
+                    <Concept3Banner onOrderClick={openDrawer} />
+                    <Concept3CertificationSection />
+                    <Concept3MapSection onOrderClick={openDrawer} />
 
-                <Suspense fallback={<div className="min-h-[300px]" />}>
-                    <Concept3FaqSection />
-                </Suspense>
-                <Suspense fallback={<div className="min-h-[200px]" />}>
-                    <Concept3ContactSection whatsapp={contact.whatsapp} />
-                </Suspense>
-            </main>
+                    <Suspense fallback={<div className="min-h-[400px]" />}>
+                        <Concept3PhotoGallery
+                            id="features"
+                            heading="সবার স্বস্তি, সবার যত্ন"
+                            subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
+                            items={featureItems}
+                            onOrderClick={openDrawer}
+                            columns={3}
+                        />
+                    </Suspense>
 
-            <SiteFooter phone={contact.phone} />
+                    <Suspense fallback={<div className="min-h-[300px]" />}>
+                        <Concept3RoutineSection />
+                    </Suspense>
 
-            <FloatingActions
-                whatsapp={contact.whatsapp}
-                facebookUrl={contact.facebookUrl}
-            />
+                    <Suspense fallback={<div className="min-h-[400px]" />}>
+                        <Concept3PhotoGallery
+                            id="campaign"
+                            heading="চেনা জীবনের যত্ন"
+                            subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
+                            items={campaignItems}
+                            onOrderClick={openDrawer}
+                            columns={3}
+                        />
+                    </Suspense>
 
-            <Concept3StickyBar onOrderClick={openDrawer} />
+                    <Concept3ProductSection
+                        productName={product.name}
+                        images={productImages}
+                        checkout={checkout}
+                        onOrderClick={openDrawer}
+                    />
 
-            <Suspense fallback={null}>
-                <Concept3OrderDrawer
-                    open={drawerOpen}
-                    onOpenChange={setDrawerOpen}
-                    productName={product.name}
-                    images={productImages}
-                    checkout={checkout}
+                    <Suspense fallback={<div className="min-h-[300px]" />}>
+                        <TestimonialsSection reviews={reviews} />
+                    </Suspense>
+
+                    <Suspense fallback={<div className="min-h-[300px]" />}>
+                        <Concept3FaqSection />
+                    </Suspense>
+                    <Suspense fallback={<div className="min-h-[200px]" />}>
+                        <Concept3ContactSection whatsapp={contact.whatsapp} />
+                    </Suspense>
+                </main>
+
+                <SiteFooter phone={contact.phone} />
+
+                <FloatingActions
+                    whatsapp={contact.whatsapp}
+                    facebookUrl={contact.facebookUrl}
                 />
-            </Suspense>
 
-            <Suspense fallback={null}>
-                <OrderResultDialog
-                    result={checkout.orderResult}
-                    onClose={checkout.clearOrderResult}
-                />
-            </Suspense>
-        </div>
+                <Concept3StickyBar onOrderClick={openDrawer} />
+
+                <Suspense fallback={null}>
+                    <Concept3OrderDrawer
+                        open={drawerOpen}
+                        onOpenChange={setDrawerOpen}
+                        productName={product.name}
+                        images={productImages}
+                        checkout={checkout}
+                    />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                    <OrderResultDialog
+                        result={checkout.orderResult}
+                        onClose={checkout.clearOrderResult}
+                    />
+                </Suspense>
+            </div>
+        </LazyMotion>
     );
 }

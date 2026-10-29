@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import { motion, useInView } from 'motion/react';
+import { m, useInView } from 'motion/react';
 import { type ReactNode, useRef } from 'react';
 
 /**
@@ -25,7 +25,7 @@ export default function OrderTriggerButton({
     const isInView = useInView(ref, { margin: '200px' });
 
     return (
-        <motion.button
+        <m.button
             ref={ref}
             type="button"
             onClick={onClick}
@@ -67,6 +67,6 @@ export default function OrderTriggerButton({
                     />
                 </span>
             )}
-        </motion.button>
+        </m.button>
     );
 }

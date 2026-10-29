@@ -1,5 +1,5 @@
 import { ChevronDown, Phone } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useState } from 'react';
 import logo from '../../../images/landing/ababil-logo.webp';
 import Magnetic from './motion/magnetic';
@@ -203,7 +203,7 @@ export default function SiteHeader({
                             href="#top"
                             className="group flex shrink-0 items-center gap-2"
                         >
-                            <motion.img
+                            <m.img
                                 src={logo}
                                 alt="Ababil"
                                 whileHover={{ rotate: -10, scale: 1.1 }}
@@ -250,7 +250,7 @@ export default function SiteHeader({
                                         className="relative shrink-0 rounded-full px-3 py-1.5 font-bengali text-sm font-medium whitespace-nowrap text-neutral-300 transition-colors hover:text-amber-300"
                                     >
                                         {isActive && (
-                                            <motion.span
+                                            <m.span
                                                 layoutId="nav-active-pill"
                                                 transition={{
                                                     type: 'spring',
@@ -260,12 +260,12 @@ export default function SiteHeader({
                                                 className="absolute inset-0 rounded-full border border-amber-400/50 bg-amber-400/15 shadow-[0_0_12px_rgba(251,191,36,0.18)]"
                                             />
                                         )}
-                                        <motion.span
+                                        <m.span
                                             whileHover={{ y: -1 }}
                                             className={`relative z-10 ${isActive ? 'font-semibold text-amber-300' : ''}`}
                                         >
                                             {link.label}
-                                        </motion.span>
+                                        </m.span>
                                     </a>
                                 );
                             })}
@@ -303,7 +303,7 @@ export default function SiteHeader({
                     <AnimatePresence>
                         {isMobileMenuOpen && (
                             <>
-                                <motion.div
+                                <m.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
@@ -311,7 +311,7 @@ export default function SiteHeader({
                                     className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
                                 />
 
-                                <motion.div
+                                <m.div
                                     initial={{
                                         opacity: 0,
                                         scale: 0.94,
@@ -367,7 +367,7 @@ export default function SiteHeader({
                                             );
                                         })}
                                     </div>
-                                </motion.div>
+                                </m.div>
                             </>
                         )}
                     </AnimatePresence>

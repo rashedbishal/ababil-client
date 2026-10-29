@@ -1,4 +1,4 @@
-import { motion, type Variants } from 'motion/react';
+import { m, type Variants } from 'motion/react';
 import type { ReactNode } from 'react';
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
@@ -28,13 +28,13 @@ export default function Reveal({
     delay = 0,
     y = 28,
     className,
-    as: Component = motion.div,
+    as: Component = m.div,
 }: {
     children: ReactNode;
     delay?: number;
     y?: number;
     className?: string;
-    as?: typeof motion.div;
+    as?: typeof m.div;
 }) {
     return (
         <Component
@@ -58,7 +58,7 @@ export function RevealGroup({
     className?: string;
 }) {
     return (
-        <motion.div
+        <m.div
             variants={staggerContainer}
             initial="hidden"
             whileInView="show"
@@ -66,7 +66,7 @@ export function RevealGroup({
             className={className}
         >
             {children}
-        </motion.div>
+        </m.div>
     );
 }
 
@@ -78,8 +78,8 @@ export function RevealItem({
     className?: string;
 }) {
     return (
-        <motion.div variants={staggerItem} className={className}>
+        <m.div variants={staggerItem} className={className}>
             {children}
-        </motion.div>
+        </m.div>
     );
 }

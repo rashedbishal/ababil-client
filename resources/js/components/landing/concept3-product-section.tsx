@@ -1,5 +1,5 @@
 import { Leaf, ShieldCheck, Truck } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
 import type { CheckoutForm } from '@/hooks/use-checkout-form';
@@ -82,7 +82,7 @@ export default function Concept3ProductSection({
 
                             <AnimatePresence mode="wait">
                                 {active && (
-                                    <motion.img
+                                    <m.img
                                         key={active.id}
                                         src={active.src}
                                         alt={active.alt}

@@ -1,6 +1,6 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Truck, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
 import type { CheckoutForm } from '@/hooks/use-checkout-form';
@@ -95,7 +95,7 @@ export default function Concept3OrderDrawer({
                             <div className="flex gap-2">
                                 <div className="relative aspect-square w-full max-w-[160px] overflow-hidden rounded-2xl border border-amber-200 shadow-md">
                                     <AnimatePresence mode="wait">
-                                        <motion.img
+                                        <m.img
                                             key={activeImage.id}
                                             src={activeImage.src}
                                             alt={activeImage.alt}

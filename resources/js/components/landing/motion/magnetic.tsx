@@ -1,4 +1,4 @@
-import { motion, useSpring } from 'motion/react';
+import { m, useSpring } from 'motion/react';
 import { type ReactNode, useRef } from 'react';
 
 /** Subtly pulls its content toward the cursor on hover — a magnetic CTA. */
@@ -32,7 +32,7 @@ export default function Magnetic({
     }
 
     return (
-        <motion.div
+        <m.div
             ref={ref}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
@@ -40,6 +40,6 @@ export default function Magnetic({
             className={className}
         >
             {children}
-        </motion.div>
+        </m.div>
     );
 }

@@ -1,4 +1,4 @@
-import { motion, useInView } from 'motion/react';
+import { m, useInView } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import { type ReactNode, useRef } from 'react';
 
@@ -28,7 +28,7 @@ export default function OrderButton({
     const isInView = useInView(ref, { margin: '200px' });
 
     return (
-        <motion.a
+        <m.a
             ref={ref}
             href={href}
             onClick={
@@ -64,6 +64,6 @@ export default function OrderButton({
                     <ArrowRight className={large ? 'size-5' : 'size-4'} />
                 </span>
             )}
-        </motion.a>
+        </m.a>
     );
 }
