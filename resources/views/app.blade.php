@@ -3,6 +3,13 @@
     // actually sees (the storefront and its order-confirmation link) -
     // never on admin/auth pages, which this same root view also renders.
     $isStorefrontPage = in_array($page['component'], ['welcome', 'concept-3', 'order-confirmation'], true);
+    // The concept-3 hero banner (first slide) is this page's LCP element,
+    // but it's only rendered by React after hydration - with no SSR, the
+    // browser's preloader can't discover it in the initial HTML at all.
+    // Preloading it here (mirroring Concept3Banner's own <picture> media
+    // breakpoints) lets the image start downloading immediately instead of
+    // waiting on JS to parse, execute and render.
+    $isConcept3Page = $page['component'] === 'concept-3';
     // Raw, admin-pasted tracking snippets (GTM/Pixel/GA/etc. install code) - not generated here.
     // Trusted because only admins can write these settings; injected verbatim like any site owner
     // pasting a vendor's install snippet into their template.
@@ -14,6 +21,13 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        @if ($isConcept3Page)
+            {{-- LCP preload for the hero banner's first slide - see note above. --}}
+            <link rel="preload" as="image" fetchpriority="high" media="(max-width: 639px)" href="/images/hero/001_mobile.webp">
+            <link rel="preload" as="image" fetchpriority="high" media="(min-width: 640px) and (max-width: 1023px)" href="/images/hero/001_tab.webp">
+            <link rel="preload" as="image" fetchpriority="high" media="(min-width: 1024px)" href="/images/hero/IMG_3616_desktop.webp">
+        @endif
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>

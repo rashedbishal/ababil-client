@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 // concept 3 duplicates the slide list rather than importing it, since its
 // banner is a different, click-to-order component (no text overlay), and
 // HeroSection itself must stay untouched.
+//
+// slides[0] is this page's LCP element, and its three URLs are hardcoded
+// as <link rel="preload"> in resources/views/app.blade.php (no SSR means
+// the browser can't discover this component's own markup up front) - keep
+// those in sync if slide 1 ever changes.
 const slides = [
     {
         id: 1,
