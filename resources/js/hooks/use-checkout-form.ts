@@ -244,6 +244,19 @@ export function useCheckoutForm({
 
         form.post(orders.store().url, {
             preserveScroll: true,
+            onHttpException: (response) => {
+                // A stale CSRF token/session pairing (Facebook's in-app
+                // browser bfcache-restoring this page across backgrounding
+                // is the main cause - see Cache-Control headers on this
+                // route). Reloading gets a fresh token/session instead of
+                // leaving the shopper stuck on Inertia's default error
+                // dialog.
+                if (response.status === 419) {
+                    window.location.reload();
+
+                    return false;
+                }
+            },
             onError: (errors) => {
                 if (errors.order) {
                     setOrderResult({ type: 'error', message: errors.order });

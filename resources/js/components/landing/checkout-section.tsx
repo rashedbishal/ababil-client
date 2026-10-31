@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { toEnglishDigits } from '@/lib/bangla-digits';
+import { sanitizePhoneInput } from '@/lib/bangla-digits';
 import { shippingAreaLabel } from '@/lib/shipping-area';
 import Reveal from './motion/reveal';
 import ProductImageViewer from './product-image-viewer';
@@ -297,7 +297,7 @@ export default function CheckoutSection({
                                                 }
 
                                                 onCustomerPhoneChange(
-                                                    toEnglishDigits(
+                                                    sanitizePhoneInput(
                                                         e.target.value,
                                                     ),
                                                 );

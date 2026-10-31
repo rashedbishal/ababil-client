@@ -6,10 +6,12 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SiteVisitController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [LandingController::class, 'show'])->name('home');
+Route::get('/', [LandingController::class, 'show'])
+    ->middleware('prevent-storefront-caching')
+    ->name('home');
 
 Route::get('orders/{orderNumber}/confirmation', [OrderController::class, 'confirmation'])
-    ->middleware('throttle:30,1')
+    ->middleware(['throttle:30,1', 'prevent-storefront-caching'])
     ->name('orders.confirmation');
 
 Route::post('site-visits', [SiteVisitController::class, 'store'])

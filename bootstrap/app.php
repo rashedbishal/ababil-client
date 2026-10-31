@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsureSizeManagementIsEnabled;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\PreventStorefrontCaching;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -70,6 +71,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'blocked-ip' => BlockDisallowedIps::class,
             'product-creation-unlocked' => EnsureProductCreationIsUnlocked::class,
             'size-management-enabled' => EnsureSizeManagementIsEnabled::class,
+            'prevent-storefront-caching' => PreventStorefrontCaching::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

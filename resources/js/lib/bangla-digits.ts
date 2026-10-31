@@ -19,3 +19,15 @@ const BANGLA_TO_ENGLISH: Record<string, string> = {
 export function toEnglishDigits(value: string): string {
     return value.replace(/[০-৯]/g, (digit) => BANGLA_TO_ENGLISH[digit]);
 }
+
+/**
+ * Normalizes phone number input so the backend always receives a raw
+ * 11-digit local number: converts Bangla digits, strips hyphens users
+ * paste in from formatted numbers, and drops a leading "+88"/"88"
+ * country code if present.
+ */
+export function sanitizePhoneInput(value: string): string {
+    return toEnglishDigits(value)
+        .replace(/-/g, '')
+        .replace(/^\+?88/, '');
+}

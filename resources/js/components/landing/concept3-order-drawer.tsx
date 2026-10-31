@@ -4,7 +4,7 @@ import { AnimatePresence, m } from 'motion/react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
 import type { CheckoutForm } from '@/hooks/use-checkout-form';
-import { toEnglishDigits } from '@/lib/bangla-digits';
+import { sanitizePhoneInput } from '@/lib/bangla-digits';
 import { shippingAreaLabel } from '@/lib/shipping-area';
 import QuantityStepper from './quantity-stepper';
 
@@ -236,7 +236,7 @@ export default function Concept3OrderDrawer({
                                 onChange={(e) =>
                                     setField(
                                         'customer_phone',
-                                        toEnglishDigits(e.target.value),
+                                        sanitizePhoneInput(e.target.value),
                                     )
                                 }
                                 placeholder="01XXXXXXXXX"
