@@ -30,6 +30,57 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        @if ($showLcpPlaceholder)
+            {{-- Hand-written, not Tailwind-derived: #lcp-placeholder (below,
+                 in <body>) must be able to paint in its correct position
+                 and size before the external app.css stylesheet has
+                 loaded - see the non-blocking stylesheet swap further down
+                 for why that stylesheet can no longer be relied on for
+                 this element's first paint. ID selectors (not the classes
+                 already on the markup) so this always wins regardless of
+                 load order once app.css's own (identical) utility rules
+                 do arrive, instead of racing the cascade. --}}
+            <style>
+                #lcp-placeholder {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    top: 64px; /* SiteHeader's own `h-16` height, unscrolled */
+                    z-index: 40;
+                    pointer-events: none;
+                }
+
+                #lcp-placeholder > div {
+                    position: relative;
+                    margin-left: auto;
+                    margin-right: auto;
+                    width: 100%;
+                    max-width: 1920px;
+                    overflow: hidden;
+                    aspect-ratio: 4 / 3;
+                }
+
+                @media (min-width: 640px) {
+                    #lcp-placeholder > div {
+                        aspect-ratio: 16 / 9;
+                    }
+                }
+
+                @media (min-width: 1024px) {
+                    #lcp-placeholder > div {
+                        aspect-ratio: 2560 / 800;
+                    }
+                }
+
+                #lcp-placeholder img {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    object-position: center;
+                }
+            </style>
+        @endif
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
@@ -90,7 +141,37 @@
         @fonts
 
         @viteReactRefresh
-        @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        @if ($showLcpPlaceholder)
+            {{-- Scoped to concept-3 *with* a product only - not
+                 welcome/order-confirmation (also "storefront" pages) or
+                 concept-3's own no-product fallback, none of which have
+                 inline critical CSS of their own below, so making their
+                 stylesheet non-blocking would risk a flash of unstyled
+                 content this change isn't meant to touch. --}}
+            @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+            {{-- The storefront's hero placeholder above needs to paint
+                 before this loads, so it can't be a normal (render-
+                 blocking) stylesheet link here the way admin/auth pages
+                 still get below - `media="print"` means the browser
+                 fetches it at normal priority without blocking first
+                 paint on it (print rarely matches, so it's inert until
+                 swapped), and `onload` flips it to `all` once it's ready,
+                 applying every other style on the page exactly as before.
+                 `Vite::asset()` resolves to the same URL `@vite()` itself
+                 would have used - the Vite dev server's URL when running
+                 hot, the hashed build path otherwise - so this still goes
+                 through Laravel's Vite integration, not around it. --}}
+            <link rel="stylesheet" href="{{ \Illuminate\Support\Facades\Vite::asset('resources/css/app.css') }}" media="print" onload="this.media='all'">
+            {{-- Only reached with JavaScript disabled (`onload` above
+                 can't run), where this is the only chance app.css ever
+                 gets applied - a second, ordinary blocking link, so the
+                 page isn't left unstyled rather than merely slower. --}}
+            <noscript>
+                <link rel="stylesheet" href="{{ \Illuminate\Support\Facades\Vite::asset('resources/css/app.css') }}">
+            </noscript>
+        @else
+            @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        @endif
         {{-- The storefront title lives outside <x-inertia::head> so it's present
              whether or not SSR replaces that block's contents. --}}
         @isset($seo)
