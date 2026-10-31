@@ -205,6 +205,17 @@ export default function Concept3({
         }
     }, [checkout.orderResult]);
 
+    // app.blade.php already skips rendering #lcp-placeholder for this exact
+    // request when it knows server-side there's no product (so this is a
+    // backstop, not the primary fix) - but Concept3Banner is what removes
+    // the placeholder otherwise, and it never mounts on this fallback, so
+    // nothing else ever would.
+    useEffect(() => {
+        if (!product) {
+            document.getElementById('lcp-placeholder')?.remove();
+        }
+    }, [product]);
+
     if (!product) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-amber-50 p-6 text-center">

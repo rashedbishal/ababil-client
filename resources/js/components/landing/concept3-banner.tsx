@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Same photography as the live page's HeroSection (public/images/hero/) -
 // concept 3 duplicates the slide list rather than importing it, since its
 // banner is a different, click-to-order component (no text overlay), and
 // HeroSection itself must stay untouched.
 //
-// slides[0] is this page's LCP element, and its three URLs are hardcoded
-// as <link rel="preload"> in resources/views/app.blade.php (no SSR means
+// slides[0] is this page's LCP element, and its markup/URLs are duplicated
+// as a static placeholder in resources/views/app.blade.php (no SSR means
 // the browser can't discover this component's own markup up front) - keep
-// those in sync if slide 1 ever changes.
+// that in sync if slide 1 ever changes.
 const slides = [
     {
         id: 1,
@@ -81,6 +81,54 @@ export default function Concept3Banner({
     // Set when a drag turns into a swipe, so the click the browser fires
     // on release doesn't also trigger the slide's order action.
     const didSwipeRef = useRef(false);
+
+    // resources/views/app.blade.php renders a static copy of this banner's
+    // first slide so it paints before React does (see #lcp-placeholder
+    // there). It must stay on screen until *this* component's own matching
+    // image has actually loaded - not merely once React has mounted -
+    // otherwise the real slide could pop in a beat later than its static
+    // stand-in and flash/shift. `loadedPositions` seeds position 1 (this
+    // slide) eagerly, so its <img> below is present from this component's
+    // very first render.
+    const removeLcpPlaceholder = useCallback(() => {
+        document.getElementById('lcp-placeholder')?.remove();
+    }, []);
+    // `complete`/`load` alone can be true for a broken image (naturalWidth
+    // stays 0) and don't guarantee the bitmap is actually decoded and
+    // ready to paint - `decode()` does, so it's used here to gate the
+    // swap wherever the browser supports it. Its rejection is handled via
+    // the second `then()` argument (not a separate `.catch()`, and never
+    // left unhandled) - a decode failure still removes the placeholder,
+    // since the real <img> is already in the DOM by then and showing
+    // nothing (or a broken-image icon) is no worse than a stale
+    // placeholder stuck on screen forever.
+    const revealRealSlide = useCallback(
+        (img: HTMLImageElement) => {
+            if (typeof img.decode === 'function') {
+                img.decode().then(removeLcpPlaceholder, removeLcpPlaceholder);
+            } else {
+                removeLcpPlaceholder();
+            }
+        },
+        [removeLcpPlaceholder],
+    );
+    // Covers the (likely, since the image is already server-preloaded by
+    // the time this mounts) case where the image is already loaded from
+    // cache by the time this ref runs, so `onLoad` below would never fire.
+    const lcpImageRef = useCallback(
+        (node: HTMLImageElement | null) => {
+            if (node?.complete && node.naturalWidth > 0) {
+                revealRealSlide(node);
+            }
+        },
+        [revealRealSlide],
+    );
+    const handleLcpImageLoad = useCallback(
+        (e: React.SyntheticEvent<HTMLImageElement>) => {
+            revealRealSlide(e.currentTarget);
+        },
+        [revealRealSlide],
+    );
 
     // `track` has SLIDE_COUNT + 2 full-bleed photos (two clones included),
     // and `position` indexes it 1:1. Requesting all of them up front
@@ -267,6 +315,7 @@ export default function Concept3Banner({
                                         srcSet={slide.tab}
                                     />
                                     <img
+                                        ref={i === 1 ? lcpImageRef : undefined}
                                         src={slide.desktop}
                                         alt={slide.isClone ? '' : slide.alt}
                                         // Off-screen slides of a translated
@@ -279,6 +328,11 @@ export default function Concept3Banner({
                                         loading="eager"
                                         fetchPriority={
                                             i === 1 ? 'high' : 'auto'
+                                        }
+                                        onLoad={
+                                            i === 1
+                                                ? handleLcpImageLoad
+                                                : undefined
                                         }
                                         draggable={false}
                                         className="size-full object-cover"

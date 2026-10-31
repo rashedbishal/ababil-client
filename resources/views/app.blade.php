@@ -5,11 +5,19 @@
     $isStorefrontPage = in_array($page['component'], ['welcome', 'concept-3', 'order-confirmation'], true);
     // The concept-3 hero banner (first slide) is this page's LCP element,
     // but it's only rendered by React after hydration - with no SSR, the
-    // browser's preloader can't discover it in the initial HTML at all.
-    // Preloading it here (mirroring Concept3Banner's own <picture> media
-    // breakpoints) lets the image start downloading immediately instead of
-    // waiting on JS to parse, execute and render.
+    // browser can't paint it until the JS bundle has downloaded, parsed,
+    // executed and mounted. A static copy of that same slide is rendered
+    // straight into the body below (mirroring Concept3Banner's own
+    // <picture> markup/breakpoints exactly) so it paints immediately from
+    // HTML alone; Concept3Banner removes it once its own real image is
+    // loaded (see #lcp-placeholder below and concept3-banner.tsx).
     $isConcept3Page = $page['component'] === 'concept-3';
+    // Concept3Banner (and therefore the LCP element it's standing in for)
+    // never mounts when there's no product - LandingController already
+    // resolved that for this exact request, so it's checked here from the
+    // same page props Inertia itself is about to render, rather than
+    // guessing or giving the placeholder a fixed lifetime.
+    $showLcpPlaceholder = $isConcept3Page && ($page['props']['product'] ?? null) !== null;
     // Raw, admin-pasted tracking snippets (GTM/Pixel/GA/etc. install code) - not generated here.
     // Trusted because only admins can write these settings; injected verbatim like any site owner
     // pasting a vendor's install snippet into their template.
@@ -22,12 +30,6 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        @if ($isConcept3Page)
-            {{-- LCP preload for the hero banner's first slide - see note above. --}}
-            <link rel="preload" as="image" fetchpriority="high" media="(max-width: 639px)" href="/images/hero/001_mobile.webp">
-            <link rel="preload" as="image" fetchpriority="high" media="(min-width: 640px) and (max-width: 1023px)" href="/images/hero/001_tab.webp">
-            <link rel="preload" as="image" fetchpriority="high" media="(min-width: 1024px)" href="/images/hero/IMG_3616_desktop.webp">
-        @endif
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
@@ -109,6 +111,30 @@
         @if ($bodyCode)
             {{-- Admin-pasted body code (Settings → Body code injection) --}}
             {!! $bodyCode !!}
+        @endif
+
+        @if ($showLcpPlaceholder)
+            {{-- Static copy of Concept3Banner's first slide (its own
+                 <picture>/<img>, same URLs/breakpoints) so the LCP element
+                 paints from HTML alone, before React/Inertia ever runs.
+                 `top-16` matches SiteHeader's own `h-16` height in its
+                 initial (docked, unscrolled) state, so this sits exactly
+                 where the real banner will land once React mounts -
+                 `absolute` (not `fixed`) so it takes no layout space of
+                 its own and scrolls with the page like normal content,
+                 and `pointer-events-none` keeps it from ever intercepting
+                 clicks meant for the real banner underneath. Removed by
+                 concept3-banner.tsx once its own matching image has
+                 actually loaded - never by this page alone. --}}
+            <div id="lcp-placeholder" class="pointer-events-none absolute inset-x-0 top-16 z-40">
+                <div class="relative mx-auto aspect-[4/3] w-full max-w-[1920px] overflow-hidden sm:aspect-[16/9] lg:aspect-[2560/800]">
+                    <picture>
+                        <source media="(max-width: 639px)" srcset="/images/hero/001_mobile.webp">
+                        <source media="(max-width: 1023px)" srcset="/images/hero/001_tab.webp">
+                        <img src="/images/hero/IMG_3616_desktop.webp" alt="বয়স বাড়লেও গতি রবে — আবাবিল অয়েল" loading="eager" fetchpriority="high" class="size-full object-cover">
+                    </picture>
+                </div>
+            </div>
         @endif
 
         <x-inertia::app />
