@@ -159,7 +159,14 @@ export function useCheckoutForm({
             customer_phone: '',
             delivery_address: '',
         }));
-    }, []);
+        // Placing an order doesn't remount this page - the POST's redirect
+        // is followed as part of the same Inertia visit, just updating this
+        // already-mounted component's props - so this has to re-run
+        // whenever a fresh `orderPlaced`/`orderError` prop actually arrives
+        // (not just once on first mount, when both are still whatever the
+        // very first page load had).
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [orderPlaced, orderError]);
 
     // `?placed=`/`?order_error=` (see above) only need to survive the one
     // redirect that carries them - once consumed, drop them so a refresh or
@@ -172,7 +179,7 @@ export function useCheckoutForm({
                 window.location.pathname + window.location.hash,
             );
         }
-    }, []);
+    }, [orderPlaced, orderError]);
 
     function track(partial: Partial<typeof tracker.data>) {
         tracker.setData((data) => ({ ...data, ...partial }));
