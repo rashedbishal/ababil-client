@@ -22,29 +22,17 @@ export default function OrderButton({
     className?: string;
 }) {
     const large = size === 'lg';
-    const ref = useRef<HTMLAnchorElement>(null);
+    const ref = useRef<HTMLAnchorElement & HTMLButtonElement>(null);
     // Many of these buttons exist on the page at once — only the ones
     // actually on screen need their shimmer/arrow loops running.
     const isInView = useInView(ref, { margin: '200px' });
 
-    return (
-        <m.a
-            ref={ref}
-            href={href}
-            onClick={
-                onClick
-                    ? (e) => {
-                          e.preventDefault();
-                          onClick();
-                      }
-                    : undefined
-            }
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 font-bengali font-bold whitespace-nowrap text-stone-950 shadow-xl ring-2 shadow-amber-500/25 ring-amber-200/80 transition-shadow hover:shadow-amber-500/40 ${
-                large ? 'px-10 py-4 text-lg sm:text-xl' : 'px-6 py-2.5 text-sm'
-            } ${className}`}
-        >
+    const sharedClassName = `group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 font-bengali font-bold whitespace-nowrap text-stone-950 shadow-xl ring-2 shadow-amber-500/25 ring-amber-200/80 transition-shadow hover:shadow-amber-500/40 ${
+        large ? 'px-10 py-4 text-lg sm:text-xl' : 'px-6 py-2.5 text-sm'
+    } ${className}`;
+
+    const content = (
+        <>
             {/* Plain CSS animations (no per-frame JS) — only applied while
                 the button is in view, toggling a class is effectively free. */}
             <span
@@ -64,6 +52,39 @@ export default function OrderButton({
                     <ArrowRight className={large ? 'size-5' : 'size-4'} />
                 </span>
             )}
+        </>
+    );
+
+    // When onClick is provided this never navigates anywhere, so it's a
+    // real <button>, not an <a> whose default navigation has to be
+    // suppressed via preventDefault() - Facebook's in-app browser webview
+    // intercepts anchor taps with its own handling ahead of React's
+    // synthetic event, racing preventDefault() and falling through to a
+    // real navigation that reloads the page.
+    if (onClick) {
+        return (
+            <m.button
+                ref={ref}
+                type="button"
+                onClick={onClick}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className={sharedClassName}
+            >
+                {content}
+            </m.button>
+        );
+    }
+
+    return (
+        <m.a
+            ref={ref}
+            href={href}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            className={sharedClassName}
+        >
+            {content}
         </m.a>
     );
 }
