@@ -29,6 +29,16 @@ return Application::configure(basePath: dirname(__DIR__))
         // missing fbp/fbc (confirmed via Meta's match-quality diagnostics).
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state', '_fbp', '_fbc']);
 
+        // This endpoint has no session-dependent behavior at all - it's
+        // unauthenticated, and its real anti-abuse protection is the
+        // encrypted, stateless `form_token` plus rate limiting and IP
+        // blocking, none of which need a cookie. Requiring a session-tied
+        // CSRF token on top of that makes order placement depend on cookie
+        // persistence, which in-app browsers (Facebook's especially) are
+        // known to handle unreliably - every submission there failed with
+        // a 419 regardless of how fresh the session was.
+        $middleware->validateCsrfTokens(except: ['orders']);
+
         // Unset (the default) trusts no proxy, preserving $request->ip()'s
         // current behavior. Set TRUSTED_PROXIES in production when this app
         // sits behind a reverse proxy/load balancer/CDN - otherwise IP
