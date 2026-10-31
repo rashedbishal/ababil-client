@@ -78,6 +78,8 @@ export default function Concept3Banner({
     const [isDragging, setIsDragging] = useState(false);
     const [dragX, setDragX] = useState(0);
     const startXRef = useRef<number | null>(null);
+    const dragXRef = useRef(0);
+    const draggingRef = useRef(false);
     // Set when a drag turns into a swipe, so the click the browser fires
     // on release doesn't also trigger the slide's order action.
     const didSwipeRef = useRef(false);
@@ -219,35 +221,58 @@ export default function Concept3Banner({
         // The dots handle their own clicks.
         if ((e.target as HTMLElement).closest('[data-banner-control]')) return;
 
-        // Grabbing the track mid-slide onto a clone: swap to the identical
-        // real slide first, so the drag can continue in either direction.
-        if (isOnClone) jumpOffClone();
-
+        // Do not setState here. Facebook's in-app browser drops the
+        // subsequent click if React re-renders on pointerdown, so a tap
+        // never opens the order drawer. Swipe state is applied only after
+        // the finger has actually moved (handlePointerMove).
         startXRef.current = e.clientX;
+        dragXRef.current = 0;
+        draggingRef.current = false;
         didSwipeRef.current = false;
-        setIsDragging(true);
-        setDragX(0);
     };
 
     const handlePointerMove = (e: React.PointerEvent) => {
         if (startXRef.current === null) return;
-        setDragX(e.clientX - startXRef.current);
+        const dx = e.clientX - startXRef.current;
+        dragXRef.current = dx;
+
+        if (!draggingRef.current) {
+            if (Math.abs(dx) < 8) return;
+            draggingRef.current = true;
+            didSwipeRef.current = true;
+            // Grabbing the track mid-slide onto a clone: swap to the
+            // identical real slide first, so the drag can continue in
+            // either direction.
+            if (isOnClone) jumpOffClone();
+            setIsDragging(true);
+        }
+
+        setDragX(dx);
     };
 
     const endDrag = (commit: boolean) => {
         if (startXRef.current === null) return;
+        const dx = dragXRef.current;
+        const wasDragging = draggingRef.current;
         startXRef.current = null;
+        dragXRef.current = 0;
+        draggingRef.current = false;
+
+        // A tap never entered drag state — leave React state alone so the
+        // click can open the order drawer.
+        if (!wasDragging) return;
+
         setIsDragging(false);
         setDragX(0);
 
-        if (!commit || Math.abs(dragX) < SWIPE_THRESHOLD) {
+        if (!commit || Math.abs(dx) < SWIPE_THRESHOLD) {
             // Snap back to the current slide.
             setIsAnimating(true);
             return;
         }
 
         didSwipeRef.current = true;
-        if (dragX < 0) {
+        if (dx < 0) {
             goNext();
         } else {
             goPrev();
@@ -273,7 +298,9 @@ export default function Concept3Banner({
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={() => endDrag(true)}
-                onPointerLeave={() => endDrag(true)}
+                onPointerLeave={() => {
+                    if (draggingRef.current) endDrag(true);
+                }}
                 onPointerCancel={() => endDrag(false)}
             >
                 <div

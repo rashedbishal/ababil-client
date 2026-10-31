@@ -32,13 +32,18 @@ export default function OrderResultDialog({
     return (
         <Dialog
             open={result !== null}
+            modal={false}
             onOpenChange={(open) => {
                 if (!open) {
                     onClose();
                 }
             }}
         >
-            <DialogContent className="border-amber-200 font-bengali sm:max-w-md">
+            <DialogContent
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                onCloseAutoFocus={(e) => e.preventDefault()}
+                className="border-amber-200 font-bengali sm:max-w-md"
+            >
                 {result?.type === 'success' && (
                     <>
                         <DialogHeader className="items-center text-center sm:text-center">

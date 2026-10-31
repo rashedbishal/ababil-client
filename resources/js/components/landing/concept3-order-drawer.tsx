@@ -55,10 +55,25 @@ export default function Concept3OrderDrawer({
     const activeImage = images[imageIndex];
 
     return (
-        <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+        // `modal={false}` skips Radix's body scroll-lock (`overflow: hidden`
+        // / `position: fixed` on `<body>`). Facebook's in-app browser treats
+        // that style change as a navigation and reloads the page, so the
+        // drawer never appears and the shopper lands back at the top.
+        <DialogPrimitive.Root
+            open={open}
+            onOpenChange={onOpenChange}
+            modal={false}
+        >
             <DialogPrimitive.Portal>
-                <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-stone-950/60 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-                <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-[440px] flex-col overflow-y-auto bg-white p-6 font-bengali shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:animate-in data-[state=open]:slide-in-from-right sm:p-7">
+                <DialogPrimitive.Overlay
+                    className="fixed inset-0 z-50 overflow-hidden overscroll-none bg-stone-950/60 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
+                    onClick={() => onOpenChange(false)}
+                />
+                <DialogPrimitive.Content
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => e.preventDefault()}
+                    className="fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-[440px] flex-col overflow-y-auto bg-white p-6 font-bengali shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:animate-in data-[state=open]:slide-in-from-right sm:p-7"
+                >
                     <div className="flex items-center justify-between border-b border-amber-100 pb-5">
                         <DialogPrimitive.Title className="text-xl font-bold text-stone-900">
                             আপনার অর্ডার

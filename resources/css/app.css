@@ -151,6 +151,11 @@
 
     body {
         @apply bg-background text-foreground antialiased;
+        /* Stops a tap/scroll near the top or bottom edge from chaining into
+           the browser's own pull-to-refresh/navigation gesture - some
+           in-app webviews (e.g. Facebook's) misfire this into a full page
+           reload when a layout change happens mid-touch. */
+        overscroll-behavior-y: none;
     }
 
     select {

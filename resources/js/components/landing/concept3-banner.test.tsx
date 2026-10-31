@@ -7,6 +7,56 @@ describe('Concept3Banner', () => {
         vi.useRealTimers();
     });
 
+    it('opens the order drawer on a tap that does not become a swipe', () => {
+        const onOrderClick = vi.fn();
+        render(<Concept3Banner onOrderClick={onOrderClick} />);
+
+        const slide = screen.getAllByRole('button', {
+            name: 'আবাবিল অর্ডার করুন',
+        })[1];
+
+        fireEvent.pointerDown(slide, {
+            pointerType: 'touch',
+            clientX: 120,
+            button: 0,
+        });
+        fireEvent.pointerUp(slide, {
+            pointerType: 'touch',
+            clientX: 120,
+            button: 0,
+        });
+        fireEvent.click(slide);
+
+        expect(onOrderClick).toHaveBeenCalledOnce();
+    });
+
+    it('does not treat a horizontal swipe as an order tap', () => {
+        const onOrderClick = vi.fn();
+        render(<Concept3Banner onOrderClick={onOrderClick} />);
+
+        const slide = screen.getAllByRole('button', {
+            name: 'আবাবিল অর্ডার করুন',
+        })[1];
+
+        fireEvent.pointerDown(slide, {
+            pointerType: 'touch',
+            clientX: 200,
+            button: 0,
+        });
+        fireEvent.pointerMove(slide, {
+            pointerType: 'touch',
+            clientX: 80,
+        });
+        fireEvent.pointerUp(slide, {
+            pointerType: 'touch',
+            clientX: 80,
+            button: 0,
+        });
+        fireEvent.click(slide);
+
+        expect(onOrderClick).not.toHaveBeenCalled();
+    });
+
     it('rebases from the first-slide clone without animating across the track', () => {
         vi.useFakeTimers();
         const { container } = render(

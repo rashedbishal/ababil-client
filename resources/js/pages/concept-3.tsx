@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import Concept3Banner from '@/components/landing/concept3-banner';
 import Concept3CertificationSection from '@/components/landing/concept3-certification-section';
 import Concept3MapSection from '@/components/landing/concept3-map-section';
+import Concept3OrderDrawer from '@/components/landing/concept3-order-drawer';
 import type { Concept3PhotoItem } from '@/components/landing/concept3-photo-gallery';
 import Concept3ProductSection from '@/components/landing/concept3-product-section';
 import Concept3StickyBar from '@/components/landing/concept3-sticky-bar';
@@ -20,11 +21,12 @@ import type {
     VideoReview,
 } from '@/types/storefront';
 
-// Everything below the first couple of viewports (and the order
-// drawer/result dialog, which only render once the shopper interacts) is
-// code-split out of the main page chunk - Lighthouse flagged this page's
-// initial JS as a Total Blocking Time contributor, and none of this needs
-// to be parsed/executed before the hero banner and nav are interactive.
+// Everything below the first couple of viewports (and the result dialog,
+// which only renders after an order attempt) is code-split out of the main
+// page chunk - Lighthouse flagged this page's initial JS as a Total
+// Blocking Time contributor. The order drawer is imported eagerly so a
+// tap can open it immediately; a lazy chunk that hadn't loaded yet left
+// Facebook's in-app browser with a blank tap and a page reset.
 const Concept3PhotoGallery = lazy(
     () => import('@/components/landing/concept3-photo-gallery'),
 );
@@ -39,9 +41,6 @@ const Concept3FaqSection = lazy(
 );
 const Concept3ContactSection = lazy(
     () => import('@/components/landing/concept3-contact-section'),
-);
-const Concept3OrderDrawer = lazy(
-    () => import('@/components/landing/concept3-order-drawer'),
 );
 const OrderResultDialog = lazy(
     () => import('@/components/landing/order-result-dialog'),
@@ -301,15 +300,13 @@ export default function Concept3({
 
                 <Concept3StickyBar onOrderClick={openDrawer} />
 
-                <Suspense fallback={null}>
-                    <Concept3OrderDrawer
-                        open={drawerOpen}
-                        onOpenChange={setDrawerOpen}
-                        productName={product.name}
-                        images={productImages}
-                        checkout={checkout}
-                    />
-                </Suspense>
+                <Concept3OrderDrawer
+                    open={drawerOpen}
+                    onOpenChange={setDrawerOpen}
+                    productName={product.name}
+                    images={productImages}
+                    checkout={checkout}
+                />
 
                 <Suspense fallback={null}>
                     <OrderResultDialog
