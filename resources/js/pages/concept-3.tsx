@@ -13,7 +13,10 @@ import SiteHeader, {
     type MobileNavLink,
     type NavLink,
 } from '@/components/landing/site-header';
-import { useCheckoutForm } from '@/hooks/use-checkout-form';
+import {
+    type OrderPlacedData,
+    useCheckoutForm,
+} from '@/hooks/use-checkout-form';
 import type {
     Contact,
     Product,
@@ -188,14 +191,24 @@ export default function Concept3({
     contact,
     formToken,
     reviews,
+    orderPlaced,
+    orderError,
 }: {
     product: Product | null;
     shippingAreas: ShippingArea[];
     contact: Contact;
     formToken: string;
     reviews: VideoReview[];
+    orderPlaced?: OrderPlacedData | null;
+    orderError?: string | null;
 }) {
-    const checkout = useCheckoutForm({ product, shippingAreas, formToken });
+    const checkout = useCheckoutForm({
+        product,
+        shippingAreas,
+        formToken,
+        orderPlaced,
+        orderError,
+    });
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     useEffect(() => {

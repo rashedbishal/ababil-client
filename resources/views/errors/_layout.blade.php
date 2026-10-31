@@ -138,11 +138,13 @@
             <div class="code">Error {{ $code }}</div>
             <h1>{{ $title }}</h1>
             <p>{{ $message }}</p>
-            {{-- target="_top": Inertia shows a non-Inertia response like this
-            one (e.g. a 429 during checkout) inside a hidden iframe overlay,
-            not a real navigation - without _top, clicking this link only
-            navigates that invisible iframe and looks like the button does
-            nothing. _top is a no-op when this page is loaded standalone. --}}
+            {{-- target="_top": a plain fallback for when this page is
+            loaded standalone (no iframe to escape, so this is a normal
+            navigation) - the click handler below is what actually makes
+            it work when Inertia has shown this inside its hidden iframe
+            overlay (e.g. a 429 during checkout), since that iframe is
+            sandboxed ("allow-scripts" only) and cannot navigate the real
+            top-level window itself, same-origin postMessage included. --}}
             <a class="btn" id="back-link" href="{{ route('home') }}" target="_top">হোমপেজে ফিরে যান</a>
         </div>
         <script>
@@ -157,6 +159,18 @@
                     link.href = ref;
                     link.textContent = 'আগের পেজে ফিরে যান';
                 }
+
+                link.addEventListener('click', function (e) {
+                    if (window.top === window.self) {
+                        return;
+                    }
+
+                    e.preventDefault();
+                    window.top.postMessage(
+                        { type: 'inertia-error-navigate', href: link.href },
+                        window.location.origin,
+                    );
+                });
             })();
         </script>
     </body>

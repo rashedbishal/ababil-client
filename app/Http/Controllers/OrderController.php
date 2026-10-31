@@ -7,9 +7,8 @@ use App\Exceptions\OrderPlacementException;
 use App\Http\Requests\PlaceOrderRequest;
 use App\Jobs\SendFacebookPurchaseEvent;
 use App\Models\Order;
-use App\Models\OrderItem;
+use App\Support\OrderPayload;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,7 +23,7 @@ class OrderController extends Controller
 
         return Inertia::render('order-confirmation', [
             'order' => [
-                ...self::orderPayload($order),
+                ...OrderPayload::build($order),
                 'status' => $order->status->label(),
             ],
         ]);
@@ -39,7 +38,12 @@ class OrderController extends Controller
                 $request->userAgent(),
             );
         } catch (OrderPlacementException $exception) {
-            return back()->withErrors(['order' => $exception->getMessage()])->withInput();
+            // Same reasoning as the success redirect below: session-based
+            // error flash (`back()->withErrors()`) can't be trusted to
+            // survive the redirect's follow-up GET in every browser, so
+            // this message travels statelessly too, via `?order_error=` -
+            // see `LandingController::show()` and its `orderError` prop.
+            return redirect()->route('home', ['order_error' => $exception->getMessage()]);
         }
 
         // Queued (not called inline) so a slow/unreachable Graph API never
@@ -55,38 +59,16 @@ class OrderController extends Controller
         );
 
         // The storefront shows the result in a modal on the same page rather
-        // than navigating to the confirmation route above, so this flash -
-        // not that route - is what actually reaches real customers and is
-        // what the dataLayer purchase push (resources/js/hooks/use-checkout-form.ts)
-        // reads from.
-        Inertia::flash('orderPlaced', [
-            ...self::orderPayload($order->load('items')),
-        ]);
-
-        return back();
-    }
-
-    /**
-     * @return array{order_number: string, customer_name: string, shipping_area_name: string, subtotal: string, shipping_charge: string, discount: string, grand_total: string, items: Collection<int, array{sku: ?string, product_name: string, size_name: ?string, quantity: int, unit_price: string, line_total: string}>}
-     */
-    private static function orderPayload(Order $order): array
-    {
-        return [
-            'order_number' => $order->order_number,
-            'customer_name' => $order->customer_name,
-            'shipping_area_name' => $order->shipping_area_name,
-            'subtotal' => (string) $order->subtotal,
-            'shipping_charge' => (string) $order->shipping_charge,
-            'discount' => (string) $order->discount,
-            'grand_total' => (string) $order->grand_total,
-            'items' => $order->items->map(fn (OrderItem $item) => [
-                'sku' => $item->sku,
-                'product_name' => $item->product_name,
-                'size_name' => $item->size_name,
-                'quantity' => $item->quantity,
-                'unit_price' => (string) $item->unit_price,
-                'line_total' => (string) $item->line_total,
-            ]),
-        ];
+        // than navigating to the confirmation route above - but getting
+        // there needs a second request (this redirect's own follow-up GET),
+        // and Inertia's session-based flash can't be trusted to survive
+        // that round trip in every browser (some in-app webviews don't
+        // reliably persist the session cookie across requests). Passing the
+        // order number back as a plain query param instead means
+        // `LandingController::show()` can rebuild this same data itself,
+        // statelessly, with no session involved - see its own handling of
+        // `?placed=`, which is what the dataLayer purchase push
+        // (resources/js/hooks/use-checkout-form.ts) actually reads from.
+        return redirect()->route('home', ['placed' => $order->order_number]);
     }
 }

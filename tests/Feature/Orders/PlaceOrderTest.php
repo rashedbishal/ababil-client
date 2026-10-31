@@ -9,7 +9,6 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingArea;
 use App\Models\Size;
-use Inertia\Support\SessionKey;
 
 function validOrderPayload(Product $product, ShippingArea $shippingArea, array $overrides = []): array
 {
@@ -41,31 +40,34 @@ test('a customer can place an order without authentication', function () {
     $response->assertRedirect();
 });
 
-test('the orderPlaced flash carries everything the storefront needs for the dataLayer purchase event', function () {
+test('placing an order redirects to the storefront with ?placed=<order_number>, which carries everything needed for the result modal and dataLayer purchase event', function () {
     // The storefront never navigates to the separate /orders/{number}/confirmation
-    // route - it shows a dialog on this same page driven by this flash, so this
-    // payload (not that route's props) is what the dataLayer push actually reads.
+    // route - it shows a dialog on this same page, rebuilt statelessly by
+    // LandingController from this query param (not session flash, which
+    // can't be trusted to survive the redirect's follow-up GET in every
+    // browser) - so this payload (not that route's props) is what the
+    // dataLayer push actually reads.
     $product = Product::factory()->create(['name' => 'Classic Tee', 'sku' => 'TEE-001', 'regular_price' => 500, 'sale_price' => null, 'track_stock' => true, 'stock' => 10]);
     $shippingArea = ShippingArea::factory()->create(['charge' => 60, 'is_active' => true]);
 
     $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, ['quantity' => 3]));
 
-    $response->assertSessionHas(SessionKey::FLASH_DATA, function (array $flash) {
-        expect($flash)->toHaveKey('orderPlaced');
-        $placed = $flash['orderPlaced'];
+    $order = Order::first();
+    expect($order)->not->toBeNull();
 
-        expect($placed['subtotal'])->toBe('1500.00')
-            ->and($placed['shipping_charge'])->toBe('60.00')
-            ->and($placed['discount'])->toBe('0.00')
-            ->and($placed['grand_total'])->toBe('1560.00')
-            ->and($placed['items'])->toHaveCount(1)
-            ->and($placed['items'][0]['sku'])->toBe('TEE-001')
-            ->and($placed['items'][0]['product_name'])->toBe('Classic Tee')
-            ->and($placed['items'][0]['quantity'])->toBe(3)
-            ->and($placed['items'][0]['unit_price'])->toBe('500.00');
+    $response->assertRedirect(route('home', ['placed' => $order->order_number]));
 
-        return true;
-    });
+    $this->get(route('home', ['placed' => $order->order_number]))
+        ->assertInertia(fn ($page) => $page
+            ->where('orderPlaced.subtotal', '1500.00')
+            ->where('orderPlaced.shipping_charge', '60.00')
+            ->where('orderPlaced.discount', '0.00')
+            ->where('orderPlaced.grand_total', '1560.00')
+            ->where('orderPlaced.items.0.sku', 'TEE-001')
+            ->where('orderPlaced.items.0.product_name', 'Classic Tee')
+            ->where('orderPlaced.items.0.quantity', 3)
+            ->where('orderPlaced.items.0.unit_price', '500.00')
+        );
 });
 
 test('order creation persists a matching order item snapshot', function () {
@@ -101,7 +103,7 @@ test('a customer cannot order an inactive variant', function () {
     $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, ['variant_id' => $variant->id]));
 
     expect(Order::count())->toBe(0);
-    $response->assertSessionHasErrors('order');
+    $response->assertRedirect(route('home', ['order_error' => 'The selected size is no longer available.']));
 });
 
 test('a customer cannot order more than the available stock', function () {
@@ -111,7 +113,7 @@ test('a customer cannot order more than the available stock', function () {
     $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea, ['quantity' => 5]));
 
     expect(Order::count())->toBe(0);
-    $response->assertSessionHasErrors('order');
+    $response->assertRedirect(route('home', ['order_error' => 'Not enough stock available for this product.']));
 });
 
 test('placing an order decrements stock and a second order cannot oversell it', function () {
@@ -452,7 +454,7 @@ test('a phone number is blocked from placing more than the daily order cap', fun
 
     $response = $this->post(route('orders.store'), validOrderPayload($product, $shippingArea));
 
-    $response->assertSessionHasErrors('order');
+    $response->assertRedirect(route('home', ['order_error' => "You've placed several orders recently. Please contact us if you need to order again today."]));
     expect(Order::count())->toBe(2);
 });
 

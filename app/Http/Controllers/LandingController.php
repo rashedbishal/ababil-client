@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Review;
 use App\Models\Setting;
 use App\Models\ShippingArea;
+use App\Support\OrderPayload;
 use App\Support\StorefrontSeo;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,12 +26,43 @@ class LandingController extends Controller
      * Only one product is featured for now, but the schema behind it
      * supports many products.
      */
-    public function show(): Response
+    public function show(Request $request): Response
     {
         $product = $this->featuredProduct();
 
-        return Inertia::render('concept-3', $this->sharedProps($product))
-            ->withViewData('seo', $this->seo($product));
+        return Inertia::render('concept-3', [
+            ...$this->sharedProps($product),
+            'orderPlaced' => $this->orderPlaced($request),
+            'orderError' => $request->query('order_error'),
+        ])->withViewData('seo', $this->seo($product));
+    }
+
+    /**
+     * `OrderController::store()` redirects here with `?placed=<order_number>`
+     * on success rather than flashing the order to the session - the
+     * storefront's own result modal needs this data to survive the
+     * redirect's follow-up GET, and session-based flash can't be trusted to
+     * do that in every browser (some in-app webviews don't reliably persist
+     * the session cookie across requests). The order number is no more
+     * sensitive here than it already is on the public, unauthenticated
+     * `orders/{orderNumber}/confirmation` route.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function orderPlaced(Request $request): ?array
+    {
+        $orderNumber = $request->query('placed');
+
+        if (! is_string($orderNumber) || $orderNumber === '') {
+            return null;
+        }
+
+        $order = Order::query()
+            ->where('order_number', $orderNumber)
+            ->with('items')
+            ->first();
+
+        return $order ? OrderPayload::build($order) : null;
     }
 
     /**

@@ -1,4 +1,4 @@
-import { router, useForm, useHttp } from '@inertiajs/react';
+import { useForm, useHttp } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { OrderResult } from '@/components/landing/order-result-dialog';
 import { useCheckoutSession } from '@/hooks/use-checkout-session';
@@ -36,14 +36,38 @@ type TrackedField =
  * keeps its own independent copy and is unaffected by anything built on
  * top of this hook.
  */
+export type OrderPlacedData = {
+    order_number: string;
+    customer_name: string;
+    shipping_area_name: string;
+    subtotal: string;
+    shipping_charge: string;
+    discount: string;
+    grand_total: string;
+    items: {
+        sku: string | null;
+        product_name: string;
+        size_name: string | null;
+        unit_price: string;
+        quantity: number;
+    }[];
+};
+
 export function useCheckoutForm({
     product,
     shippingAreas,
     formToken,
+    orderPlaced,
+    orderError,
 }: {
     product: Product | null;
     shippingAreas: ShippingArea[];
     formToken: string;
+    // `OrderController::store()` redirects back here with this data (built
+    // from `?placed=<order_number>`) or this message (from `?order_error=`)
+    // rather than Inertia's session-based flash - see `LandingController`.
+    orderPlaced?: OrderPlacedData | null;
+    orderError?: string | null;
 }) {
     // Most orders ship within Dhaka, so it's pre-selected rather than making
     // every shopper pick it manually. Matched by name rather than assuming
@@ -91,70 +115,63 @@ export function useCheckoutForm({
     const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
 
     useEffect(() => {
-        return router.on('flash', (event) => {
-            const flash = (
-                event as CustomEvent<{
-                    flash?: {
-                        orderPlaced?: {
-                            order_number: string;
-                            customer_name: string;
-                            shipping_area_name: string;
-                            subtotal: string;
-                            shipping_charge: string;
-                            discount: string;
-                            grand_total: string;
-                            items: {
-                                sku: string | null;
-                                product_name: string;
-                                size_name: string | null;
-                                unit_price: string;
-                                quantity: number;
-                            }[];
-                        };
-                    };
-                }>
-            ).detail?.flash;
-            const placed = flash?.orderPlaced;
+        if (orderError) {
+            setOrderResult({ type: 'error', message: orderError });
+        }
 
-            if (!placed) {
-                return;
-            }
+        if (!orderPlaced) {
+            return;
+        }
 
-            // This flash - not the separate /orders/{orderNumber}/confirmation
-            // route - is what real customers actually see (a dialog on this
-            // same page), so this is where the purchase event has to fire.
-            pushPurchaseEvent(placed);
+        const placed = orderPlaced;
 
-            setOrderResult({
-                type: 'success',
-                orderNumber: placed.order_number,
-                customerName: placed.customer_name,
-                shippingAreaName: shippingAreaLabel(placed.shipping_area_name),
-                grandTotal: placed.grand_total,
-            });
+        // This - not the separate /orders/{orderNumber}/confirmation route -
+        // is what real customers actually see (a dialog on this same page),
+        // so this is where the purchase event has to fire.
+        pushPurchaseEvent(placed);
 
-            form.reset(
-                'quantity',
-                'customer_name',
-                'customer_phone',
-                'delivery_address',
-                'customer_note',
-            );
-
-            if (trackTimeout.current) {
-                clearTimeout(trackTimeout.current);
-                trackTimeout.current = null;
-            }
-
-            const freshSessionToken = rotateCheckoutSession();
-            tracker.setData((data) => ({
-                ...data,
-                session_token: freshSessionToken,
-                customer_name: '',
-                customer_phone: '',
-                delivery_address: '',
-            }));
+        setOrderResult({
+            type: 'success',
+            orderNumber: placed.order_number,
+            customerName: placed.customer_name,
+            shippingAreaName: shippingAreaLabel(placed.shipping_area_name),
+            grandTotal: placed.grand_total,
         });
+
+        form.reset(
+            'quantity',
+            'customer_name',
+            'customer_phone',
+            'delivery_address',
+            'customer_note',
+        );
+
+        if (trackTimeout.current) {
+            clearTimeout(trackTimeout.current);
+            trackTimeout.current = null;
+        }
+
+        const freshSessionToken = rotateCheckoutSession();
+        tracker.setData((data) => ({
+            ...data,
+            session_token: freshSessionToken,
+            customer_name: '',
+            customer_phone: '',
+            delivery_address: '',
+        }));
+    }, []);
+
+    // `?placed=`/`?order_error=` (see above) only need to survive the one
+    // redirect that carries them - once consumed, drop them so a refresh or
+    // a later `history.back()` doesn't re-show the same result.
+    useEffect(() => {
+        if (orderPlaced || orderError) {
+            window.history.replaceState(
+                window.history.state,
+                '',
+                window.location.pathname + window.location.hash,
+            );
+        }
     }, []);
 
     function track(partial: Partial<typeof tracker.data>) {
