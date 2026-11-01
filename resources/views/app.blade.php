@@ -80,6 +80,24 @@
                     object-position: center;
                 }
             </style>
+
+            {{-- Responsive preload for this page's LCP image, matching the
+                 #lcp-placeholder <picture>'s own breakpoints exactly (639px/
+                 1023px thresholds) so the browser fetches exactly one of
+                 the three variants - never more than one - before it even
+                 reaches <body>. Plain static /images/hero/ paths (not
+                 Vite-processed), so these are literal, stable URLs -
+                 identical to the ones #lcp-placeholder and
+                 Concept3Banner's own slide 1 already use. --}}
+            <link rel="preload" as="image" fetchpriority="high"
+                  media="(max-width: 639px)"
+                  href="/images/hero/001_mobile.webp">
+            <link rel="preload" as="image" fetchpriority="high"
+                  media="(min-width: 640px) and (max-width: 1023px)"
+                  href="/images/hero/001_tab.webp">
+            <link rel="preload" as="image" fetchpriority="high"
+                  media="(min-width: 1024px)"
+                  href="/images/hero/IMG_3616_desktop.webp">
         @endif
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
