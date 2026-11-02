@@ -13,11 +13,21 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
             fonts: [
+                // preload: false - the storefront's above-the-fold content
+                // (Concept3Banner) is a pure image slider with no text
+                // overlay, so no text renders in the first few seconds of
+                // any page load. Preloading these competes with the hero
+                // image preload (the actual LCP element) for early
+                // bandwidth for no benefit - letting them load via normal
+                // CSS @font-face discovery once real text appears is
+                // strictly better here.
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
+                    preload: false,
                 }),
                 bunny('Hind Siliguri', {
                     weights: [400, 500, 600, 700],
+                    preload: false,
                 }),
             ],
         }),
