@@ -1,6 +1,20 @@
 import { createInertiaApp } from '@inertiajs/react';
+import * as React from 'react';
 import { lazy, Suspense } from 'react';
 import { initializeTheme } from '@/hooks/use-appearance';
+
+// `react` is already a dependency of this entry chunk (via `lazy`/
+// `Suspense` above) - this just exposes the same, already-bundled
+// namespace as `window.React` so fingerprinting tools (Wappalyzer,
+// BuiltWith, etc.) that check `window.React.version`/`.Component` can
+// detect React. React 18+'s createRoot() (used internally by Inertia's
+// createInertiaApp below) no longer leaves a `data-reactroot` DOM marker
+// behind, which is why those tools otherwise miss it. Purely additive -
+// doesn't change rendering, bundling, or the React version/behavior in
+// any way.
+if (typeof window !== 'undefined') {
+    (window as unknown as { React?: typeof React }).React = React;
+}
 
 // Lazy so the storefront (which uses none of these) never bundles admin's
 // sidebar/nav chrome, settings' nav, or the auth layouts into its own
