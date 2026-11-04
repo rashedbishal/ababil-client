@@ -81,7 +81,7 @@ export default function Concept3ProductSection({
             className="scroll-mt-24 bg-gradient-to-b from-amber-50 via-white to-amber-50"
         >
             <div className="mx-auto max-w-[1240px] px-4 py-10 sm:px-8 sm:py-14 lg:py-8">
-                <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,440px)_1fr] lg:items-center lg:gap-12">
+                <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,440px)_minmax(0,520px)] lg:items-center lg:justify-center lg:gap-20">
                     <div>
                         <button
                             type="button"
@@ -307,6 +307,7 @@ export default function Concept3ProductSection({
                                             )
                                         }
                                         required
+                                        placeholder="বাড়ি, রাস্তা, এলাকা ও থানা সহ সম্পূর্ণ ঠিকানা লিখুন"
                                         minLength={10}
                                         maxLength={200}
                                         className={fieldClass}
