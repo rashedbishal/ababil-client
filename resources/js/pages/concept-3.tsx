@@ -201,7 +201,6 @@ export default function Concept3({
                                 subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
                                 items={gallery.features}
                                 onOrderClick={scrollToCheckout}
-                                columns={2}
                             />
                         </Suspense>
                     )}
@@ -220,7 +219,6 @@ export default function Concept3({
                                 subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
                                 items={gallery.campaign}
                                 onOrderClick={scrollToCheckout}
-                                columns={2}
                             />
                         </Suspense>
                     )}

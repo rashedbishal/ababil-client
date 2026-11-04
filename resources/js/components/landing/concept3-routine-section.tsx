@@ -28,9 +28,14 @@ export default function Concept3RoutineSection({
                     <span className="whitespace-nowrap">আবাবিল সেখানেই।</span>
                 </p>
 
-                <div className="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:gap-6 lg:mx-auto lg:max-w-3xl">
+                {/* 2 per row on mobile and tablet, 4 on desktop; wraps (not a
+                    grid) so an incomplete last row is centred. */}
+                <div className="mt-8 flex flex-wrap justify-center gap-4 sm:mt-10 sm:gap-6">
                     {items.map((step) => (
-                        <div key={step.id} className="text-left">
+                        <div
+                            key={step.id}
+                            className="w-[calc((100%-1rem)/2)] text-left sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]"
+                        >
                             <div className="aspect-square overflow-hidden rounded-2xl border border-amber-500/20 bg-stone-900">
                                 <img
                                     src={step.image}

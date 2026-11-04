@@ -18,14 +18,12 @@ export default function Concept3PhotoGallery({
     subtitle,
     items,
     onOrderClick,
-    columns = 3,
 }: {
     id: string;
     heading: string;
     subtitle: string;
     items: Concept3PhotoItem[];
     onOrderClick: () => void;
-    columns?: 2 | 3;
 }) {
     return (
         <section
@@ -40,20 +38,17 @@ export default function Concept3PhotoGallery({
                     {subtitle}
                 </p>
 
-                <div
-                    className={`mt-7 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-5 ${
-                        columns === 3
-                            ? 'lg:grid-cols-3'
-                            : 'lg:mx-auto lg:max-w-3xl lg:grid-cols-2'
-                    }`}
-                >
+                {/* 2 per row on mobile and tablet, 4 on desktop. A flex row that
+                    wraps (not a grid) so an incomplete last row is centred
+                    instead of leaving a lone card on the left. */}
+                <div className="mt-7 flex flex-wrap justify-center gap-3 sm:mt-10 sm:gap-5">
                     {items.map((item) => (
                         <button
                             key={item.id}
                             type="button"
                             onClick={onOrderClick}
                             aria-label={`${item.caption} — অর্ডার করুন`}
-                            className="group relative flex flex-col overflow-hidden rounded-2xl border border-amber-200/80 bg-white shadow-sm shadow-amber-900/5 transition-all duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-lg"
+                            className="group relative flex w-[calc((100%-0.75rem)/2)] flex-col overflow-hidden rounded-2xl border border-amber-200/80 bg-white shadow-sm shadow-amber-900/5 transition-all duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-lg sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-3.75rem)/4)]"
                         >
                             <div className="aspect-square overflow-hidden">
                                 <img
@@ -63,11 +58,11 @@ export default function Concept3PhotoGallery({
                                     className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
                             </div>
-                            <span className="flex flex-1 flex-col gap-2 border-t border-amber-100 px-2.5 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-3 sm:py-2.5">
-                                <span className="line-clamp-4 w-full text-left font-bengali text-xs text-stone-700 sm:flex-1 sm:text-sm">
+                            <span className="flex flex-1 flex-col gap-2 border-t border-amber-100 px-2.5 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-3 sm:py-2.5 lg:flex-col lg:items-stretch lg:justify-start">
+                                <span className="line-clamp-4 w-full text-left font-bengali text-xs text-stone-700 sm:flex-1 sm:text-sm lg:flex-none">
                                     {item.caption}
                                 </span>
-                                <span className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 px-2.5 py-1.5 font-bengali text-[11px] font-bold whitespace-nowrap text-stone-950 sm:w-auto sm:px-3 sm:py-1 sm:text-xs">
+                                <span className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 px-2.5 py-1.5 font-bengali text-[11px] font-bold whitespace-nowrap text-stone-950 sm:w-auto sm:px-3 sm:py-1 sm:text-xs lg:w-full lg:py-1.5">
                                     অর্ডার করুন →
                                 </span>
                             </span>
