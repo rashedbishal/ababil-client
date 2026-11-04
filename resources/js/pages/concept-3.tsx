@@ -1,7 +1,9 @@
 import { LazyMotion } from 'motion/react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import Concept3Banner from '@/components/landing/concept3-banner';
-import Concept3CertificationSection from '@/components/landing/concept3-certification-section';
+import Concept3CertificationSection, {
+    type Concept3Partner,
+} from '@/components/landing/concept3-certification-section';
 import Concept3MapSection from '@/components/landing/concept3-map-section';
 import Concept3OrderDrawer from '@/components/landing/concept3-order-drawer';
 import type { Concept3PhotoItem } from '@/components/landing/concept3-photo-gallery';
@@ -108,6 +110,7 @@ export default function Concept3({
     formToken,
     reviews,
     gallery,
+    partners,
     orderPlaced,
     orderError,
 }: {
@@ -117,6 +120,7 @@ export default function Concept3({
     formToken: string;
     reviews: VideoReview[];
     gallery: Record<'features' | 'routine' | 'campaign', Concept3PhotoItem[]>;
+    partners: Concept3Partner[];
     orderPlaced?: OrderPlacedData | null;
     orderError?: string | null;
 }) {
@@ -184,7 +188,9 @@ export default function Concept3({
 
                 <main>
                     <Concept3Banner onOrderClick={openDrawer} />
-                    <Concept3CertificationSection />
+                    {partners.length > 0 && (
+                        <Concept3CertificationSection items={partners} />
+                    )}
                     <Concept3MapSection onOrderClick={openDrawer} />
 
                     {gallery.features.length > 0 && (

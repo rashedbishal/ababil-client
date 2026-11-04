@@ -22,6 +22,7 @@ declare module '@inertiajs/core' {
             sidebarOpen: boolean;
             pendingOrdersCount: number | null;
             sizeManagementEnabled: boolean;
+            logos: { site: string | null; admin: string | null };
             [key: string]: unknown;
         };
     }

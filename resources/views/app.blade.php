@@ -126,12 +126,20 @@
             }
         </style>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        {{-- Square PNGs in multiples of 48px are what Google Search uses for the result favicon --}}
-        <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48">
-        <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @php($favicon = \App\Models\Logo::faviconUrls())
+        @if ($favicon)
+            {{-- Uploaded in the admin's Logo Management; generated PNG sizes --}}
+            <link rel="icon" href="{{ $favicon['icon_48'] }}" type="image/png" sizes="48x48">
+            <link rel="icon" href="{{ $favicon['icon_192'] }}" type="image/png" sizes="192x192">
+            <link rel="apple-touch-icon" href="{{ $favicon['apple'] }}">
+        @else
+            <link rel="icon" href="/favicon.ico" sizes="any">
+            <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+            {{-- Square PNGs in multiples of 48px are what Google Search uses for the result favicon --}}
+            <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48">
+            <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192">
+            <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @endif
 
         @isset($seo)
             {{-- Storefront search/social metadata (App\Support\StorefrontSeo) --}}

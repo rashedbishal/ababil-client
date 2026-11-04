@@ -6,9 +6,11 @@ use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\IncompleteOrderController;
+use App\Http\Controllers\Admin\LogoController;
 use App\Http\Controllers\Admin\MetaEventLogController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderCourierController;
+use App\Http\Controllers\Admin\PartnerLogoController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\ReviewController;
@@ -61,6 +63,17 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::patch('gallery/items/{galleryItem}/visibility', [GalleryController::class, 'updateVisibility'])->name('gallery.items.visibility');
     Route::post('gallery/items/{galleryItem}/move', [GalleryController::class, 'move'])->name('gallery.items.move');
     Route::delete('gallery/items/{galleryItem}', [GalleryController::class, 'destroy'])->name('gallery.items.destroy');
+
+    Route::get('logos', [LogoController::class, 'index'])->name('logos.index');
+    Route::post('logos/{slot}', [LogoController::class, 'update'])->name('logos.update');
+    Route::delete('logos/{slot}', [LogoController::class, 'destroy'])->name('logos.destroy');
+
+    Route::get('partners', [PartnerLogoController::class, 'index'])->name('partners.index');
+    Route::post('partners', [PartnerLogoController::class, 'store'])->name('partners.store');
+    Route::patch('partners/{partnerLogo}', [PartnerLogoController::class, 'update'])->name('partners.update');
+    Route::patch('partners/{partnerLogo}/visibility', [PartnerLogoController::class, 'updateVisibility'])->name('partners.visibility');
+    Route::post('partners/{partnerLogo}/move', [PartnerLogoController::class, 'move'])->name('partners.move');
+    Route::delete('partners/{partnerLogo}', [PartnerLogoController::class, 'destroy'])->name('partners.destroy');
 
     Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
     Route::put('courier/default', [CourierController::class, 'setDefault'])->name('courier.default');

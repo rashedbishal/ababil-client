@@ -2,8 +2,10 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import {
     AlertTriangle,
+    BadgeCheck,
     ExternalLink,
     Images,
+    Shapes,
     LayoutGrid,
     ListOrdered,
     Package,
@@ -32,16 +34,18 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import ababilLogo from '../../images/landing/ababil-logo.webp';
+import { useLogo } from '@/hooks/use-logo';
 import { home } from '@/routes';
 import admins from '@/routes/admin/admins';
 import blockedIps from '@/routes/admin/blocked-ips';
 import courier from '@/routes/admin/courier';
 import gallery from '@/routes/admin/gallery';
 import { dashboard } from '@/routes/admin';
+import logos from '@/routes/admin/logos';
 import incompleteOrders from '@/routes/admin/incomplete-orders';
 import metaEvents from '@/routes/admin/meta-events';
 import orders from '@/routes/admin/orders';
+import partners from '@/routes/admin/partners';
 import products from '@/routes/admin/products';
 import reviews from '@/routes/admin/reviews';
 import settings from '@/routes/admin/settings';
@@ -127,6 +131,16 @@ function buildGroups(
                     href: gallery.index(),
                     icon: Images,
                 },
+                {
+                    title: 'Logo Management',
+                    href: logos.index(),
+                    icon: Shapes,
+                },
+                {
+                    title: 'Partner Logos',
+                    href: partners.index(),
+                    icon: BadgeCheck,
+                },
             ],
         },
         {
@@ -167,6 +181,7 @@ export function AdminSidebar() {
     const { pendingOrdersCount, sizeManagementEnabled, name } = usePage().props;
     const groups = buildGroups(pendingOrdersCount, sizeManagementEnabled);
     const { isMobile, setOpenMobile } = useSidebar();
+    const ababilLogo = useLogo('admin');
 
     // On mobile the sidebar is a slide-over sheet, not a persistent rail -
     // picking a destination should close it like any other mobile nav

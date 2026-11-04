@@ -1,7 +1,7 @@
 import { ChevronDown, Phone } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useState } from 'react';
-import logo from '../../../images/landing/ababil-logo.webp';
+import { useLogo } from '@/hooks/use-logo';
 import Magnetic from './motion/magnetic';
 import OrderButton from './order-button';
 
@@ -56,6 +56,7 @@ export default function SiteHeader({
     // directly instead of scrolling to `orderHref`.
     onOrderClick?: () => void;
 }) {
+    const logo = useLogo('site');
     const [activeHref, setActiveHref] = useState<string | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     // Docked (flat, full-width) look at the very top of the page so the hero

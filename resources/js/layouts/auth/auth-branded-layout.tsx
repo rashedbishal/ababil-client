@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import ababilLogo from '../../../images/landing/ababil-logo.webp';
+import { useLogo } from '@/hooks/use-logo';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -8,6 +8,8 @@ export default function AuthBrandedLayout({
     title,
     description,
 }: AuthLayoutProps) {
+    const ababilLogo = useLogo('admin');
+
     return (
         <div className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-stone-950 p-6 md:p-10">
             <div

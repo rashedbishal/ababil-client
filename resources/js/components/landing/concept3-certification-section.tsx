@@ -1,25 +1,25 @@
-import bcsir from '../../../images/landing/certifications/bcsir.webp';
-import gmp from '../../../images/landing/certifications/gmp.webp';
-import iso9001 from '../../../images/landing/certifications/iso-9001.webp';
-import ukas from '../../../images/landing/certifications/ukas.webp';
-import usac from '../../../images/landing/certifications/usac.webp';
 import Marquee from './motion/marquee';
 
-const certifications = [
-    { id: 'gmp', image: gmp, label: 'GMP Certified' },
-    { id: 'bcsir', image: bcsir, label: 'BCSIR Tested' },
-    { id: 'usac', image: usac, label: 'USAC Accredited' },
-    { id: 'ukas', image: ukas, label: 'UKAS Accredited' },
-    { id: 'iso', image: iso9001, label: 'ISO 9001:2015 Certified' },
-];
+export type Concept3Partner = {
+    id: number;
+    image: string;
+    label: string;
+};
 
-// One set of 5 tiles is narrower than a wide desktop screen, which would
-// leave an empty gap at the end of each loop - so each Marquee set holds
-// the logos several times over.
-const REPEATS = 3;
+// A set of tiles narrower than a wide desktop screen would leave an empty
+// gap at the end of each loop - so each Marquee set holds the logos
+// repeated enough times to be at least this many tiles long (3 rounds of the
+// original 5 logos).
+const MIN_TILES_PER_SET = 15;
 
 /** Continuously scrolling strip of the product's certification logos. */
-export default function Concept3CertificationSection() {
+export default function Concept3CertificationSection({
+    items,
+}: {
+    items: Concept3Partner[];
+}) {
+    const repeats = Math.max(1, Math.ceil(MIN_TILES_PER_SET / items.length));
+
     return (
         <section
             id="certifications"
@@ -38,8 +38,8 @@ export default function Concept3CertificationSection() {
                 durationSeconds={45}
                 className="mt-6 [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:mt-8"
             >
-                {Array.from({ length: REPEATS }, (_, round) =>
-                    certifications.map((cert) => (
+                {Array.from({ length: repeats }, (_, round) =>
+                    items.map((cert) => (
                         <figure
                             key={`${cert.id}-${round}`}
                             aria-hidden={round > 0 || undefined}
@@ -59,7 +59,7 @@ export default function Concept3CertificationSection() {
                                 top-aligned, so a label that wraps (ISO) makes
                                 its tile no taller than the rest and all the
                                 boxes stay on one level. */}
-                            <figcaption className="h-8 text-center text-xs leading-4 font-semibold text-stone-100 sm:h-10 sm:text-sm sm:leading-5">
+                            <figcaption className="line-clamp-2 h-8 text-center text-xs leading-4 font-semibold text-stone-100 sm:h-10 sm:text-sm sm:leading-5">
                                 {cert.label}
                             </figcaption>
                         </figure>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\GallerySection;
 use App\Models\GalleryItem;
 use App\Models\Order;
+use App\Models\PartnerLogo;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Review;
@@ -35,6 +36,7 @@ class LandingController extends Controller
         return Inertia::render('concept-3', [
             ...$this->sharedProps($product),
             'gallery' => $this->gallery(),
+            'partners' => $this->partners(),
             'orderPlaced' => $this->orderPlaced($request),
             'orderError' => $request->query('order_error'),
         ])->withViewData('seo', $this->seo($product));
@@ -113,6 +115,28 @@ class LandingController extends Controller
         }
 
         return $gallery;
+    }
+
+    /**
+     * The shown partner/certification logos, in order. An empty list means
+     * the storefront leaves the whole strip out.
+     *
+     * @return array<int, array{id: int, image: string, label: string}>
+     */
+    private function partners(): array
+    {
+        return PartnerLogo::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (PartnerLogo $item) => [
+                'id' => $item->id,
+                'image' => $item->imageUrl(),
+                'label' => $item->label,
+            ])
+            ->values()
+            ->all();
     }
 
     private function featuredProduct(): ?Product

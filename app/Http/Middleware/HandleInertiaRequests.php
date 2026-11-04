@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\LogoSlot;
+use App\Models\Logo;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -47,6 +49,11 @@ class HandleInertiaRequests extends Middleware
                 ? Order::query()->whereNull('viewed_at')->count()
                 : null,
             'sizeManagementEnabled' => (bool) config('catalog.size_set'),
+            // Uploaded logo URLs, null where the bundled default applies.
+            'logos' => [
+                'site' => Logo::urlFor(LogoSlot::Site),
+                'admin' => Logo::urlFor(LogoSlot::Admin),
+            ],
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Enums\GallerySection;
 use App\Models\GalleryItem;
+use App\Models\PartnerLogo;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -51,4 +52,24 @@ test('alt text falls back to the caption and the image is a public url', functio
         ->where('gallery.features.0.alt', 'ক্যাপশন')
         ->where('gallery.features.0.image', Storage::disk(GalleryItem::DISK)->url('gallery/a.webp'))
         ->where('gallery.routine.0.alt', 'বর্ণনা'));
+});
+
+test('the landing page gets only shown partner logos, in order', function () {
+    PartnerLogo::factory()->create(['label' => 'second', 'sort_order' => 1]);
+    PartnerLogo::factory()->create(['label' => 'first', 'sort_order' => 0, 'image_path' => 'partners/a.webp']);
+    PartnerLogo::factory()->inactive()->create(['label' => 'hidden']);
+
+    $this->get(route('home'))->assertInertia(fn ($page) => $page
+        ->has('partners', 2)
+        ->where('partners.0.label', 'first')
+        ->where('partners.0.image', Storage::disk(GalleryItem::DISK)->url('partners/a.webp'))
+        ->where('partners.1.label', 'second'));
+});
+
+test('the landing page gets an empty partner list when none are shown', function () {
+    $this->get(route('home'))->assertInertia(fn ($page) => $page->where('partners', []));
+
+    PartnerLogo::factory()->inactive()->count(2)->create();
+
+    $this->get(route('home'))->assertInertia(fn ($page) => $page->where('partners', []));
 });

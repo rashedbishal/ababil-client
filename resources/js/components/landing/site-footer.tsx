@@ -1,6 +1,8 @@
-import logo from '../../../images/landing/ababil-logo.webp';
+import { useLogo } from '@/hooks/use-logo';
 
 export default function SiteFooter({ phone }: { phone: string | null }) {
+    const logo = useLogo('site');
+
     return (
         <footer className="border-t border-amber-500/10 bg-stone-950 pt-7 pb-24 sm:py-8">
             <div className="mx-auto max-w-6xl space-y-4 px-4 text-center font-bengali sm:px-6">
