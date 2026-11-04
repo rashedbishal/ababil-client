@@ -4,7 +4,6 @@ import Concept3Banner from '@/components/landing/concept3-banner';
 import Concept3CertificationSection, {
     type Concept3Partner,
 } from '@/components/landing/concept3-certification-section';
-import Concept3MapSection from '@/components/landing/concept3-map-section';
 import type { Concept3PhotoItem } from '@/components/landing/concept3-photo-gallery';
 import Concept3ProductSection from '@/components/landing/concept3-product-section';
 import Concept3StickyBar from '@/components/landing/concept3-sticky-bar';
@@ -32,6 +31,9 @@ import type {
 // eagerly so tapping any "অর্ডার করুন" can scroll straight to it; a lazy
 // chunk that hadn't loaded yet left Facebook's in-app browser with a blank
 // tap and a page reset.
+const Concept3MapSection = lazy(
+    () => import('@/components/landing/concept3-map-section'),
+);
 const Concept3PhotoGallery = lazy(
     () => import('@/components/landing/concept3-photo-gallery'),
 );
@@ -72,14 +74,16 @@ const productImages = [
 // Concept3PhotoGallery, Concept3RoutineSection and Concept3ProductSection
 // below) rather than the main design's #problem/#usp/#lab-tested/#checkout,
 // so the shared SiteHeader needs its own nav list for this page, ordered to
-// match how the sections actually appear on the page.
+// match how the sections actually appear on the page: banner, certifications,
+// order form (#product), review videos, the photo galleries, the delivery
+// map, FAQ.
 const navLinks: NavLink[] = [
-    { href: '#delivery', label: 'ডেলিভারি' },
+    { href: '#product', label: 'পেমেন্ট' },
+    { href: '#reviews', label: 'রিভিউ' },
     { href: '#features', label: 'কেন আবাবিল' },
     { href: '#routine', label: 'ব্যথার জায়গা' },
     { href: '#campaign', label: 'আপনজন' },
-    { href: '#product', label: 'পেমেন্ট' },
-    { href: '#reviews', label: 'রিভিউ' },
+    { href: '#delivery', label: 'ডেলিভারি' },
 ];
 
 // A gallery section with no shown photos isn't rendered, so its nav link is
@@ -95,12 +99,12 @@ const gallerySectionByHref: Record<
 
 const mobileNavLinks: MobileNavLink[] = [
     { href: '#top', label: 'হোম', icon: '🏠' },
-    { href: '#delivery', label: 'ডেলিভারি', icon: '🚚' },
+    { href: '#product', label: 'পেমেন্ট', icon: '💳' },
+    { href: '#reviews', label: 'রিভিউ', icon: '💬' },
     { href: '#features', label: 'কেন আবাবিল', icon: '⭐' },
     { href: '#routine', label: 'ব্যথার জায়গা', icon: '📍' },
     { href: '#campaign', label: 'আপনজন', icon: '❤️' },
-    { href: '#product', label: 'পেমেন্ট', icon: '💳' },
-    { href: '#reviews', label: 'রিভিউ', icon: '💬' },
+    { href: '#delivery', label: 'ডেলিভারি', icon: '🚚' },
 ];
 
 export default function Concept3({
@@ -155,10 +159,14 @@ export default function Concept3({
     // The order form lives on the page (in the product section) - every
     // "অর্ডার করুন" button just brings it into view. A plain scroll, not a
     // hash navigation or a modal, so it can't reload Facebook's in-app
-    // browser.
+    // browser. On desktop the whole product section (photos + form) fits on
+    // one screen, so that's what it scrolls to; on a phone the photos stack
+    // above the form, so it goes straight to the form.
     const scrollToCheckout = () => {
+        const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
         document
-            .getElementById('order-form')
+            .getElementById(isDesktop ? 'product' : 'order-form')
             ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
@@ -191,7 +199,16 @@ export default function Concept3({
                     {partners.length > 0 && (
                         <Concept3CertificationSection items={partners} />
                     )}
-                    <Concept3MapSection onOrderClick={scrollToCheckout} />
+                    <Concept3ProductSection
+                        productName={product.name}
+                        images={productImages}
+                        checkout={checkout}
+                        onOrderClick={scrollToCheckout}
+                    />
+
+                    <Suspense fallback={<div className="min-h-[300px]" />}>
+                        <TestimonialsSection reviews={reviews} />
+                    </Suspense>
 
                     {gallery.features.length > 0 && (
                         <Suspense fallback={<div className="min-h-[400px]" />}>
@@ -223,15 +240,8 @@ export default function Concept3({
                         </Suspense>
                     )}
 
-                    <Concept3ProductSection
-                        productName={product.name}
-                        images={productImages}
-                        checkout={checkout}
-                        onOrderClick={scrollToCheckout}
-                    />
-
-                    <Suspense fallback={<div className="min-h-[300px]" />}>
-                        <TestimonialsSection reviews={reviews} />
+                    <Suspense fallback={<div className="min-h-[400px]" />}>
+                        <Concept3MapSection onOrderClick={scrollToCheckout} />
                     </Suspense>
 
                     <Suspense fallback={<div className="min-h-[300px]" />}>

@@ -8,7 +8,7 @@ import { shippingAreaLabel } from '@/lib/shipping-area';
 import QuantityStepper from './quantity-stepper';
 
 const fieldClass =
-    'w-full rounded-md border border-amber-200 px-3 py-3 font-bengali text-base focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:outline-none';
+    'w-full rounded-md border border-amber-200 px-3 py-3 font-bengali text-base lg:py-2.5 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:outline-none';
 
 const trustItems = [
     {
@@ -80,8 +80,8 @@ export default function Concept3ProductSection({
             id="product"
             className="scroll-mt-24 bg-gradient-to-b from-amber-50 via-white to-amber-50"
         >
-            <div className="mx-auto max-w-[1240px] px-4 py-10 sm:px-8 sm:py-14">
-                <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
+            <div className="mx-auto max-w-[1240px] px-4 py-10 sm:px-8 sm:py-14 lg:py-8">
+                <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,440px)_1fr] lg:items-center lg:gap-12">
                     <div>
                         <button
                             type="button"
@@ -111,7 +111,7 @@ export default function Concept3ProductSection({
                             </AnimatePresence>
                         </button>
 
-                        <div className="mt-4 grid grid-cols-4 gap-3">
+                        <div className="mt-4 grid grid-cols-4 gap-3 lg:mt-3 lg:gap-2.5">
                             {images.map((img, i) => (
                                 <button
                                     key={img.id}
@@ -136,8 +136,8 @@ export default function Concept3ProductSection({
                         </div>
                     </div>
 
-                    <div className="flex flex-col justify-center pt-3">
-                        <h1 className="font-bengali text-5xl font-black tracking-tight text-stone-900 sm:text-6xl">
+                    <div className="flex flex-col justify-center pt-3 lg:pt-0">
+                        <h1 className="font-bengali text-5xl font-black tracking-tight text-stone-900 sm:text-6xl lg:text-4xl">
                             {productName}
                         </h1>
 
@@ -160,120 +160,137 @@ export default function Concept3ProductSection({
                                     />
                                 </div>
 
-                                <div className="mt-6 grid gap-2">
-                                    <span className="font-bengali font-semibold text-stone-700">
-                                        বোতলের সংখ্যা
-                                    </span>
-                                    <QuantityStepper
-                                        value={data.quantity}
-                                        onChange={(value) =>
-                                            setField('quantity', value)
-                                        }
-                                    />
-                                    <InputError message={errors.quantity} />
+                                <div className="lg:mt-3 lg:grid lg:grid-cols-[auto_1fr] lg:items-start lg:gap-6">
+                                    <div className="mt-6 grid gap-2 lg:mt-0">
+                                        <span className="font-bengali font-semibold text-stone-700">
+                                            বোতলের সংখ্যা
+                                        </span>
+                                        <QuantityStepper
+                                            value={data.quantity}
+                                            onChange={(value) =>
+                                                setField('quantity', value)
+                                            }
+                                        />
+                                        <InputError message={errors.quantity} />
+                                    </div>
+
+                                    <div>
+                                        <fieldset className="mt-5 grid grid-cols-2 gap-2.5 lg:mt-0">
+                                            <legend className="mb-2.5 w-full font-bengali font-semibold text-stone-700">
+                                                কোথায় ডেলিভারি নেবেন?
+                                            </legend>
+                                            {displayShippingAreas.map(
+                                                (area) => {
+                                                    const checked =
+                                                        data.shipping_area_id ===
+                                                        area.id;
+
+                                                    return (
+                                                        <label
+                                                            key={area.id}
+                                                            className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-3 font-bengali text-sm transition-colors lg:py-1.5 ${
+                                                                checked
+                                                                    ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
+                                                                    : 'border-amber-200 hover:border-amber-300'
+                                                            }`}
+                                                        >
+                                                            <input
+                                                                type="radio"
+                                                                name="product_shipping_area_id"
+                                                                checked={
+                                                                    checked
+                                                                }
+                                                                onChange={() =>
+                                                                    setField(
+                                                                        'shipping_area_id',
+                                                                        area.id,
+                                                                    )
+                                                                }
+                                                                className="size-[18px] accent-amber-600"
+                                                            />
+                                                            <span>
+                                                                {shippingAreaLabel(
+                                                                    area.name,
+                                                                )}
+                                                                <strong className="mt-0.5 block text-stone-900">
+                                                                    ৳
+                                                                    {
+                                                                        area.charge
+                                                                    }
+                                                                </strong>
+                                                            </span>
+                                                        </label>
+                                                    );
+                                                },
+                                            )}
+                                        </fieldset>
+                                        <InputError
+                                            message={errors.shipping_area_id}
+                                        />
+                                    </div>
                                 </div>
 
-                                <fieldset className="mt-5 grid grid-cols-2 gap-2.5">
-                                    <legend className="mb-2.5 w-full font-bengali font-semibold text-stone-700">
-                                        কোথায় ডেলিভারি নেবেন?
-                                    </legend>
-                                    {displayShippingAreas.map((area) => {
-                                        const checked =
-                                            data.shipping_area_id === area.id;
-
-                                        return (
-                                            <label
-                                                key={area.id}
-                                                className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-3 font-bengali text-sm transition-colors ${
-                                                    checked
-                                                        ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
-                                                        : 'border-amber-200 hover:border-amber-300'
-                                                }`}
-                                            >
-                                                <input
-                                                    type="radio"
-                                                    name="product_shipping_area_id"
-                                                    checked={checked}
-                                                    onChange={() =>
-                                                        setField(
-                                                            'shipping_area_id',
-                                                            area.id,
-                                                        )
-                                                    }
-                                                    className="size-[18px] accent-amber-600"
-                                                />
-                                                <span>
-                                                    {shippingAreaLabel(
-                                                        area.name,
-                                                    )}
-                                                    <strong className="mt-0.5 block text-stone-900">
-                                                        ৳{area.charge}
-                                                    </strong>
-                                                </span>
-                                            </label>
-                                        );
-                                    })}
-                                </fieldset>
-                                <InputError message={errors.shipping_area_id} />
-
-                                <div className="mt-5 grid gap-2">
-                                    <label
-                                        htmlFor="checkout_name"
-                                        className="font-bengali font-semibold text-stone-700"
-                                    >
-                                        আপনার নাম কী?
-                                    </label>
-                                    <input
-                                        id="checkout_name"
-                                        value={data.customer_name}
-                                        onChange={(e) =>
-                                            setField(
-                                                'customer_name',
-                                                e.target.value,
-                                            )
-                                        }
-                                        placeholder="আপনার নাম লিখুন"
-                                        maxLength={60}
-                                        pattern="[\p{Script=Bengali}\p{Script=Latin} .\-]+"
-                                        required
-                                        className={fieldClass}
-                                    />
-                                    <InputError
-                                        message={errors.customer_name}
-                                    />
-                                </div>
-
-                                <div className="mt-4 grid gap-2">
-                                    <label
-                                        htmlFor="checkout_phone"
-                                        className="font-bengali font-semibold text-stone-700"
-                                    >
-                                        যোগাযোগের মোবাইল নম্বর
-                                    </label>
-                                    <input
-                                        id="checkout_phone"
-                                        type="tel"
-                                        inputMode="numeric"
-                                        pattern="01[3-9][0-9]{8}"
-                                        value={data.customer_phone}
-                                        onChange={(e) =>
-                                            setField(
-                                                'customer_phone',
-                                                sanitizePhoneInput(
+                                {/* name + phone share a row on desktop */}
+                                <div className="lg:mt-3 lg:grid lg:grid-cols-2 lg:gap-4">
+                                    <div className="mt-5 grid gap-2 lg:mt-0">
+                                        <label
+                                            htmlFor="checkout_name"
+                                            className="font-bengali font-semibold text-stone-700"
+                                        >
+                                            আপনার নাম কী?
+                                        </label>
+                                        <input
+                                            id="checkout_name"
+                                            value={data.customer_name}
+                                            onChange={(e) =>
+                                                setField(
+                                                    'customer_name',
                                                     e.target.value,
-                                                ),
-                                            )
-                                        }
-                                        placeholder="01XXXXXXXXX"
-                                        required
-                                        className={fieldClass}
-                                    />
-                                    <InputError
-                                        message={errors.customer_phone}
-                                    />
+                                                )
+                                            }
+                                            placeholder="আপনার নাম লিখুন"
+                                            maxLength={60}
+                                            pattern="[\p{Script=Bengali}\p{Script=Latin} .\-]+"
+                                            required
+                                            className={fieldClass}
+                                        />
+                                        <InputError
+                                            message={errors.customer_name}
+                                        />
+                                    </div>
+
+                                    <div className="mt-4 grid gap-2 lg:mt-0">
+                                        <label
+                                            htmlFor="checkout_phone"
+                                            className="font-bengali font-semibold text-stone-700"
+                                        >
+                                            যোগাযোগের মোবাইল নম্বর
+                                        </label>
+                                        <input
+                                            id="checkout_phone"
+                                            type="tel"
+                                            inputMode="numeric"
+                                            pattern="01[3-9][0-9]{8}"
+                                            value={data.customer_phone}
+                                            onChange={(e) =>
+                                                setField(
+                                                    'customer_phone',
+                                                    sanitizePhoneInput(
+                                                        e.target.value,
+                                                    ),
+                                                )
+                                            }
+                                            placeholder="01XXXXXXXXX"
+                                            required
+                                            className={fieldClass}
+                                        />
+                                        <InputError
+                                            message={errors.customer_phone}
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="mt-4 grid gap-2">
+                                <div className="mt-4 grid gap-2 lg:mt-3">
                                     <label
                                         htmlFor="checkout_address"
                                         className="font-bengali font-semibold text-stone-700"
@@ -299,12 +316,12 @@ export default function Concept3ProductSection({
                                     />
                                 </div>
 
-                                <div className="mt-6 space-y-3 rounded-2xl border border-stone-800 bg-stone-950 p-5 font-bengali text-white shadow-lg">
-                                    <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300">
+                                <div className="mt-6 space-y-3 rounded-2xl border border-stone-800 bg-stone-950 p-5 font-bengali text-white shadow-lg lg:mt-3 lg:space-y-1.5 lg:p-3.5">
+                                    <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300 lg:pb-1.5">
                                         <span>পণ্যের মূল্য</span>
                                         <span>৳{subtotal.toFixed(0)}</span>
                                     </div>
-                                    <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300">
+                                    <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300 lg:pb-1.5">
                                         <span>ডেলিভারি</span>
                                         <span>
                                             ৳{shippingCharge.toFixed(0)}
@@ -322,7 +339,7 @@ export default function Concept3ProductSection({
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="mt-2 w-full rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] py-3.5 text-base font-bold text-stone-950 shadow-xl transition-[background-position] duration-1000 hover:bg-right disabled:opacity-60"
+                                        className="mt-2 w-full rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] py-3.5 text-base font-bold text-stone-950 shadow-xl transition-[background-position] duration-1000 hover:bg-right disabled:opacity-60 lg:mt-1 lg:py-2.5"
                                     >
                                         {processing
                                             ? 'অর্ডার হচ্ছে...'
@@ -339,11 +356,11 @@ export default function Concept3ProductSection({
                     </div>
                 </div>
 
-                <div className="mt-8 flex flex-col divide-y divide-amber-100 border-t border-b border-amber-100 sm:mt-10 sm:flex-row sm:divide-x sm:divide-y-0">
+                <div className="mt-8 flex flex-col divide-y divide-amber-100 border-t border-b border-amber-100 sm:mt-10 sm:flex-row sm:divide-x sm:divide-y-0 lg:mt-6">
                     {trustItems.map(({ icon: Icon, title, subtitle }) => (
                         <div
                             key={title}
-                            className="grid grid-cols-[42px_1fr] items-center gap-3.5 px-1 py-4 sm:flex-1 sm:flex-col sm:items-center sm:gap-2 sm:py-6 sm:text-center"
+                            className="grid grid-cols-[42px_1fr] items-center gap-3.5 px-1 py-4 sm:flex-1 sm:flex-col sm:items-center sm:gap-2 sm:py-6 sm:text-center lg:py-4"
                         >
                             <span className="grid size-[42px] shrink-0 place-items-center rounded-[11px] bg-amber-100 text-amber-700">
                                 <Icon className="size-6" />

@@ -1,6 +1,7 @@
-import { Play } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useRef, useState } from 'react';
 import Reveal from './motion/reveal';
+import ReviewVideo from './review-video';
 
 interface VideoReview {
     id: number;
@@ -12,12 +13,39 @@ export default function TestimonialsSection({
 }: {
     reviews: VideoReview[];
 }) {
-    // Every reel shows its thumbnail until tapped - a grid can put 5+
-    // reels on screen at once, and loading that many YouTube players up
-    // front would be heavy, especially on mobile.
-    const [activeVideos, setActiveVideos] = useState<Record<number, boolean>>(
-        {},
-    );
+    // Every reel shows its thumbnail until tapped (see ReviewVideo) - loading
+    // a YouTube player for each one up front would be heavy, especially on
+    // mobile. Only one plays at a time: the one that last started.
+    const [playingId, setPlayingId] = useState<number | null>(null);
+    const trackRef = useRef<HTMLDivElement>(null);
+    const [page, setPage] = useState(0);
+
+    // A page is two reels (the width of the track), so the page number is
+    // just how many track-widths we have scrolled.
+    const pageCount = Math.ceil(reviews.length / 2);
+
+    const syncPage = useCallback(() => {
+        const track = trackRef.current;
+
+        if (track && track.clientWidth > 0) {
+            setPage(Math.round(track.scrollLeft / track.clientWidth));
+        }
+    }, []);
+
+    const goToPage = (next: number) => {
+        const track = trackRef.current;
+
+        if (!track) {
+            return;
+        }
+
+        const target = Math.min(Math.max(next, 0), pageCount - 1);
+
+        track.scrollTo({
+            left: target * track.clientWidth,
+            behavior: 'smooth',
+        });
+    };
 
     if (reviews.length === 0) {
         return null;
@@ -54,47 +82,78 @@ export default function TestimonialsSection({
                     </p>
                 </Reveal>
 
-                {/* Reels grid: 2 per row on mobile, 3 on tablet, 5 on desktop */}
-                <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-12 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5 lg:gap-5">
-                    {reviews.map((item, index) => (
+                {/* Reels slider: always 2 reels in view on every screen size,
+                    the rest slide in (swipe, arrows or dots). The width is
+                    capped so a reel on desktop is a normal phone-video size
+                    instead of filling half the page. */}
+                <div className="mx-auto mt-8 max-w-[760px] sm:mt-12">
+                    <div className="relative">
                         <div
-                            key={item.id}
-                            className="group relative aspect-[9/16] w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner"
+                            ref={trackRef}
+                            onScroll={syncPage}
+                            className="flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden"
                         >
-                            {activeVideos[item.id] ? (
-                                <iframe
-                                    src={`https://www.youtube.com/embed/${item.video_id}?autoplay=1&playsinline=1&loop=1&playlist=${item.video_id}&controls=1&rel=0&modestbranding=1`}
-                                    title={`Customer video review ${index + 1}`}
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                    className="size-full rounded-2xl"
-                                />
-                            ) : (
+                            {reviews.map((item, index) => (
+                                <div
+                                    key={item.id}
+                                    className="w-1/2 shrink-0 snap-start px-1.5 sm:px-2.5"
+                                >
+                                    <div className="group relative aspect-[9/16] w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner">
+                                        <ReviewVideo
+                                            videoId={item.video_id}
+                                            index={index}
+                                            shouldPause={
+                                                playingId !== null &&
+                                                playingId !== item.id
+                                            }
+                                            onPlay={() => setPlayingId(item.id)}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {pageCount > 1 && (
+                            <>
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setActiveVideos((prev) => ({
-                                            ...prev,
-                                            [item.id]: true,
-                                        }))
-                                    }
-                                    aria-label={`Play customer video review ${index + 1}`}
-                                    className="relative flex size-full items-center justify-center bg-stone-900"
+                                    aria-label="আগের ভিডিও"
+                                    disabled={page === 0}
+                                    onClick={() => goToPage(page - 1)}
+                                    className="absolute top-1/2 left-0 z-10 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-amber-500/40 bg-stone-950/90 text-amber-400 shadow-lg transition hover:bg-stone-900 disabled:opacity-30 sm:size-10 lg:-left-14 lg:translate-x-0"
                                 >
-                                    <img
-                                        src={`https://img.youtube.com/vi/${item.video_id}/hqdefault.jpg`}
-                                        alt="Customer video review"
-                                        loading="lazy"
-                                        decoding="async"
-                                        className="size-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
-                                    />
-                                    <span className="absolute flex size-11 items-center justify-center rounded-full border border-amber-400/40 bg-stone-950/80 text-amber-400 shadow-xl backdrop-blur-sm transition-transform group-hover:scale-110 sm:size-14">
-                                        <Play className="size-5 fill-amber-400 sm:size-6" />
-                                    </span>
+                                    <ChevronLeft className="size-5" />
                                 </button>
-                            )}
+                                <button
+                                    type="button"
+                                    aria-label="পরের ভিডিও"
+                                    disabled={page >= pageCount - 1}
+                                    onClick={() => goToPage(page + 1)}
+                                    className="absolute top-1/2 right-0 z-10 flex size-8 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-amber-500/40 bg-stone-950/90 text-amber-400 shadow-lg transition hover:bg-stone-900 disabled:opacity-30 sm:size-10 lg:-right-14 lg:translate-x-0"
+                                >
+                                    <ChevronRight className="size-5" />
+                                </button>
+                            </>
+                        )}
+                    </div>
+                    {pageCount > 1 && (
+                        <div className="mt-5 flex items-center justify-center gap-2">
+                            {Array.from({ length: pageCount }, (_, i) => (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    aria-label={`পেজ ${i + 1}`}
+                                    aria-current={i === page}
+                                    onClick={() => goToPage(i)}
+                                    className={`h-2 rounded-full transition-all ${
+                                        i === page
+                                            ? 'w-6 bg-amber-400'
+                                            : 'w-2 bg-amber-400/30'
+                                    }`}
+                                />
+                            ))}
                         </div>
-                    ))}
+                    )}
                 </div>
             </div>
         </section>
