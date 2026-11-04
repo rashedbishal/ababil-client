@@ -328,3 +328,19 @@
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
+/*
+ * Inertia shows a non-Inertia response (e.g. the 429/419 error page during
+ * checkout) in a native <dialog> holding an iframe. Give it the same blurred
+ * backdrop as the site's other modals, and let the error card float on it:
+ * the iframe's own white fill is removed (the error page also drops its
+ * gradient when embedded - see resources/views/errors/_layout.blade.php).
+ */
+dialog#inertia-error-dialog::backdrop {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+dialog#inertia-error-dialog iframe {
+    background-color: transparent !important;
+}

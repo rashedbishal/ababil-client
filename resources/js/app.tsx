@@ -57,17 +57,31 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 // included; some browsers are lenient about that sandbox restriction, but
 // it's not something to rely on. The error page (resources/views/errors/
 // _layout.blade.php) posts a message up to this (unsandboxed) parent
-// instead, which does the actual navigation on its behalf.
+// instead, which does the actual navigation on its behalf. Since the iframe
+// is sandboxed without `allow-same-origin`, its origin is the opaque
+// "null" - so the sender is checked by its window (it must be that error
+// dialog's iframe), not by `e.origin`.
 // Guarded because Vite's dev server also evaluates this module on the server
 // (the Inertia SSR dev endpoint), where there is no `window`.
 if (typeof window !== 'undefined') {
     window.addEventListener('message', (e) => {
-        if (e.origin !== window.location.origin) return;
+        const errorFrame = document.querySelector<HTMLIFrameElement>(
+            '#inertia-error-dialog iframe',
+        );
+
+        if (
+            e.origin !== window.location.origin &&
+            (!errorFrame || e.source !== errorFrame.contentWindow)
+        ) {
+            return;
+        }
+
         if (
             e.data &&
             typeof e.data === 'object' &&
             e.data.type === 'inertia-error-navigate' &&
-            typeof e.data.href === 'string'
+            typeof e.data.href === 'string' &&
+            /^https?:\/\//i.test(e.data.href)
         ) {
             window.location.href = e.data.href;
         }

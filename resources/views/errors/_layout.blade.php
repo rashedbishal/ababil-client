@@ -5,6 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ $code }} — {{ config('app.name', 'Ababil') }}</title>
         <link rel="icon" href="/favicon.ico" sizes="any">
+        {{-- Inertia shows this page inside an iframe over the storefront (e.g.
+             a 429 during checkout). Mark that case before first paint so the
+             card can float over the (blurred) page instead of sitting on a
+             full-bleed background. A directly visited error page keeps it. --}}
+        <script>
+            if (window.top !== window.self) {
+                document.documentElement.classList.add('embedded');
+            }
+        </script>
         <style>
             @font-face {
                 font-family: 'Kalpurush';
@@ -33,6 +42,10 @@
                 font-family: 'Kalpurush', 'Hind Siliguri', 'Segoe UI', system-ui, sans-serif;
                 background: radial-gradient(circle at 50% 0%, #fde68a 0%, #fbbf24 45%, #f59e0b 100%);
                 color: #1c1917;
+            }
+
+            html.embedded body {
+                background: transparent;
             }
 
             .card {
@@ -166,9 +179,13 @@
                     }
 
                     e.preventDefault();
+                    // '*': this sandboxed iframe's own origin is the opaque
+                    // "null", which is not a valid target origin to name -
+                    // the parent checks the sender (this window) itself.
+                    // The message is only a URL to open.
                     window.top.postMessage(
                         { type: 'inertia-error-navigate', href: link.href },
-                        window.location.origin,
+                        '*',
                     );
                 });
             })();

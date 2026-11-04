@@ -1,11 +1,10 @@
 import { LazyMotion } from 'motion/react';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import Concept3Banner from '@/components/landing/concept3-banner';
 import Concept3CertificationSection, {
     type Concept3Partner,
 } from '@/components/landing/concept3-certification-section';
 import Concept3MapSection from '@/components/landing/concept3-map-section';
-import Concept3OrderDrawer from '@/components/landing/concept3-order-drawer';
 import type { Concept3PhotoItem } from '@/components/landing/concept3-photo-gallery';
 import Concept3ProductSection from '@/components/landing/concept3-product-section';
 import Concept3StickyBar from '@/components/landing/concept3-sticky-bar';
@@ -29,9 +28,10 @@ import type {
 // Everything below the first couple of viewports (and the result dialog,
 // which only renders after an order attempt) is code-split out of the main
 // page chunk - Lighthouse flagged this page's initial JS as a Total
-// Blocking Time contributor. The order drawer is imported eagerly so a
-// tap can open it immediately; a lazy chunk that hadn't loaded yet left
-// Facebook's in-app browser with a blank tap and a page reset.
+// Blocking Time contributor. The product/checkout section is imported
+// eagerly so tapping any "অর্ডার করুন" can scroll straight to it; a lazy
+// chunk that hadn't loaded yet left Facebook's in-app browser with a blank
+// tap and a page reset.
 const Concept3PhotoGallery = lazy(
     () => import('@/components/landing/concept3-photo-gallery'),
 );
@@ -131,14 +131,6 @@ export default function Concept3({
         orderPlaced,
         orderError,
     });
-    const [drawerOpen, setDrawerOpen] = useState(false);
-
-    useEffect(() => {
-        if (checkout.orderResult) {
-            setDrawerOpen(false);
-        }
-    }, [checkout.orderResult]);
-
     // app.blade.php already skips rendering #lcp-placeholder for this exact
     // request when it knows server-side there's no product (so this is a
     // backstop, not the primary fix) - but Concept3Banner is what removes
@@ -160,7 +152,15 @@ export default function Concept3({
         );
     }
 
-    const openDrawer = () => setDrawerOpen(true);
+    // The order form lives on the page (in the product section) - every
+    // "অর্ডার করুন" button just brings it into view. A plain scroll, not a
+    // hash navigation or a modal, so it can't reload Facebook's in-app
+    // browser.
+    const scrollToCheckout = () => {
+        document
+            .getElementById('order-form')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
     const isLinkVisible = (href: string) => {
         const section = gallerySectionByHref[href];
@@ -183,15 +183,15 @@ export default function Concept3({
                         isLinkVisible(link.href),
                     )}
                     orderHref="#product"
-                    onOrderClick={openDrawer}
+                    onOrderClick={scrollToCheckout}
                 />
 
                 <main>
-                    <Concept3Banner onOrderClick={openDrawer} />
+                    <Concept3Banner onOrderClick={scrollToCheckout} />
                     {partners.length > 0 && (
                         <Concept3CertificationSection items={partners} />
                     )}
-                    <Concept3MapSection onOrderClick={openDrawer} />
+                    <Concept3MapSection onOrderClick={scrollToCheckout} />
 
                     {gallery.features.length > 0 && (
                         <Suspense fallback={<div className="min-h-[400px]" />}>
@@ -200,7 +200,7 @@ export default function Concept3({
                                 heading="সবার স্বস্তি, সবার যত্ন"
                                 subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
                                 items={gallery.features}
-                                onOrderClick={openDrawer}
+                                onOrderClick={scrollToCheckout}
                                 columns={2}
                             />
                         </Suspense>
@@ -219,7 +219,7 @@ export default function Concept3({
                                 heading="চেনা জীবনের যত্ন"
                                 subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
                                 items={gallery.campaign}
-                                onOrderClick={openDrawer}
+                                onOrderClick={scrollToCheckout}
                                 columns={2}
                             />
                         </Suspense>
@@ -229,7 +229,7 @@ export default function Concept3({
                         productName={product.name}
                         images={productImages}
                         checkout={checkout}
-                        onOrderClick={openDrawer}
+                        onOrderClick={scrollToCheckout}
                     />
 
                     <Suspense fallback={<div className="min-h-[300px]" />}>
@@ -251,15 +251,7 @@ export default function Concept3({
                     facebookUrl={contact.facebookUrl}
                 />
 
-                <Concept3StickyBar onOrderClick={openDrawer} />
-
-                <Concept3OrderDrawer
-                    open={drawerOpen}
-                    onOpenChange={setDrawerOpen}
-                    productName={product.name}
-                    images={productImages}
-                    checkout={checkout}
-                />
+                <Concept3StickyBar onOrderClick={scrollToCheckout} />
 
                 <Suspense fallback={null}>
                     <OrderResultDialog

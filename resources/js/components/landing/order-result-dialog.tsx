@@ -42,12 +42,10 @@ export default function OrderResultDialog({
             }}
         >
             <DialogPortal data-slot="dialog-portal">
-                {result?.type === 'success' && (
-                    <div
-                        aria-hidden="true"
-                        className="pointer-events-none fixed inset-0 z-50 backdrop-blur-sm"
-                    />
-                )}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none fixed inset-0 z-50 backdrop-blur-sm"
+                />
                 <DialogPrimitive.Content
                     data-slot="dialog-content"
                     onOpenAutoFocus={(e) => e.preventDefault()}

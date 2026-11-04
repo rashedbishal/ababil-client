@@ -3,9 +3,12 @@ import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
 import type { CheckoutForm } from '@/hooks/use-checkout-form';
+import { sanitizePhoneInput } from '@/lib/bangla-digits';
 import { shippingAreaLabel } from '@/lib/shipping-area';
-import OrderTriggerButton from './order-trigger-button';
 import QuantityStepper from './quantity-stepper';
+
+const fieldClass =
+    'w-full rounded-md border border-amber-200 px-3 py-3 font-bengali text-base focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 focus:outline-none';
 
 const trustItems = [
     {
@@ -28,11 +31,12 @@ const trustItems = [
 const AUTO_SLIDE_MS = 2500;
 
 /**
- * Concept 3's product section: the quantity stepper and delivery-area
- * (inside/outside Dhaka) picker live on the page itself, before the
- * "অর্ডার করুন" button - the order drawer (`Concept3OrderDrawer`) only
- * collects name/phone/address, since both already have a value by the
- * time it opens.
+ * Concept 3's product section, which is also where the order is placed: the
+ * whole checkout (quantity, delivery area, name/phone/address, totals and the
+ * confirm button) lives right here on the page - there is no order drawer.
+ * Every other "অর্ডার করুন" button on the page just scrolls to `#order-form`
+ * below (see `pages/concept-3.tsx`). The success/failure result is shown in
+ * `OrderResultDialog`, not here.
  */
 export default function Concept3ProductSection({
     productName,
@@ -49,7 +53,17 @@ export default function Concept3ProductSection({
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const active = images[index];
 
-    const { data, setField, displayShippingAreas, errors } = checkout;
+    const {
+        data,
+        setField,
+        displayShippingAreas,
+        subtotal,
+        shippingCharge,
+        grandTotal,
+        errors,
+        processing,
+        submit,
+    } = checkout;
 
     useEffect(() => {
         timerRef.current = setInterval(() => {
@@ -127,68 +141,200 @@ export default function Concept3ProductSection({
                             {productName}
                         </h1>
 
-                        <div className="mt-6 grid gap-2">
-                            <span className="font-bengali font-semibold text-stone-700">
-                                বোতলের সংখ্যা
-                            </span>
-                            <QuantityStepper
-                                value={data.quantity}
-                                onChange={(value) =>
-                                    setField('quantity', value)
-                                }
-                            />
-                            <InputError message={errors.quantity} />
-                        </div>
+                        <div id="order-form" className="scroll-mt-24">
+                            <form onSubmit={submit}>
+                                <div
+                                    className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+                                    aria-hidden="true"
+                                >
+                                    <input
+                                        type="text"
+                                        name="hp_confirm_entry"
+                                        value={data.website}
+                                        onChange={(e) =>
+                                            checkout.setHoneypot(e.target.value)
+                                        }
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                        readOnly
+                                    />
+                                </div>
 
-                        <fieldset className="mt-5 grid grid-cols-2 gap-2.5">
-                            <legend className="mb-2.5 w-full font-bengali font-semibold text-stone-700">
-                                কোথায় ডেলিভারি নেবেন?
-                            </legend>
-                            {displayShippingAreas.map((area) => {
-                                const checked =
-                                    data.shipping_area_id === area.id;
+                                <div className="mt-6 grid gap-2">
+                                    <span className="font-bengali font-semibold text-stone-700">
+                                        বোতলের সংখ্যা
+                                    </span>
+                                    <QuantityStepper
+                                        value={data.quantity}
+                                        onChange={(value) =>
+                                            setField('quantity', value)
+                                        }
+                                    />
+                                    <InputError message={errors.quantity} />
+                                </div>
 
-                                return (
+                                <fieldset className="mt-5 grid grid-cols-2 gap-2.5">
+                                    <legend className="mb-2.5 w-full font-bengali font-semibold text-stone-700">
+                                        কোথায় ডেলিভারি নেবেন?
+                                    </legend>
+                                    {displayShippingAreas.map((area) => {
+                                        const checked =
+                                            data.shipping_area_id === area.id;
+
+                                        return (
+                                            <label
+                                                key={area.id}
+                                                className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-3 font-bengali text-sm transition-colors ${
+                                                    checked
+                                                        ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
+                                                        : 'border-amber-200 hover:border-amber-300'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="product_shipping_area_id"
+                                                    checked={checked}
+                                                    onChange={() =>
+                                                        setField(
+                                                            'shipping_area_id',
+                                                            area.id,
+                                                        )
+                                                    }
+                                                    className="size-[18px] accent-amber-600"
+                                                />
+                                                <span>
+                                                    {shippingAreaLabel(
+                                                        area.name,
+                                                    )}
+                                                    <strong className="mt-0.5 block text-stone-900">
+                                                        ৳{area.charge}
+                                                    </strong>
+                                                </span>
+                                            </label>
+                                        );
+                                    })}
+                                </fieldset>
+                                <InputError message={errors.shipping_area_id} />
+
+                                <div className="mt-5 grid gap-2">
                                     <label
-                                        key={area.id}
-                                        className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-3 font-bengali text-sm transition-colors ${
-                                            checked
-                                                ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
-                                                : 'border-amber-200 hover:border-amber-300'
-                                        }`}
+                                        htmlFor="checkout_name"
+                                        className="font-bengali font-semibold text-stone-700"
                                     >
-                                        <input
-                                            type="radio"
-                                            name="product_shipping_area_id"
-                                            checked={checked}
-                                            onChange={() =>
-                                                setField(
-                                                    'shipping_area_id',
-                                                    area.id,
-                                                )
-                                            }
-                                            className="size-[18px] accent-amber-600"
-                                        />
-                                        <span>
-                                            {shippingAreaLabel(area.name)}
-                                            <strong className="mt-0.5 block text-stone-900">
-                                                ৳{area.charge}
-                                            </strong>
-                                        </span>
+                                        আপনার নাম কী?
                                     </label>
-                                );
-                            })}
-                        </fieldset>
-                        <InputError message={errors.shipping_area_id} />
+                                    <input
+                                        id="checkout_name"
+                                        value={data.customer_name}
+                                        onChange={(e) =>
+                                            setField(
+                                                'customer_name',
+                                                e.target.value,
+                                            )
+                                        }
+                                        placeholder="আপনার নাম লিখুন"
+                                        maxLength={60}
+                                        pattern="[\p{Script=Bengali}\p{Script=Latin} .\-]+"
+                                        required
+                                        className={fieldClass}
+                                    />
+                                    <InputError
+                                        message={errors.customer_name}
+                                    />
+                                </div>
 
-                        <div className="mt-6">
-                            <OrderTriggerButton
-                                onClick={onOrderClick}
-                                size="xl"
-                                className="w-full max-w-[360px] justify-center"
-                            >
-                                অর্ডার করুন
-                            </OrderTriggerButton>
+                                <div className="mt-4 grid gap-2">
+                                    <label
+                                        htmlFor="checkout_phone"
+                                        className="font-bengali font-semibold text-stone-700"
+                                    >
+                                        যোগাযোগের মোবাইল নম্বর
+                                    </label>
+                                    <input
+                                        id="checkout_phone"
+                                        type="tel"
+                                        inputMode="numeric"
+                                        pattern="01[3-9][0-9]{8}"
+                                        value={data.customer_phone}
+                                        onChange={(e) =>
+                                            setField(
+                                                'customer_phone',
+                                                sanitizePhoneInput(
+                                                    e.target.value,
+                                                ),
+                                            )
+                                        }
+                                        placeholder="01XXXXXXXXX"
+                                        required
+                                        className={fieldClass}
+                                    />
+                                    <InputError
+                                        message={errors.customer_phone}
+                                    />
+                                </div>
+
+                                <div className="mt-4 grid gap-2">
+                                    <label
+                                        htmlFor="checkout_address"
+                                        className="font-bengali font-semibold text-stone-700"
+                                    >
+                                        ঠিকানা
+                                    </label>
+                                    <input
+                                        id="checkout_address"
+                                        value={data.delivery_address}
+                                        onChange={(e) =>
+                                            setField(
+                                                'delivery_address',
+                                                e.target.value,
+                                            )
+                                        }
+                                        required
+                                        minLength={10}
+                                        maxLength={200}
+                                        className={fieldClass}
+                                    />
+                                    <InputError
+                                        message={errors.delivery_address}
+                                    />
+                                </div>
+
+                                <div className="mt-6 space-y-3 rounded-2xl border border-stone-800 bg-stone-950 p-5 font-bengali text-white shadow-lg">
+                                    <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300">
+                                        <span>পণ্যের মূল্য</span>
+                                        <span>৳{subtotal.toFixed(0)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300">
+                                        <span>ডেলিভারি</span>
+                                        <span>
+                                            ৳{shippingCharge.toFixed(0)}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between pt-1 text-base font-bold text-amber-400">
+                                        <span>সর্বমোট</span>
+                                        <span className="text-xl font-extrabold">
+                                            ৳{grandTotal.toFixed(0)}
+                                        </span>
+                                    </div>
+
+                                    <InputError message={errors.order} />
+
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="mt-2 w-full rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] py-3.5 text-base font-bold text-stone-950 shadow-xl transition-[background-position] duration-1000 hover:bg-right disabled:opacity-60"
+                                    >
+                                        {processing
+                                            ? 'অর্ডার হচ্ছে...'
+                                            : 'অর্ডার কনফার্ম করুন →'}
+                                    </button>
+
+                                    <p className="flex items-center justify-center gap-1.5 pt-1 text-xs text-neutral-400">
+                                        <Truck className="size-3.5 text-emerald-400" />
+                                        ক্যাশ অন ডেলিভারি — হাতে পেয়ে মূল্য পরিশোধ করুন
+                                    </p>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
