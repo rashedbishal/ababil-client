@@ -37,7 +37,10 @@ export default function Concept3StickyBar({
                 </button>
             )}
 
-            <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-center border-t border-amber-500/20 bg-stone-950/95 px-4 py-3 sm:hidden">
+            {/* The ::after extends the bar's background below the screen edge,
+                so no page content peeks through under it when a mobile
+                browser's toolbar or safe area leaves a gap beneath. */}
+            <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-center border-t border-amber-500/20 bg-stone-950/95 px-4 py-3 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-24 after:bg-stone-950 sm:hidden">
                 <OrderTriggerButton
                     onClick={onOrderClick}
                     size="sm"
