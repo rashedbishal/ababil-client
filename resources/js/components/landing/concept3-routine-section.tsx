@@ -39,7 +39,7 @@ export default function Concept3RoutineSection({
                                     className="size-full object-cover"
                                 />
                             </div>
-                            <h3 className="mt-2.5 font-bengali text-base font-medium text-white sm:text-lg">
+                            <h3 className="mt-2.5 line-clamp-4 font-bengali text-base font-medium text-white sm:text-lg">
                                 {step.caption}
                             </h3>
                         </div>

@@ -20,6 +20,9 @@ test('the gallery page lists the three fixed sections with their items', functio
             ->component('admin/gallery/index')
             ->has('sections', 3)
             ->where('sections.0.key', 'features')
+            ->where('imageSpec.size', 800)
+            ->where('imageSpec.max_kb', 1024)
+            ->where('captionMaxLength', 60)
             ->where('sections.0.title', 'সবার স্বস্তি, সবার যত্ন')
             ->where('sections.0.is_visible', false)
             ->where('sections.1.key', 'routine')
@@ -40,11 +43,11 @@ test('a section whose photos are all hidden is reported as hidden', function () 
             ->has('sections.2.items', 1));
 });
 
-test('an admin can upload a photo, which is stored as a resized webp', function () {
+test('a photo that is not square is cropped and resized to the fixed size', function () {
     $this->actingAsAdmin();
 
     $this->post(route('admin.gallery.items.store', 'features'), [
-        'image' => UploadedFile::fake()->image('big.jpg', 2400, 1600),
+        'image' => UploadedFile::fake()->image('wide.webp', 1600, 1000),
         'caption' => 'আরাম',
         'is_active' => true,
     ])->assertRedirect();
@@ -57,20 +60,31 @@ test('an admin can upload a photo, which is stored as a resized webp', function 
 
     Storage::disk(GalleryItem::DISK)->assertExists($item->image_path);
     [$width, $height] = getimagesizefromstring(Storage::disk(GalleryItem::DISK)->get($item->image_path));
-    expect(max($width, $height))->toBe(1200);
+    expect([$width, $height])->toBe([GalleryItem::IMAGE_SIZE, GalleryItem::IMAGE_SIZE]);
 });
 
-test('a small photo is not upscaled', function () {
+test('a small photo is scaled up to the fixed size', function () {
     $this->actingAsAdmin();
 
     $this->post(route('admin.gallery.items.store', 'routine'), [
-        'image' => UploadedFile::fake()->image('small.png', 300, 300),
+        'image' => UploadedFile::fake()->image('small.webp', 300, 300),
         'caption' => 'ছোট',
     ]);
 
     $item = GalleryItem::query()->firstOrFail();
-    [$width] = getimagesizefromstring(Storage::disk(GalleryItem::DISK)->get($item->image_path));
-    expect($width)->toBe(300);
+    [$width, $height] = getimagesizefromstring(Storage::disk(GalleryItem::DISK)->get($item->image_path));
+    expect([$width, $height])->toBe([GalleryItem::IMAGE_SIZE, GalleryItem::IMAGE_SIZE]);
+});
+
+test('a photo that already has the fixed size is stored byte for byte', function () {
+    $this->actingAsAdmin();
+    $file = UploadedFile::fake()->image('exact.webp', GalleryItem::IMAGE_SIZE, GalleryItem::IMAGE_SIZE);
+    $original = file_get_contents($file->getRealPath());
+
+    $this->post(route('admin.gallery.items.store', 'features'), ['image' => $file, 'caption' => 'x']);
+
+    $item = GalleryItem::query()->firstOrFail();
+    expect(Storage::disk(GalleryItem::DISK)->get($item->image_path))->toBe($original);
 });
 
 test('new photos are appended to the end of their own section', function () {
@@ -79,7 +93,7 @@ test('new photos are appended to the end of their own section', function () {
     GalleryItem::factory()->inSection(GallerySection::Campaign)->create(['sort_order' => 9]);
 
     $this->post(route('admin.gallery.items.store', 'features'), [
-        'image' => UploadedFile::fake()->image('a.jpg', 100, 100),
+        'image' => UploadedFile::fake()->image('a.webp', 100, 100),
         'caption' => 'নতুন',
     ]);
 
@@ -95,7 +109,7 @@ test('an upload needs an image and a caption', function () {
     expect(GalleryItem::query()->count())->toBe(0);
 });
 
-test('an upload must be a jpg, png or webp image', function (string $name, string $mime) {
+test('only webp uploads are accepted', function (string $name, string $mime) {
     $this->actingAsAdmin();
 
     $this->post(route('admin.gallery.items.store', 'features'), [
@@ -103,25 +117,55 @@ test('an upload must be a jpg, png or webp image', function (string $name, strin
         'caption' => 'x',
     ])->assertSessionHasErrors('image');
 })->with([
+    'jpg' => ['x.jpg', 'image/jpeg'],
+    'png' => ['x.png', 'image/png'],
+    'gif' => ['x.gif', 'image/gif'],
     'svg' => ['x.svg', 'image/svg+xml'],
     'pdf' => ['x.pdf', 'application/pdf'],
-    'gif' => ['x.gif', 'image/gif'],
 ]);
 
-test('an upload larger than 5 MB is rejected', function () {
+test('an upload larger than 1 MB is rejected', function () {
     $this->actingAsAdmin();
 
     $this->post(route('admin.gallery.items.store', 'features'), [
-        'image' => UploadedFile::fake()->image('huge.jpg', 100, 100)->size(6000),
+        'image' => UploadedFile::fake()->image('huge.webp', 100, 100)->size(1025),
         'caption' => 'x',
     ])->assertSessionHasErrors('image');
+
+    expect(GalleryItem::query()->count())->toBe(0);
+});
+
+test('an upload of exactly 1 MB is accepted', function () {
+    $this->actingAsAdmin();
+
+    $this->post(route('admin.gallery.items.store', 'features'), [
+        'image' => UploadedFile::fake()->image('edge.webp', 100, 100)->size(1024),
+        'caption' => 'x',
+    ])->assertSessionDoesntHaveErrors();
+});
+
+test('a caption longer than the cap is rejected and one at the cap is accepted', function () {
+    $this->actingAsAdmin();
+    $image = fn () => UploadedFile::fake()->image('a.webp', 100, 100);
+
+    $this->post(route('admin.gallery.items.store', 'features'), [
+        'image' => $image(),
+        'caption' => str_repeat('অ', GalleryItem::CAPTION_MAX_LENGTH + 1),
+    ])->assertSessionHasErrors('caption');
+
+    $this->post(route('admin.gallery.items.store', 'features'), [
+        'image' => $image(),
+        'caption' => str_repeat('অ', GalleryItem::CAPTION_MAX_LENGTH),
+    ])->assertSessionDoesntHaveErrors();
+
+    expect(GalleryItem::query()->count())->toBe(1);
 });
 
 test('an unknown section is a 404', function () {
     $this->actingAsAdmin();
 
     $this->post(route('admin.gallery.items.store', 'nope'), [
-        'image' => UploadedFile::fake()->image('a.jpg'),
+        'image' => UploadedFile::fake()->image('a.webp'),
         'caption' => 'x',
     ])->assertNotFound();
 });
@@ -148,7 +192,7 @@ test('replacing a photo stores the new one, deletes the old file and clears the 
 
     $this->post(route('admin.gallery.items.update', $item), [
         '_method' => 'patch',
-        'image' => UploadedFile::fake()->image('new.jpg', 400, 400),
+        'image' => UploadedFile::fake()->image('new.webp', 400, 400),
         'caption' => $item->caption,
         'is_active' => true,
     ])->assertRedirect();
@@ -230,7 +274,7 @@ test('a non-admin cannot manage the gallery', function () {
 
     $this->get(route('admin.gallery.index'))->assertForbidden();
     $this->post(route('admin.gallery.items.store', 'features'), [
-        'image' => UploadedFile::fake()->image('a.jpg'),
+        'image' => UploadedFile::fake()->image('a.webp'),
         'caption' => 'x',
     ])->assertForbidden();
     $this->patch(route('admin.gallery.items.visibility', $item), ['is_active' => false])->assertForbidden();

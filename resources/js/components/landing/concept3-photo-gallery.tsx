@@ -61,11 +61,11 @@ export default function Concept3PhotoGallery({
                                     className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
                             </div>
-                            <span className="flex items-center justify-between gap-2 border-t border-amber-100 px-2.5 py-2 sm:px-3 sm:py-2.5">
-                                <span className="flex-1 text-left font-bengali text-xs text-stone-700 sm:text-sm">
+                            <span className="flex flex-1 flex-col gap-2 border-t border-amber-100 px-2.5 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-3 sm:py-2.5">
+                                <span className="line-clamp-4 w-full text-left font-bengali text-xs text-stone-700 sm:flex-1 sm:text-sm">
                                     {item.caption}
                                 </span>
-                                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 px-2.5 py-1 font-bengali text-[11px] font-bold whitespace-nowrap text-stone-950 sm:px-3 sm:text-xs">
+                                <span className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 px-2.5 py-1.5 font-bengali text-[11px] font-bold whitespace-nowrap text-stone-950 sm:w-auto sm:px-3 sm:py-1 sm:text-xs">
                                     অর্ডার করুন →
                                 </span>
                             </span>

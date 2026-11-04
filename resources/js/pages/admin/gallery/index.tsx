@@ -55,13 +55,23 @@ const emptyForm: FormValues = { image: null, caption: '', is_active: true };
 
 type Editing = { section: GallerySection; photo: GalleryPhoto | null };
 
+type ImageSpec = { size: number; max_kb: number };
+
 export default function GalleryIndex({
     sections,
+    imageSpec,
+    captionMaxLength,
 }: {
     sections: GallerySection[];
+    imageSpec: ImageSpec;
+    captionMaxLength: number;
 }) {
     const [editing, setEditing] = useState<Editing | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
+    const [dimensions, setDimensions] = useState<{
+        width: number;
+        height: number;
+    } | null>(null);
     const form = useForm<FormValues>(emptyForm);
 
     // A local preview of the file picked in the dialog, released when it's
@@ -69,15 +79,45 @@ export default function GalleryIndex({
     useEffect(() => {
         if (!form.data.image) {
             setPreview(null);
+            setDimensions(null);
 
             return;
         }
 
         const url = URL.createObjectURL(form.data.image);
         setPreview(url);
+        setDimensions(null);
 
-        return () => URL.revokeObjectURL(url);
+        const probe = new Image();
+        probe.onload = () =>
+            setDimensions({
+                width: probe.naturalWidth,
+                height: probe.naturalHeight,
+            });
+        probe.src = url;
+
+        return () => {
+            probe.onload = null;
+            URL.revokeObjectURL(url);
+        };
     }, [form.data.image]);
+
+    // Format and size are hard limits (the server rejects them); the exact
+    // pixel size is only a warning, since the server converts a photo that
+    // isn't the right size.
+    const file = form.data.image;
+    const fileProblem = !file
+        ? null
+        : file.type !== 'image/webp'
+          ? 'This is not a WebP file. Only .webp images are accepted.'
+          : file.size > imageSpec.max_kb * 1024
+            ? `This file is ${(file.size / 1024 / 1024).toFixed(2)} MB. The limit is ${imageSpec.max_kb / 1024} MB.`
+            : null;
+    const needsConversion =
+        !fileProblem &&
+        dimensions !== null &&
+        (dimensions.width !== imageSpec.size ||
+            dimensions.height !== imageSpec.size);
 
     function openAdd(section: GallerySection) {
         // Not form.reset(): Inertia's useForm re-bases its "defaults" to
@@ -360,6 +400,34 @@ export default function GalleryIndex({
                             <Label htmlFor="gallery-image">
                                 {isNew ? 'Photo' : 'Replace photo (optional)'}
                             </Label>
+                            <div className="rounded-lg border bg-muted/50 p-3 text-xs text-muted-foreground">
+                                <p className="font-medium text-foreground">
+                                    Photo requirements
+                                </p>
+                                <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                                    <li>
+                                        Format:{' '}
+                                        <strong className="text-foreground">
+                                            WebP
+                                        </strong>{' '}
+                                        (.webp)
+                                    </li>
+                                    <li>
+                                        Size:{' '}
+                                        <strong className="text-foreground">
+                                            {imageSpec.size} x {imageSpec.size}{' '}
+                                            pixels
+                                        </strong>{' '}
+                                        (square)
+                                    </li>
+                                    <li>
+                                        File size: up to{' '}
+                                        <strong className="text-foreground">
+                                            {imageSpec.max_kb / 1024} MB
+                                        </strong>
+                                    </li>
+                                </ul>
+                            </div>
                             {(preview ?? editing?.photo?.image_url) && (
                                 <img
                                     src={preview ?? editing?.photo?.image_url}
@@ -370,7 +438,7 @@ export default function GalleryIndex({
                             <Input
                                 id="gallery-image"
                                 type="file"
-                                accept="image/jpeg,image/png,image/webp"
+                                accept="image/webp"
                                 onChange={(e) =>
                                     form.setData(
                                         'image',
@@ -378,12 +446,25 @@ export default function GalleryIndex({
                                     )
                                 }
                             />
-                            <p className="text-xs text-muted-foreground">
-                                JPG, PNG or WebP, up to 5 MB. It is shown as a
-                                square on the storefront, so a square photo
-                                works best. It is resized and optimised
-                                automatically.
-                            </p>
+                            {fileProblem && (
+                                <p className="text-sm text-destructive">
+                                    {fileProblem}
+                                </p>
+                            )}
+                            {needsConversion && dimensions && (
+                                <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs text-amber-800 dark:text-amber-300">
+                                    This photo is {dimensions.width} x{' '}
+                                    {dimensions.height} pixels, not{' '}
+                                    {imageSpec.size} x {imageSpec.size}. The
+                                    server will convert it automatically by
+                                    cropping it to a centred square and resizing
+                                    it, but the ratio may break a little, the
+                                    edges may be cut off and the photo may not
+                                    look its best. For the best result, upload
+                                    it at exactly {imageSpec.size} x{' '}
+                                    {imageSpec.size}.
+                                </p>
+                            )}
                             <InputError message={form.errors.image} />
                         </div>
 
@@ -394,12 +475,17 @@ export default function GalleryIndex({
                             <Input
                                 id="gallery-caption"
                                 className="font-bengali"
-                                maxLength={120}
+                                maxLength={captionMaxLength}
                                 value={form.data.caption}
                                 onChange={(e) =>
                                     form.setData('caption', e.target.value)
                                 }
                             />
+                            <p className="text-xs text-muted-foreground">
+                                {form.data.caption.length}/{captionMaxLength}{' '}
+                                characters. Keep it short so it fits in 4 lines
+                                on a phone.
+                            </p>
                             <InputError message={form.errors.caption} />
                         </div>
 
@@ -428,7 +514,7 @@ export default function GalleryIndex({
                         <Button
                             type="button"
                             onClick={submit}
-                            disabled={form.processing}
+                            disabled={form.processing || fileProblem !== null}
                         >
                             Save
                         </Button>

@@ -31,6 +31,20 @@ class GalleryItem extends Model
 
     public const DISK = 'public';
 
+    /**
+     * Gallery photos are shown as squares at most ~380px wide on the
+     * storefront, so 800px is sharp on 2x screens without being heavy.
+     */
+    public const IMAGE_SIZE = 800;
+
+    public const IMAGE_MAX_KB = 1024;
+
+    /**
+     * Keeps a caption to 4 lines or fewer in the narrowest (2-column) mobile
+     * card.
+     */
+    public const CAPTION_MAX_LENGTH = 60;
+
     protected $fillable = [
         'section',
         'image_path',

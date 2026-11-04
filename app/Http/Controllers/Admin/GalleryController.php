@@ -25,6 +25,11 @@ class GalleryController extends Controller
             ->groupBy(fn (GalleryItem $item) => $item->section->value);
 
         return Inertia::render('admin/gallery/index', [
+            'imageSpec' => [
+                'size' => GalleryItem::IMAGE_SIZE,
+                'max_kb' => GalleryItem::IMAGE_MAX_KB,
+            ],
+            'captionMaxLength' => GalleryItem::CAPTION_MAX_LENGTH,
             'sections' => collect(GallerySection::cases())->map(function (GallerySection $section) use ($items) {
                 $sectionItems = $items->get($section->value, collect());
 

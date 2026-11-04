@@ -58,17 +58,21 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 // it's not something to rely on. The error page (resources/views/errors/
 // _layout.blade.php) posts a message up to this (unsandboxed) parent
 // instead, which does the actual navigation on its behalf.
-window.addEventListener('message', (e) => {
-    if (e.origin !== window.location.origin) return;
-    if (
-        e.data &&
-        typeof e.data === 'object' &&
-        e.data.type === 'inertia-error-navigate' &&
-        typeof e.data.href === 'string'
-    ) {
-        window.location.href = e.data.href;
-    }
-});
+// Guarded because Vite's dev server also evaluates this module on the server
+// (the Inertia SSR dev endpoint), where there is no `window`.
+if (typeof window !== 'undefined') {
+    window.addEventListener('message', (e) => {
+        if (e.origin !== window.location.origin) return;
+        if (
+            e.data &&
+            typeof e.data === 'object' &&
+            e.data.type === 'inertia-error-navigate' &&
+            typeof e.data.href === 'string'
+        ) {
+            window.location.href = e.data.href;
+        }
+    });
+}
 
 // The only pages rendered with no app chrome (`layout` below) and the only
 // ones that never need TooltipProvider/Toaster (`withApp` below) - keep
