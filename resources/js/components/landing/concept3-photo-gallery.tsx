@@ -33,16 +33,18 @@ export default function Concept3PhotoGallery({
             className="scroll-mt-24 bg-gradient-to-b from-amber-50 via-white to-amber-50"
         >
             <div className="mx-auto max-w-[1240px] px-4 py-6 sm:px-8 sm:py-8">
-                <h2 className="font-bengali text-[29px] leading-tight font-bold text-stone-900 sm:text-4xl">
+                <h2 className="font-bengali text-[29px] leading-tight font-bold text-stone-900 sm:text-4xl lg:text-center">
                     {heading}
                 </h2>
-                <p className="mt-0.5 font-bengali text-base leading-snug text-stone-600">
+                <p className="mt-0.5 font-bengali text-base leading-snug text-stone-600 lg:text-center">
                     {subtitle}
                 </p>
 
                 <div
                     className={`mt-7 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-5 ${
-                        columns === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'
+                        columns === 3
+                            ? 'lg:grid-cols-3'
+                            : 'lg:mx-auto lg:max-w-3xl lg:grid-cols-2'
                     }`}
                 >
                     {items.map((item) => (

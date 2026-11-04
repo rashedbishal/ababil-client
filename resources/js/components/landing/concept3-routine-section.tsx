@@ -28,7 +28,7 @@ export default function Concept3RoutineSection({
                     <span className="whitespace-nowrap">আবাবিল সেখানেই।</span>
                 </p>
 
-                <div className="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:gap-6 lg:grid-cols-3">
+                <div className="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:gap-6 lg:mx-auto lg:max-w-3xl">
                     {items.map((step) => (
                         <div key={step.id} className="text-left">
                             <div className="aspect-square overflow-hidden rounded-2xl border border-amber-500/20 bg-stone-900">
