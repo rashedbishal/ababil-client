@@ -54,18 +54,6 @@ const OrderResultDialog = lazy(
 const loadMotionFeatures = () =>
     import('@/components/landing/motion/features').then((mod) => mod.default);
 
-import campaignFatherShoulders from '../../images/landing/cards/campaign-father-shoulders.webp';
-import campaignGrandpaGrandson from '../../images/landing/cards/campaign-grandpa-grandson.webp';
-import campaignNeckKitchen from '../../images/landing/cards/campaign-neck-kitchen.webp';
-import campaignSonFather from '../../images/landing/cards/campaign-son-father.webp';
-import careFootWalk from '../../images/landing/cards/care-foot-walk.webp';
-import careKneeBazaar from '../../images/landing/cards/care-knee-bazaar.webp';
-import careNeckWarmth from '../../images/landing/cards/care-neck-warmth.webp';
-import problemBack from '../../images/landing/cards/problem-back.webp';
-import problemFeet from '../../images/landing/cards/problem-feet.webp';
-import problemNeck from '../../images/landing/cards/problem-neck.webp';
-import uspHerbal from '../../images/landing/cards/usp-herbal-original.webp';
-import uspWarming from '../../images/landing/cards/usp-warming-original.webp';
 import product1 from '../../images/landing/product/product-1.webp';
 import product2 from '../../images/landing/product/product-2.webp';
 import product3 from '../../images/landing/product/product-3.webp';
@@ -76,89 +64,6 @@ const productImages = [
     { id: 2, src: product2, alt: 'আবাবিল পণ্যের ২ নম্বর ছবি' },
     { id: 3, src: product3, alt: 'আবাবিল পণ্যের ৩ নম্বর ছবি' },
     { id: 4, src: product4, alt: 'আবাবিল পণ্যের ৪ নম্বর ছবি' },
-];
-
-// No photo appears in more than one section of the page. "সবার স্বস্তি,
-// সবার যত্ন" shows people of every age - a child to a grandparent - each
-// dealing with their own pain (not being massaged by someone else), across
-// every body area - neck, shoulder, back, knee and foot. "চেনা জীবনের যত্ন"
-// is the emotional, family-centred section.
-const featureItems: Concept3PhotoItem[] = [
-    {
-        id: 'herbal',
-        image: uspHerbal,
-        alt: 'আবাবিল অয়েল হাতে হাসিমুখে একজন মা',
-        caption: 'সংসারের সবার ভরসা',
-    },
-    {
-        id: 'knee-bazaar',
-        image: careKneeBazaar,
-        alt: 'রাস্তায় হাসিমুখে থাম্বস আপ দেখিয়ে দৌড়াচ্ছেন একজন পুরুষ',
-        caption: 'ব্যথাকে পিছনে ফেলে এগিয়ে চলুন',
-    },
-    {
-        id: 'foot-walk',
-        image: careFootWalk,
-        alt: 'সারাদিন হাঁটার পর পায়ের গোড়ালিতে ব্যথা',
-        caption: 'সারাদিন হাঁটার পর পায়ে আরাম',
-    },
-    {
-        id: 'back',
-        image: problemBack,
-        alt: 'অফিস চেয়ারে বসে নিজের পিঠে হাত রেখেছেন একজন যুবক',
-        caption: 'পিঠের খবর নিন নিজেই',
-    },
-    {
-        id: 'neck-warmth',
-        image: careNeckWarmth,
-        alt: 'ঘাড়ের ব্যথায় হাত রেখেছেন একজন যুবক',
-        caption: 'ঘাড়ে লাগাতেই আরামের উষ্ণতা',
-    },
-    {
-        id: 'warming',
-        image: uspWarming,
-        alt: 'স্কুলব্যাগ কাঁধে হাসিমুখে এক শিশু',
-        caption: 'ব্যাগের ভারে কাঁধ ব্যথায় আরাম',
-    },
-];
-
-const campaignItems: Concept3PhotoItem[] = [
-    {
-        id: 'grandpa-grandson',
-        image: campaignGrandpaGrandson,
-        alt: 'লাঠি ছাড়াই নাতির হাত ধরে হাঁটছেন দাদু',
-        caption: 'লাঠি নয়, নাতির হাত ধরে দাদু',
-    },
-    {
-        id: 'neck',
-        image: problemNeck,
-        alt: 'মায়ের কাঁধে মেয়ের যত্নের হাত',
-        caption: 'মায়ের কাঁধেও একটু যত্ন',
-    },
-    {
-        id: 'father-shoulders',
-        image: campaignFatherShoulders,
-        alt: 'বাবার কাঁধে চড়ে আনন্দে দুই হাত মেলে দিয়েছে সন্তান',
-        caption: 'বাবার কাঁধেই সন্তানের আশ্রয়',
-    },
-    {
-        id: 'son-father',
-        image: campaignSonFather,
-        alt: 'বৃদ্ধ বাবার কাঁধে হাত রেখে পাশে দাঁড়িয়ে ছেলে',
-        caption: 'মা-বাবার জন্য সেরা উপহার',
-    },
-    {
-        id: 'feet',
-        image: problemFeet,
-        alt: 'জায়নামাজে সিজদারত একজন মুসল্লি',
-        caption: 'নামাজে স্বস্তি, সিজদায় আরাম',
-    },
-    {
-        id: 'neck-kitchen',
-        image: campaignNeckKitchen,
-        alt: 'রান্নার ফাঁকে ঘাড়ে হাত রেখেছেন একজন গৃহিণী',
-        caption: 'রান্নাঘরেও ঘাড় থাকুক আরামে',
-    },
 ];
 
 // Concept 3's sections have their own ids (set on Concept3MapSection,
@@ -174,6 +79,17 @@ const navLinks: NavLink[] = [
     { href: '#product', label: 'পেমেন্ট' },
     { href: '#reviews', label: 'রিভিউ' },
 ];
+
+// A gallery section with no shown photos isn't rendered, so its nav link is
+// dropped too rather than scrolling nowhere.
+const gallerySectionByHref: Record<
+    string,
+    'features' | 'routine' | 'campaign'
+> = {
+    '#features': 'features',
+    '#routine': 'routine',
+    '#campaign': 'campaign',
+};
 
 const mobileNavLinks: MobileNavLink[] = [
     { href: '#top', label: 'হোম', icon: '🏠' },
@@ -191,6 +107,7 @@ export default function Concept3({
     contact,
     formToken,
     reviews,
+    gallery,
     orderPlaced,
     orderError,
 }: {
@@ -199,6 +116,7 @@ export default function Concept3({
     contact: Contact;
     formToken: string;
     reviews: VideoReview[];
+    gallery: Record<'features' | 'routine' | 'campaign', Concept3PhotoItem[]>;
     orderPlaced?: OrderPlacedData | null;
     orderError?: string | null;
 }) {
@@ -240,6 +158,12 @@ export default function Concept3({
 
     const openDrawer = () => setDrawerOpen(true);
 
+    const isLinkVisible = (href: string) => {
+        const section = gallerySectionByHref[href];
+
+        return !section || gallery[section].length > 0;
+    };
+
     return (
         <LazyMotion features={loadMotionFeatures}>
             <div
@@ -248,8 +172,12 @@ export default function Concept3({
             >
                 <SiteHeader
                     phone={contact.phone}
-                    navLinks={navLinks}
-                    mobileNavLinks={mobileNavLinks}
+                    navLinks={navLinks.filter((link) =>
+                        isLinkVisible(link.href),
+                    )}
+                    mobileNavLinks={mobileNavLinks.filter((link) =>
+                        isLinkVisible(link.href),
+                    )}
                     orderHref="#product"
                     onOrderClick={openDrawer}
                 />
@@ -259,31 +187,37 @@ export default function Concept3({
                     <Concept3CertificationSection />
                     <Concept3MapSection onOrderClick={openDrawer} />
 
-                    <Suspense fallback={<div className="min-h-[400px]" />}>
-                        <Concept3PhotoGallery
-                            id="features"
-                            heading="সবার স্বস্তি, সবার যত্ন"
-                            subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
-                            items={featureItems}
-                            onOrderClick={openDrawer}
-                            columns={3}
-                        />
-                    </Suspense>
+                    {gallery.features.length > 0 && (
+                        <Suspense fallback={<div className="min-h-[400px]" />}>
+                            <Concept3PhotoGallery
+                                id="features"
+                                heading="সবার স্বস্তি, সবার যত্ন"
+                                subtitle="নিজের ও প্রিয়জনের প্রতিদিনের ব্যথা দূর করতে ভরসা থাকুক— আবাবিল পেইন রিলিফ অয়েল।"
+                                items={gallery.features}
+                                onOrderClick={openDrawer}
+                                columns={3}
+                            />
+                        </Suspense>
+                    )}
 
-                    <Suspense fallback={<div className="min-h-[300px]" />}>
-                        <Concept3RoutineSection />
-                    </Suspense>
+                    {gallery.routine.length > 0 && (
+                        <Suspense fallback={<div className="min-h-[300px]" />}>
+                            <Concept3RoutineSection items={gallery.routine} />
+                        </Suspense>
+                    )}
 
-                    <Suspense fallback={<div className="min-h-[400px]" />}>
-                        <Concept3PhotoGallery
-                            id="campaign"
-                            heading="চেনা জীবনের যত্ন"
-                            subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
-                            items={campaignItems}
-                            onOrderClick={openDrawer}
-                            columns={3}
-                        />
-                    </Suspense>
+                    {gallery.campaign.length > 0 && (
+                        <Suspense fallback={<div className="min-h-[400px]" />}>
+                            <Concept3PhotoGallery
+                                id="campaign"
+                                heading="চেনা জীবনের যত্ন"
+                                subtitle="আপনজনের ব্যথা কমুক, ফিরুক চেনা হাসি।"
+                                items={gallery.campaign}
+                                onOrderClick={openDrawer}
+                                columns={3}
+                            />
+                        </Suspense>
+                    )}
 
                     <Concept3ProductSection
                         productName={product.name}

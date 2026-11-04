@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\GallerySection;
+use App\Models\GalleryItem;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -32,6 +34,7 @@ class LandingController extends Controller
 
         return Inertia::render('concept-3', [
             ...$this->sharedProps($product),
+            'gallery' => $this->gallery(),
             'orderPlaced' => $this->orderPlaced($request),
             'orderError' => $request->query('order_error'),
         ])->withViewData('seo', $this->seo($product));
@@ -77,6 +80,39 @@ class LandingController extends Controller
 
         return Inertia::render('welcome', $this->sharedProps($product))
             ->withViewData('seo', $this->seo($product));
+    }
+
+    /**
+     * The shown photos of each gallery section, keyed by section. A section
+     * with no shown photos comes back as an empty list, which the storefront
+     * treats as "don't render this section".
+     *
+     * @return array<string, array<int, array{id: int, image: string, alt: string, caption: string}>>
+     */
+    private function gallery(): array
+    {
+        $items = GalleryItem::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn (GalleryItem $item) => $item->section->value);
+
+        $gallery = [];
+
+        foreach (GallerySection::cases() as $section) {
+            $gallery[$section->value] = $items->get($section->value, collect())
+                ->map(fn (GalleryItem $item) => [
+                    'id' => $item->id,
+                    'image' => $item->imageUrl(),
+                    'alt' => $item->alt ?? $item->caption,
+                    'caption' => $item->caption,
+                ])
+                ->values()
+                ->all();
+        }
+
+        return $gallery;
     }
 
     private function featuredProduct(): ?Product

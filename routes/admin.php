@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\BlockedIpController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\IncompleteOrderController;
 use App\Http\Controllers\Admin\MetaEventLogController;
 use App\Http\Controllers\Admin\OrderController;
@@ -53,6 +54,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('shipping-areas', ShippingAreaController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::resource('reviews', ReviewController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('gallery', [GalleryController::class, 'index'])->name('gallery.index');
+    Route::post('gallery/sections/{section}/items', [GalleryController::class, 'store'])->name('gallery.items.store');
+    Route::patch('gallery/items/{galleryItem}', [GalleryController::class, 'update'])->name('gallery.items.update');
+    Route::patch('gallery/items/{galleryItem}/visibility', [GalleryController::class, 'updateVisibility'])->name('gallery.items.visibility');
+    Route::post('gallery/items/{galleryItem}/move', [GalleryController::class, 'move'])->name('gallery.items.move');
+    Route::delete('gallery/items/{galleryItem}', [GalleryController::class, 'destroy'])->name('gallery.items.destroy');
 
     Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
     Route::put('courier/default', [CourierController::class, 'setDefault'])->name('courier.default');

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import {
     AlertTriangle,
     ExternalLink,
+    Images,
     LayoutGrid,
     ListOrdered,
     Package,
@@ -36,6 +37,7 @@ import { home } from '@/routes';
 import admins from '@/routes/admin/admins';
 import blockedIps from '@/routes/admin/blocked-ips';
 import courier from '@/routes/admin/courier';
+import gallery from '@/routes/admin/gallery';
 import { dashboard } from '@/routes/admin';
 import incompleteOrders from '@/routes/admin/incomplete-orders';
 import metaEvents from '@/routes/admin/meta-events';
@@ -119,6 +121,11 @@ function buildGroups(
                     title: 'Review Management',
                     href: reviews.index(),
                     icon: Video,
+                },
+                {
+                    title: 'Gallery Management',
+                    href: gallery.index(),
+                    icon: Images,
                 },
             ],
         },
