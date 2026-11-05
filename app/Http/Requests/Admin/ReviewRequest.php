@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Review;
 use App\Support\YouTube;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -29,7 +30,8 @@ class ReviewRequest extends FormRequest
                 'string',
                 'max:255',
                 function (string $attribute, mixed $value, Closure $fail): void {
-                    $existingVideoPath = $this->route('review')?->video_path;
+                    $review = $this->route('review');
+                    $existingVideoPath = $review instanceof Review ? $review->video_path : null;
                     $hasStoredHostedVideo = is_string($existingVideoPath) && $existingVideoPath !== '' && ! $this->boolean('clear_video');
 
                     if ($value === null || $value === '') {

@@ -149,7 +149,7 @@ class ReviewController extends Controller
 
         $name = 'reviews/'.uniqid('review-', true).'.'.$file->getClientOriginalExtension();
 
-        return $file->storeAs('reviews', basename($name), 'public');
+        return $file->storeAs('reviews', basename($name), 'public') ?: null;
     }
 
     private function storeThumbnailFile(
@@ -165,7 +165,7 @@ class ReviewController extends Controller
 
             $name = 'reviews/thumbs/'.uniqid('review-thumb-', true).'.'.$thumbnailFile->getClientOriginalExtension();
 
-            return $thumbnailFile->storeAs('reviews/thumbs', basename($name), 'public');
+            return $thumbnailFile->storeAs('reviews/thumbs', basename($name), 'public') ?: null;
         }
 
         if (! is_string($videoPath) || $videoPath === '') {
