@@ -58,18 +58,6 @@ const OrderResultDialog = lazy(
 const loadMotionFeatures = () =>
     import('@/components/landing/motion/features').then((mod) => mod.default);
 
-import product1 from '../../images/landing/product/product-1.webp';
-import product2 from '../../images/landing/product/product-2.webp';
-import product3 from '../../images/landing/product/product-3.webp';
-import product4 from '../../images/landing/product/product-4.webp';
-
-const productImages = [
-    { id: 1, src: product1, alt: 'আবাবিল পণ্যের ১ নম্বর ছবি' },
-    { id: 2, src: product2, alt: 'আবাবিল পণ্যের ২ নম্বর ছবি' },
-    { id: 3, src: product3, alt: 'আবাবিল পণ্যের ৩ নম্বর ছবি' },
-    { id: 4, src: product4, alt: 'আবাবিল পণ্যের ৪ নম্বর ছবি' },
-];
-
 // Concept 3's sections have their own ids (set on Concept3MapSection,
 // Concept3PhotoGallery, Concept3RoutineSection and Concept3ProductSection
 // below) rather than the main design's #problem/#usp/#lab-tested/#checkout,
@@ -113,6 +101,7 @@ export default function Concept3({
     contact,
     formToken,
     reviews,
+    productImages,
     gallery,
     partners,
     orderPlaced,
@@ -123,6 +112,7 @@ export default function Concept3({
     contact: Contact;
     formToken: string;
     reviews: VideoReview[];
+    productImages: { id: number; src: string; alt: string }[];
     gallery: Record<'features' | 'routine' | 'campaign', Concept3PhotoItem[]>;
     partners: Concept3Partner[];
     orderPlaced?: OrderPlacedData | null;

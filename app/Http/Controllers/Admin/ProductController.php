@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Size;
 use Illuminate\Http\RedirectResponse;
@@ -94,7 +95,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): Response
     {
-        $product->load('variants.size');
+        $product->load(['variants.size', 'images.media']);
 
         return Inertia::render('admin/products/edit', [
             'product' => [
@@ -123,6 +124,14 @@ class ProductController extends Controller
                     'stock' => $variant->stock,
                     'is_active' => $variant->is_active,
                 ]),
+            ],
+            'images' => $product->images->map(fn (ProductImage $image) => [
+                'id' => $image->id,
+                'image_url' => $image->imageUrl(),
+            ])->values(),
+            'imageSpec' => [
+                'size' => ProductImage::IMAGE_SIZE,
+                'max_kb' => ProductImage::IMAGE_MAX_KB,
             ],
             'sizes' => Size::query()->where('is_active', true)->orderBy('sort_order')->get(['id', 'name']),
             // If this is the only product in the whole catalog, it must stay

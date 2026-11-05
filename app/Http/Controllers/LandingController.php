@@ -7,6 +7,7 @@ use App\Models\GalleryItem;
 use App\Models\Order;
 use App\Models\PartnerLogo;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Review;
 use App\Models\Setting;
@@ -35,6 +36,7 @@ class LandingController extends Controller
 
         return Inertia::render('concept-3', [
             ...$this->sharedProps($product),
+            'productImages' => $this->productImages($product),
             'gallery' => $this->gallery(),
             'partners' => $this->partners(),
             'orderPlaced' => $this->orderPlaced($request),
@@ -82,6 +84,30 @@ class LandingController extends Controller
 
         return Inertia::render('welcome', $this->sharedProps($product))
             ->withViewData('seo', $this->seo($product));
+    }
+
+    /**
+     * The product's photos in carousel order. Empty when none are uploaded,
+     * which the storefront treats as "no carousel".
+     *
+     * @return array<int, array{id: int, src: string, alt: string}>
+     */
+    private function productImages(?Product $product): array
+    {
+        if ($product === null) {
+            return [];
+        }
+
+        return $product->images()
+            ->with('media')
+            ->get()
+            ->map(fn (ProductImage $image, int $index) => [
+                'id' => $image->id,
+                'src' => $image->imageUrl(),
+                'alt' => $product->name.' - ছবি '.($index + 1),
+            ])
+            ->values()
+            ->all();
     }
 
     /**

@@ -16,6 +16,16 @@ use Illuminate\Support\Carbon;
  */
 class ProductImage extends Model
 {
+    public const DISK = 'public';
+
+    /**
+     * The storefront shows product photos as squares at most ~520px wide;
+     * 960px is sharp on 2x screens without being heavy.
+     */
+    public const IMAGE_SIZE = 960;
+
+    public const IMAGE_MAX_KB = 1024;
+
     protected $fillable = [
         'product_id',
         'media_id',
@@ -43,5 +53,10 @@ class ProductImage extends Model
     public function media(): BelongsTo
     {
         return $this->belongsTo(Media::class);
+    }
+
+    public function imageUrl(): string
+    {
+        return $this->media->url();
     }
 }

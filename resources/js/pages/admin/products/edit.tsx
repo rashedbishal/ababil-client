@@ -5,6 +5,11 @@ import {
     VariantsManager,
     type Variant,
 } from '@/components/admin/variants-manager';
+import {
+    ProductImagesManager,
+    type ProductImage,
+    type ImageSpec,
+} from '@/components/admin/product-images-manager';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -33,11 +38,15 @@ type ProductDetail = {
 
 export default function ProductEdit({
     product,
+    images,
+    imageSpec,
     sizes,
     canSetVisibility,
     sizeManagementEnabled,
 }: {
     product: ProductDetail;
+    images: ProductImage[];
+    imageSpec: ImageSpec;
     sizes: { id: number; name: string }[];
     canSetVisibility: boolean;
     sizeManagementEnabled: boolean;
@@ -66,6 +75,14 @@ export default function ProductEdit({
                     </>
                 )}
             </Form>
+
+            <Separator />
+
+            <ProductImagesManager
+                productId={product.id}
+                images={images}
+                imageSpec={imageSpec}
+            />
 
             {sizeManagementEnabled && (
                 <>

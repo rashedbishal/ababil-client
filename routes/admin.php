@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderCourierController;
 use App\Http\Controllers\Admin\PartnerLogoController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
@@ -26,6 +27,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         ->except(['show'])
         ->middlewareFor(['create', 'store'], 'product-creation-unlocked');
     Route::post('products/{product}/restore', [ProductController::class, 'restore'])->name('products.restore');
+
+    Route::scopeBindings()->group(function (): void {
+        Route::post('products/{product}/images', [ProductImageController::class, 'store'])->name('products.images.store');
+        Route::post('products/{product}/images/{image}', [ProductImageController::class, 'update'])->name('products.images.update');
+        Route::post('products/{product}/images/{image}/move', [ProductImageController::class, 'move'])->name('products.images.move');
+        Route::delete('products/{product}/images/{image}', [ProductImageController::class, 'destroy'])->name('products.images.destroy');
+    });
 
     Route::middleware('size-management-enabled')->group(function (): void {
         Route::post('products/{product}/variants', [ProductVariantController::class, 'store'])->name('products.variants.store');

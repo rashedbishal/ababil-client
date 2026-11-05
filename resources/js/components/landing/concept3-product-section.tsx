@@ -66,6 +66,10 @@ export default function Concept3ProductSection({
     } = checkout;
 
     useEffect(() => {
+        if (images.length < 2) {
+            return;
+        }
+
         timerRef.current = setInterval(() => {
             setIndex((i) => (i + 1) % images.length);
         }, AUTO_SLIDE_MS);
@@ -111,29 +115,31 @@ export default function Concept3ProductSection({
                             </AnimatePresence>
                         </button>
 
-                        <div className="mt-4 grid grid-cols-4 gap-3 lg:mt-3 lg:gap-2.5">
-                            {images.map((img, i) => (
-                                <button
-                                    key={img.id}
-                                    type="button"
-                                    onClick={() => setIndex(i)}
-                                    aria-label={`${img.alt} দেখুন`}
-                                    aria-pressed={i === index}
-                                    className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
-                                        i === index
-                                            ? 'scale-105 border-amber-500 shadow-md ring-2 ring-amber-400/50'
-                                            : 'border-amber-200 opacity-75 hover:border-amber-400 hover:opacity-100'
-                                    }`}
-                                >
-                                    <img
-                                        src={img.src}
-                                        alt={img.alt}
-                                        loading="lazy"
-                                        className="size-full rounded-2xl object-cover"
-                                    />
-                                </button>
-                            ))}
-                        </div>
+                        {images.length > 1 && (
+                            <div className="mt-4 grid grid-cols-4 gap-3 lg:mt-3 lg:gap-2.5">
+                                {images.map((img, i) => (
+                                    <button
+                                        key={img.id}
+                                        type="button"
+                                        onClick={() => setIndex(i)}
+                                        aria-label={`${img.alt} দেখুন`}
+                                        aria-pressed={i === index}
+                                        className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
+                                            i === index
+                                                ? 'scale-105 border-amber-500 shadow-md ring-2 ring-amber-400/50'
+                                                : 'border-amber-200 opacity-75 hover:border-amber-400 hover:opacity-100'
+                                        }`}
+                                    >
+                                        <img
+                                            src={img.src}
+                                            alt={img.alt}
+                                            loading="lazy"
+                                            className="size-full rounded-2xl object-cover"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-col justify-center pt-3 lg:pt-0">
