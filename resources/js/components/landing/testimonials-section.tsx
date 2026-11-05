@@ -1,11 +1,21 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useSyncExternalStore } from 'react';
 import Reveal from './motion/reveal';
 import ReviewVideo from './review-video';
 
 interface VideoReview {
     id: number;
     video_id: string;
+}
+
+// Desktop shows 4 reels per view, everything smaller shows 2.
+const DESKTOP_QUERY = '(min-width: 1024px)';
+
+function subscribeDesktop(onChange: () => void) {
+    const query = window.matchMedia(DESKTOP_QUERY);
+    query.addEventListener('change', onChange);
+
+    return () => query.removeEventListener('change', onChange);
 }
 
 export default function TestimonialsSection({
@@ -20,9 +30,15 @@ export default function TestimonialsSection({
     const trackRef = useRef<HTMLDivElement>(null);
     const [page, setPage] = useState(0);
 
-    // A page is two reels (the width of the track), so the page number is
+    // A page is a full row of reels (2, or 4 on desktop) (the width of the track), so the page number is
     // just how many track-widths we have scrolled.
-    const pageCount = Math.ceil(reviews.length / 2);
+    const isDesktop = useSyncExternalStore(
+        subscribeDesktop,
+        () => window.matchMedia(DESKTOP_QUERY).matches,
+        () => false,
+    );
+    const perView = isDesktop ? 4 : 2;
+    const pageCount = Math.ceil(reviews.length / perView);
 
     const syncPage = useCallback(() => {
         const track = trackRef.current;
@@ -82,11 +98,11 @@ export default function TestimonialsSection({
                     </p>
                 </Reveal>
 
-                {/* Reels slider: always 2 reels in view on every screen size,
+                {/* Reels slider: 2 reels in view (4 on desktop),
                     the rest slide in (swipe, arrows or dots). The width is
                     capped so a reel on desktop is a normal phone-video size
                     instead of filling half the page. */}
-                <div className="mx-auto mt-8 max-w-[760px] sm:mt-12">
+                <div className="mx-auto mt-8 max-w-[760px] sm:mt-12 lg:max-w-[1100px]">
                     <div className="relative">
                         <div
                             ref={trackRef}
@@ -96,7 +112,7 @@ export default function TestimonialsSection({
                             {reviews.map((item, index) => (
                                 <div
                                     key={item.id}
-                                    className="w-1/2 shrink-0 snap-start px-1.5 sm:px-2.5"
+                                    className="w-1/2 shrink-0 snap-start px-1.5 sm:px-2.5 lg:w-1/4"
                                 >
                                     <div className="group relative aspect-[9/16] w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner">
                                         <ReviewVideo

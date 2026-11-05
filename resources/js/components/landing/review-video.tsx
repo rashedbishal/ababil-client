@@ -52,7 +52,11 @@ export default function ReviewVideo({
     const [started, setStarted] = useState(false);
     const [status, setStatus] = useState<Status>('idle');
     const [fallback, setFallback] = useState(false);
-    const [scale, setScale] = useState(0.5);
+    // Scale and whole-pixel offset that centre the player on the card. The
+    // offset is rounded so the scaled player never sits on a half pixel
+    // (card heights are fractional with a 9:16 ratio), which can show as a
+    // hairline across the video in some browsers.
+    const [placement, setPlacement] = useState({ scale: 0.5, x: 0, y: 0 });
     const [intro, setIntro] = useState(false);
     const mountRef = useRef<HTMLDivElement>(null);
     const playerRef = useRef<YouTubePlayer | null>(null);
@@ -167,7 +171,21 @@ export default function ReviewVideo({
             return;
         }
 
-        const resize = () => setScale((card.clientWidth * CROP) / PLAYER_WIDTH);
+        const resize = () => {
+            // Snap the scaled player to a half-pixel step so browsers don't
+            // leave a thin black line while the YouTube iframe settles into the
+            // final frame after the video starts or resumes.
+            const scale =
+                Math.round(((card.clientWidth * CROP) / PLAYER_WIDTH) * 2) / 2;
+            const scaledWidth = PLAYER_WIDTH * scale;
+            const scaledHeight = PLAYER_HEIGHT * scale;
+
+            setPlacement({
+                scale,
+                x: Math.round((card.clientWidth - scaledWidth) / 2),
+                y: Math.round((card.clientHeight - scaledHeight) / 2),
+            });
+        };
 
         resize();
         const observer = new ResizeObserver(resize);
@@ -221,9 +239,10 @@ export default function ReviewVideo({
                     style={{
                         width: PLAYER_WIDTH,
                         height: PLAYER_HEIGHT,
-                        transform: `translate(-50%, -50%) scale(${scale})`,
+                        transform: `translate(${placement.x}px, ${placement.y}px) scale(${placement.scale})`,
+                        transformOrigin: '0 0',
                     }}
-                    className="pointer-events-none absolute top-1/2 left-1/2 [&_iframe]:size-full"
+                    className="pointer-events-none absolute top-0 left-0 [&_iframe]:size-full"
                 />
             )}
 
@@ -260,19 +279,14 @@ export default function ReviewVideo({
                         )}
                     </span>
                 ) : (
-                    <>
-                        <span
-                            aria-hidden
-                            className={`flex size-11 items-center justify-center rounded-full border border-amber-400/40 bg-stone-950/80 text-amber-400 shadow-xl backdrop-blur-sm transition-opacity duration-700 group-hover:opacity-100 sm:size-14 ${
-                                intro ? 'opacity-100' : 'opacity-0'
-                            }`}
-                        >
-                            <Pause className="size-5 fill-amber-400 sm:size-6" />
-                        </span>
-                        <span className="absolute bottom-3 flex size-10 items-center justify-center rounded-full border border-amber-400/40 bg-stone-950/70 text-amber-400 opacity-80 shadow-xl backdrop-blur-sm transition-opacity hover:opacity-100">
-                            <Pause className="size-4 fill-amber-400" />
-                        </span>
-                    </>
+                    <span
+                        aria-hidden
+                        className={`flex size-11 items-center justify-center rounded-full border border-amber-400/40 bg-stone-950/80 text-amber-400 shadow-xl backdrop-blur-sm transition-opacity duration-700 group-hover:opacity-100 sm:size-14 ${
+                            intro ? 'opacity-100' : 'opacity-0'
+                        }`}
+                    >
+                        <Pause className="size-5 fill-amber-400 sm:size-6" />
+                    </span>
                 )}
             </button>
         </>
