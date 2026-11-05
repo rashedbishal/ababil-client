@@ -31,5 +31,7 @@ export type Contact = {
 
 export type VideoReview = {
     id: number;
-    video_id: string;
+    video_url: string | null;
+    thumbnail_url: string | null;
+    video_id?: string | null;
 };

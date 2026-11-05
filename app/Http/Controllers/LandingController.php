@@ -190,7 +190,15 @@ class LandingController extends Controller
             'reviews' => Review::query()
                 ->where('is_active', true)
                 ->orderBy('sort_order')
-                ->get(['id', 'video_id']),
+                ->get(['id', 'video_path', 'thumbnail_path', 'video_id'])
+                ->map(fn (Review $review) => [
+                    'id' => $review->id,
+                    'video_url' => $review->videoUrl(),
+                    'thumbnail_url' => $review->thumbnailUrl(),
+                    'video_id' => $review->video_id,
+                ])
+                ->values()
+                ->all(),
             'contact' => [
                 'phone' => Setting::get('site_phone'),
                 'whatsapp' => Setting::get('whatsapp_number'),

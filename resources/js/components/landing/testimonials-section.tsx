@@ -5,7 +5,9 @@ import ReviewVideo from './review-video';
 
 interface VideoReview {
     id: number;
-    video_id: string;
+    video_url: string | null;
+    thumbnail_url: string | null;
+    video_id?: string | null;
 }
 
 // Desktop shows 4 reels per view, everything smaller shows 2.
@@ -116,7 +118,9 @@ export default function TestimonialsSection({
                                 >
                                     <div className="group relative aspect-[9/16] w-full overflow-hidden rounded-2xl border border-amber-500/20 bg-black shadow-inner">
                                         <ReviewVideo
-                                            videoId={item.video_id}
+                                            videoUrl={item.video_url}
+                                            youtubeId={item.video_id ?? null}
+                                            posterUrl={item.thumbnail_url}
                                             index={index}
                                             shouldPause={
                                                 playingId !== null &&

@@ -63,6 +63,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::resource('shipping-areas', ShippingAreaController::class)->only(['index', 'store', 'update', 'destroy']);
 
+    Route::post('reviews/reorder', [ReviewController::class, 'reorder'])->name('reviews.reorder');
     Route::resource('reviews', ReviewController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::get('gallery', [GalleryController::class, 'index'])->name('gallery.index');

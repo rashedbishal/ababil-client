@@ -2,6 +2,8 @@
 
 use App\Models\Review;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 test('an admin can create a review from a youtube watch url', function () {
     $this->actingAsAdmin();
@@ -105,4 +107,64 @@ test('a non-admin cannot manage reviews', function () {
     $user = User::factory()->create(['is_admin' => false]);
 
     $this->actingAs($user)->get(route('admin.reviews.index'))->assertForbidden();
+});
+
+test('replacing a hosted video with a youtube link deletes the file', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('reviews/a.mp4', 'x');
+    Storage::disk('public')->put('reviews/thumbs/a.jpg', 'x');
+    $this->actingAsAdmin();
+    $review = Review::factory()->create([
+        'youtube_url' => null,
+        'video_id' => null,
+        'video_path' => 'reviews/a.mp4',
+        'thumbnail_path' => 'reviews/thumbs/a.jpg',
+    ]);
+
+    $this->put(route('admin.reviews.update', $review), [
+        'youtube_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        'clear_video' => '1',
+        'clear_youtube' => '0',
+        'is_active' => '1',
+    ])->assertSessionHasNoErrors();
+
+    $review->refresh();
+    expect($review->video_path)->toBeNull()
+        ->and($review->thumbnail_path)->toBeNull()
+        ->and($review->video_id)->toBe('dQw4w9WgXcQ');
+    Storage::disk('public')->assertMissing('reviews/a.mp4');
+});
+
+test('replacing a youtube link with an uploaded video clears the link', function () {
+    Storage::fake('public');
+    $this->actingAsAdmin();
+    $review = Review::factory()->create([
+        'youtube_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        'video_id' => 'dQw4w9WgXcQ',
+        'video_path' => null,
+    ]);
+
+    $this->put(route('admin.reviews.update', $review), [
+        'youtube_url' => '',
+        'clear_youtube' => '1',
+        'clear_video' => '0',
+        'video_file' => UploadedFile::fake()->create('v.mp4', 100, 'video/mp4'),
+        'is_active' => '1',
+    ])->assertSessionHasNoErrors();
+
+    $review->refresh();
+    expect($review->youtube_url)->toBeNull()
+        ->and($review->video_id)->toBeNull()
+        ->and($review->video_path)->not->toBeNull();
+});
+
+test('the storefront receives hosted and youtube reviews with playable sources', function () {
+    Review::factory()->create(['video_id' => null, 'youtube_url' => null, 'video_path' => 'reviews/a.mp4', 'thumbnail_path' => 'reviews/thumbs/a.jpg', 'sort_order' => 0]);
+    Review::factory()->create(['video_id' => 'dQw4w9WgXcQ', 'video_path' => null, 'thumbnail_path' => null, 'sort_order' => 1]);
+
+    $this->get('/')->assertInertia(fn ($page) => $page
+        ->where('reviews.0.video_url', '/storage/reviews/a.mp4')
+        ->where('reviews.0.thumbnail_url', '/storage/reviews/thumbs/a.jpg')
+        ->where('reviews.1.video_url', null)
+        ->where('reviews.1.video_id', 'dQw4w9WgXcQ'));
 });

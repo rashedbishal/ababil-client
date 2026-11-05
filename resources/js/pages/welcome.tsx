@@ -61,7 +61,9 @@ type Contact = {
 
 type VideoReview = {
     id: number;
-    video_id: string;
+    video_url: string | null;
+    thumbnail_url: string | null;
+    video_id?: string | null;
 };
 
 // Checkout form fields that already render their own inline <InputError> -
