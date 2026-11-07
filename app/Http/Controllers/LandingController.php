@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\GallerySection;
+use App\Models\Certificate;
 use App\Models\GalleryItem;
 use App\Models\Order;
 use App\Models\PartnerLogo;
@@ -39,6 +40,7 @@ class LandingController extends Controller
             'productImages' => $this->productImages($product),
             'gallery' => $this->gallery(),
             'partners' => $this->partners(),
+            'certificates' => $this->certificates(),
             'orderPlaced' => $this->orderPlaced($request),
             'orderError' => $request->query('order_error'),
         ])->withViewData('seo', $this->seo($product));
@@ -160,6 +162,29 @@ class LandingController extends Controller
                 'id' => $item->id,
                 'image' => $item->imageUrl(),
                 'label' => $item->label,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The shown storefront certificates, in order. An empty list means the
+     * section is omitted entirely.
+     *
+     * @return array<int, array{id: int, title: string, subtitle: string|null, image: string}>
+     */
+    private function certificates(): array
+    {
+        return Certificate::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (Certificate $item) => [
+                'id' => $item->id,
+                'title' => $item->title,
+                'subtitle' => $item->subtitle,
+                'image' => $item->imageUrl(),
             ])
             ->values()
             ->all();

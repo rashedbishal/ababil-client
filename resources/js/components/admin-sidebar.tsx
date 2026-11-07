@@ -38,6 +38,7 @@ import { useLogo } from '@/hooks/use-logo';
 import { home } from '@/routes';
 import admins from '@/routes/admin/admins';
 import blockedIps from '@/routes/admin/blocked-ips';
+import certificates from '@/routes/admin/certificates';
 import courier from '@/routes/admin/courier';
 import gallery from '@/routes/admin/gallery';
 import { dashboard } from '@/routes/admin';
@@ -139,6 +140,11 @@ function buildGroups(
                 {
                     title: 'Partner Logos',
                     href: partners.index(),
+                    icon: BadgeCheck,
+                },
+                {
+                    title: 'Certificates',
+                    href: certificates.index(),
                     icon: BadgeCheck,
                 },
             ],

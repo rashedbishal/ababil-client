@@ -109,6 +109,7 @@ export default function Concept3({
     productImages,
     gallery,
     partners,
+    certificates,
     orderPlaced,
     orderError,
 }: {
@@ -120,6 +121,12 @@ export default function Concept3({
     productImages: { id: number; src: string; alt: string }[];
     gallery: Record<'features' | 'routine' | 'campaign', Concept3PhotoItem[]>;
     partners: Concept3Partner[];
+    certificates: {
+        id: number;
+        title: string;
+        subtitle: string | null;
+        image: string;
+    }[];
     orderPlaced?: OrderPlacedData | null;
     orderError?: string | null;
 }) {
@@ -235,9 +242,11 @@ export default function Concept3({
                         </Suspense>
                     )}
 
-                    <Suspense fallback={<div className="min-h-[300px]" />}>
-                        <Concept3CertificatesSection />
-                    </Suspense>
+                    {certificates.length > 0 && (
+                        <Suspense fallback={<div className="min-h-[300px]" />}>
+                            <Concept3CertificatesSection items={certificates} />
+                        </Suspense>
+                    )}
 
                     <Suspense fallback={<div className="min-h-[300px]" />}>
                         <TestimonialsSection reviews={reviews} />

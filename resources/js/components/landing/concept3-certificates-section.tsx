@@ -8,33 +8,11 @@ import {
 } from 'react';
 
 export type CertificateItem = {
+    id: number;
     title: string;
-    subtitle: string;
+    subtitle: string | null;
     image: string;
 };
-
-const certificates: CertificateItem[] = [
-    {
-        title: 'ISO 22716 GMP',
-        subtitle: 'Good Manufacturing Practice Certificate',
-        image: '/certificates/images/iso_22716_gmp-1.png',
-    },
-    {
-        title: 'ISO 9001',
-        subtitle: 'Quality Management System Certificate',
-        image: '/certificates/images/iso_9001-1.png',
-    },
-    {
-        title: 'FDA Approval',
-        subtitle: 'Food & Drug Administration Compliance',
-        image: '/certificates/images/fda_approval-1.png',
-    },
-    {
-        title: 'Company Certificate',
-        subtitle: 'Official business quality assurance',
-        image: '/certificates/images/company_certificate-1.png',
-    },
-];
 
 const DESKTOP_QUERY = '(min-width: 768px)';
 
@@ -45,7 +23,11 @@ function subscribeDesktop(onChange: () => void) {
     return () => query.removeEventListener('change', onChange);
 }
 
-export default function Concept3CertificatesSection() {
+export default function Concept3CertificatesSection({
+    items,
+}: {
+    items: CertificateItem[];
+}) {
     const trackRef = useRef<HTMLDivElement>(null);
     const [page, setPage] = useState(0);
 
@@ -56,7 +38,7 @@ export default function Concept3CertificatesSection() {
     );
 
     const perView = isDesktop ? 2 : 1;
-    const pageCount = Math.ceil(certificates.length / perView);
+    const pageCount = Math.ceil(items.length / perView);
 
     const syncPage = useCallback(() => {
         const track = trackRef.current;
@@ -99,6 +81,10 @@ export default function Concept3CertificatesSection() {
         return () => window.clearInterval(interval);
     }, [goToPage, page, pageCount]);
 
+    if (items.length === 0) {
+        return null;
+    }
+
     return (
         <section
             id="certificates"
@@ -124,9 +110,9 @@ export default function Concept3CertificatesSection() {
                             onScroll={syncPage}
                             className="flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden"
                         >
-                            {certificates.map((cert) => (
+                            {items.map((cert) => (
                                 <div
-                                    key={cert.title}
+                                    key={cert.id}
                                     className="w-full shrink-0 snap-start px-1.5 md:w-1/2"
                                 >
                                     <div className="m-auto flex h-[70vh] max-h-[760px] items-center justify-center rounded-[18px] bg-white p-1 shadow-[0_20px_50px_-30px_rgba(120,90,20,0.35)]">
@@ -136,6 +122,18 @@ export default function Concept3CertificatesSection() {
                                             className="h-full w-full rounded-[14px] object-contain"
                                         />
                                     </div>
+                                    {(cert.subtitle || cert.title) && (
+                                        <div className="mt-3 text-center">
+                                            <p className="font-bengali text-lg font-semibold text-stone-900">
+                                                {cert.title}
+                                            </p>
+                                            {cert.subtitle && (
+                                                <p className="mt-1 text-sm text-stone-600">
+                                                    {cert.subtitle}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

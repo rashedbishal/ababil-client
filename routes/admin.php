@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\BlockedIpController;
+use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -83,6 +84,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::patch('partners/{partnerLogo}/visibility', [PartnerLogoController::class, 'updateVisibility'])->name('partners.visibility');
     Route::post('partners/{partnerLogo}/move', [PartnerLogoController::class, 'move'])->name('partners.move');
     Route::delete('partners/{partnerLogo}', [PartnerLogoController::class, 'destroy'])->name('partners.destroy');
+
+    Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
+    Route::post('certificates', [CertificateController::class, 'store'])->name('certificates.store');
+    Route::patch('certificates/{certificate}', [CertificateController::class, 'update'])->name('certificates.update');
+    Route::patch('certificates/{certificate}/visibility', [CertificateController::class, 'updateVisibility'])->name('certificates.visibility');
+    Route::post('certificates/{certificate}/move', [CertificateController::class, 'move'])->name('certificates.move');
+    Route::delete('certificates/{certificate}', [CertificateController::class, 'destroy'])->name('certificates.destroy');
 
     Route::get('courier', [CourierController::class, 'index'])->name('courier.index');
     Route::put('courier/default', [CourierController::class, 'setDefault'])->name('courier.default');
