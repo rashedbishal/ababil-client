@@ -40,6 +40,9 @@ const Concept3PhotoGallery = lazy(
 const Concept3RoutineSection = lazy(
     () => import('@/components/landing/concept3-routine-section'),
 );
+const Concept3CertificatesSection = lazy(
+    () => import('@/components/landing/concept3-certificates-section'),
+);
 const TestimonialsSection = lazy(
     () => import('@/components/landing/testimonials-section'),
 );
@@ -63,14 +66,15 @@ const loadMotionFeatures = () =>
 // below) rather than the main design's #problem/#usp/#lab-tested/#checkout,
 // so the shared SiteHeader needs its own nav list for this page, ordered to
 // match how the sections actually appear on the page: banner, certifications,
-// order form (#product), delivery map, the photo galleries, review videos,
-// FAQ.
+// order form (#product), delivery map, the photo galleries, certificate trust
+// section, review videos, FAQ.
 const navLinks: NavLink[] = [
     { href: '#product', label: 'পেমেন্ট' },
     { href: '#delivery', label: 'ডেলিভারি' },
     { href: '#features', label: 'কেন আবাবিল' },
     { href: '#routine', label: 'ব্যথার জায়গা' },
     { href: '#campaign', label: 'আপনজন' },
+    { href: '#certificates', label: 'সার্টিফিকেট' },
     { href: '#reviews', label: 'রিভিউ' },
 ];
 
@@ -92,6 +96,7 @@ const mobileNavLinks: MobileNavLink[] = [
     { href: '#features', label: 'কেন আবাবিল', icon: '⭐' },
     { href: '#routine', label: 'ব্যথার জায়গা', icon: '📍' },
     { href: '#campaign', label: 'আপনজন', icon: '❤️' },
+    { href: '#certificates', label: 'সার্টিফিকেট', icon: '🏅' },
     { href: '#reviews', label: 'রিভিউ', icon: '💬' },
 ];
 
@@ -229,6 +234,10 @@ export default function Concept3({
                             />
                         </Suspense>
                     )}
+
+                    <Suspense fallback={<div className="min-h-[300px]" />}>
+                        <Concept3CertificatesSection />
+                    </Suspense>
 
                     <Suspense fallback={<div className="min-h-[300px]" />}>
                         <TestimonialsSection reviews={reviews} />
