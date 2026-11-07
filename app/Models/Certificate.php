@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
  *
  * @property int $id
  * @property string $title
- * @property string $subtitle
+ * @property string|null $subtitle
  * @property string $image_path
  * @property int $sort_order
  * @property bool $is_active
@@ -47,7 +47,7 @@ class Certificate extends Model
     {
         $path = $this->image_path;
 
-        if ($path === '' || $path === null) {
+        if ($path === '') {
             return '';
         }
 
