@@ -63,15 +63,15 @@ const loadMotionFeatures = () =>
 // below) rather than the main design's #problem/#usp/#lab-tested/#checkout,
 // so the shared SiteHeader needs its own nav list for this page, ordered to
 // match how the sections actually appear on the page: banner, certifications,
-// order form (#product), review videos, the photo galleries, the delivery
-// map, FAQ.
+// order form (#product), delivery map, review videos, the photo galleries,
+// FAQ.
 const navLinks: NavLink[] = [
     { href: '#product', label: 'পেমেন্ট' },
+    { href: '#delivery', label: 'ডেলিভারি' },
     { href: '#reviews', label: 'রিভিউ' },
     { href: '#features', label: 'কেন আবাবিল' },
     { href: '#routine', label: 'ব্যথার জায়গা' },
     { href: '#campaign', label: 'আপনজন' },
-    { href: '#delivery', label: 'ডেলিভারি' },
 ];
 
 // A gallery section with no shown photos isn't rendered, so its nav link is
@@ -88,11 +88,11 @@ const gallerySectionByHref: Record<
 const mobileNavLinks: MobileNavLink[] = [
     { href: '#top', label: 'হোম', icon: '🏠' },
     { href: '#product', label: 'পেমেন্ট', icon: '💳' },
+    { href: '#delivery', label: 'ডেলিভারি', icon: '🚚' },
     { href: '#reviews', label: 'রিভিউ', icon: '💬' },
     { href: '#features', label: 'কেন আবাবিল', icon: '⭐' },
     { href: '#routine', label: 'ব্যথার জায়গা', icon: '📍' },
     { href: '#campaign', label: 'আপনজন', icon: '❤️' },
-    { href: '#delivery', label: 'ডেলিভারি', icon: '🚚' },
 ];
 
 export default function Concept3({
@@ -196,6 +196,10 @@ export default function Concept3({
                         onOrderClick={scrollToCheckout}
                     />
 
+                    <Suspense fallback={<div className="min-h-[400px]" />}>
+                        <Concept3MapSection onOrderClick={scrollToCheckout} />
+                    </Suspense>
+
                     <Suspense fallback={<div className="min-h-[300px]" />}>
                         <TestimonialsSection reviews={reviews} />
                     </Suspense>
@@ -229,10 +233,6 @@ export default function Concept3({
                             />
                         </Suspense>
                     )}
-
-                    <Suspense fallback={<div className="min-h-[400px]" />}>
-                        <Concept3MapSection onOrderClick={scrollToCheckout} />
-                    </Suspense>
 
                     <Suspense fallback={<div className="min-h-[300px]" />}>
                         <Concept3FaqSection />
