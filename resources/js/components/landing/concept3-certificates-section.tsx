@@ -1,11 +1,4 @@
-import { ChevronLeft, ChevronRight, ShieldCheck } from 'lucide-react';
-import {
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-    useSyncExternalStore,
-} from 'react';
+import { ShieldCheck } from 'lucide-react';
 
 export type CertificateItem = {
     id: number;
@@ -14,73 +7,11 @@ export type CertificateItem = {
     image: string;
 };
 
-const DESKTOP_QUERY = '(min-width: 768px)';
-
-function subscribeDesktop(onChange: () => void) {
-    const query = window.matchMedia(DESKTOP_QUERY);
-    query.addEventListener('change', onChange);
-
-    return () => query.removeEventListener('change', onChange);
-}
-
 export default function Concept3CertificatesSection({
     items,
 }: {
     items: CertificateItem[];
 }) {
-    const trackRef = useRef<HTMLDivElement>(null);
-    const [page, setPage] = useState(0);
-
-    const isDesktop = useSyncExternalStore(
-        subscribeDesktop,
-        () => window.matchMedia(DESKTOP_QUERY).matches,
-        () => false,
-    );
-
-    const perView = isDesktop ? 2 : 1;
-    const pageCount = Math.ceil(items.length / perView);
-
-    const syncPage = useCallback(() => {
-        const track = trackRef.current;
-
-        if (track && track.clientWidth > 0) {
-            const nextPage = Math.round(track.scrollLeft / track.clientWidth);
-            setPage(nextPage % pageCount);
-        }
-    }, [pageCount]);
-
-    const goToPage = useCallback(
-        (next: number) => {
-            const track = trackRef.current;
-
-            if (!track) {
-                return;
-            }
-
-            const normalized = ((next % pageCount) + pageCount) % pageCount;
-            const target = normalized * track.clientWidth;
-
-            track.scrollTo({
-                left: target,
-                behavior: 'smooth',
-            });
-            setPage(normalized);
-        },
-        [pageCount],
-    );
-
-    useEffect(() => {
-        if (pageCount <= 1) {
-            return;
-        }
-
-        const interval = window.setInterval(() => {
-            goToPage(page + 1);
-        }, 3500);
-
-        return () => window.clearInterval(interval);
-    }, [goToPage, page, pageCount]);
-
     if (items.length === 0) {
         return null;
     }
@@ -104,80 +35,37 @@ export default function Concept3CertificatesSection({
                 </div>
 
                 <div className="mx-auto mt-8 max-w-[1100px]">
-                    <div className="relative">
-                        <div
-                            ref={trackRef}
-                            onScroll={syncPage}
-                            className="flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden"
-                        >
-                            {items.map((cert) => (
-                                <div
-                                    key={cert.id}
-                                    className="w-full shrink-0 snap-start px-1.5 md:w-1/2"
-                                >
-                                    <div className="m-auto flex h-[70vh] max-h-[760px] items-center justify-center rounded-[18px] bg-white p-1 shadow-[0_20px_50px_-30px_rgba(120,90,20,0.35)]">
-                                        <img
-                                            src={cert.image}
-                                            alt={cert.title}
-                                            className="h-full w-full rounded-[14px] object-contain"
-                                        />
-                                    </div>
-                                    {(cert.subtitle || cert.title) && (
-                                        <div className="mt-3 text-center">
-                                            <p className="font-bengali text-lg font-semibold text-stone-900">
+                    <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                        {items.map((cert) => (
+                            <div
+                                key={cert.id}
+                                className="flex h-full flex-col justify-between rounded-[18px] border border-amber-100 bg-white p-2 shadow-[0_20px_50px_-30px_rgba(120,90,20,0.35)] sm:p-3"
+                            >
+                                <div className="flex min-h-[11rem] items-center justify-center overflow-hidden rounded-[14px] bg-stone-50 p-2 sm:min-h-[16rem]">
+                                    <img
+                                        src={cert.image}
+                                        alt={cert.title}
+                                        className="h-auto max-h-[11rem] w-full rounded-[10px] object-contain sm:max-h-[16rem]"
+                                    />
+                                </div>
+
+                                {(cert.subtitle || cert.title) && (
+                                    <div className="mt-3 flex min-h-[4.5rem] items-center justify-center text-center">
+                                        <div>
+                                            <p className="font-bengali text-base font-semibold text-stone-900 sm:text-lg">
                                                 {cert.title}
                                             </p>
                                             {cert.subtitle && (
-                                                <p className="mt-1 text-sm text-stone-600">
+                                                <p className="mt-1 text-xs text-stone-600 sm:text-sm">
                                                     {cert.subtitle}
                                                 </p>
                                             )}
                                         </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-
-                        {pageCount > 1 && (
-                            <>
-                                <button
-                                    type="button"
-                                    aria-label="আগের সার্টিফিকেট"
-                                    onClick={() => goToPage(page - 1)}
-                                    className="absolute top-1/2 left-0 z-10 flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-stone-300 bg-white/90 text-stone-700 shadow-lg transition hover:border-amber-300 hover:text-amber-700 sm:size-10 lg:-left-10 lg:translate-x-0"
-                                >
-                                    <ChevronLeft className="size-5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    aria-label="পরের সার্টিফিকেট"
-                                    onClick={() => goToPage(page + 1)}
-                                    className="absolute top-1/2 right-0 z-10 flex size-9 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-stone-300 bg-white/90 text-stone-700 shadow-lg transition hover:border-amber-300 hover:text-amber-700 sm:size-10 lg:-right-10 lg:translate-x-0"
-                                >
-                                    <ChevronRight className="size-5" />
-                                </button>
-                            </>
-                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
-
-                    {pageCount > 1 && (
-                        <div className="mt-5 flex items-center justify-center gap-2.5">
-                            {Array.from({ length: pageCount }, (_, i) => (
-                                <button
-                                    key={i}
-                                    type="button"
-                                    aria-label={`পেজ ${i + 1}`}
-                                    aria-current={i === page}
-                                    onClick={() => goToPage(i)}
-                                    className={`h-2.5 rounded-full transition-all duration-300 ${
-                                        i === page
-                                            ? 'w-8 bg-amber-500'
-                                            : 'w-2.5 bg-stone-300 hover:bg-stone-400'
-                                    }`}
-                                />
-                            ))}
-                        </div>
-                    )}
                 </div>
             </div>
         </section>
