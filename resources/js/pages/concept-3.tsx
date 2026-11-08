@@ -106,10 +106,13 @@ export default function Concept3({
     contact,
     formToken,
     reviews,
+    heroBannerIntervalMs,
+    productImageSliderIntervalMs,
     productImages,
     gallery,
     partners,
     certificates,
+    heroBannerSlides,
     orderPlaced,
     orderError,
 }: {
@@ -118,6 +121,8 @@ export default function Concept3({
     contact: Contact;
     formToken: string;
     reviews: VideoReview[];
+    heroBannerIntervalMs?: number;
+    productImageSliderIntervalMs?: number;
     productImages: { id: number; src: string; alt: string }[];
     gallery: Record<'features' | 'routine' | 'campaign', Concept3PhotoItem[]>;
     partners: Concept3Partner[];
@@ -126,6 +131,13 @@ export default function Concept3({
         title: string;
         subtitle: string | null;
         image: string;
+    }[];
+    heroBannerSlides?: {
+        id: number;
+        desktop: string;
+        tab: string;
+        mobile: string;
+        alt: string;
     }[];
     orderPlaced?: OrderPlacedData | null;
     orderError?: string | null;
@@ -197,13 +209,18 @@ export default function Concept3({
                 />
 
                 <main>
-                    <Concept3Banner onOrderClick={scrollToCheckout} />
+                    <Concept3Banner
+                        slides={heroBannerSlides ?? []}
+                        intervalMs={heroBannerIntervalMs}
+                        onOrderClick={scrollToCheckout}
+                    />
                     {partners.length > 0 && (
                         <Concept3CertificationSection items={partners} />
                     )}
                     <Concept3ProductSection
                         productName={product.name}
                         images={productImages}
+                        intervalMs={productImageSliderIntervalMs}
                         checkout={checkout}
                         onOrderClick={scrollToCheckout}
                     />

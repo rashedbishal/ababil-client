@@ -41,6 +41,7 @@ import blockedIps from '@/routes/admin/blocked-ips';
 import certificates from '@/routes/admin/certificates';
 import courier from '@/routes/admin/courier';
 import gallery from '@/routes/admin/gallery';
+import heroBanner from '@/routes/admin/hero-banner';
 import { dashboard } from '@/routes/admin';
 import logos from '@/routes/admin/logos';
 import incompleteOrders from '@/routes/admin/incomplete-orders';
@@ -126,6 +127,11 @@ function buildGroups(
                     title: 'Review Management',
                     href: reviews.index(),
                     icon: Video,
+                },
+                {
+                    title: 'Hero Banner',
+                    href: heroBanner.index(),
+                    icon: Images,
                 },
                 {
                     title: 'Gallery Management',

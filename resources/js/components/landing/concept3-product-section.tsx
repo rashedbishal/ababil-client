@@ -28,7 +28,7 @@ const trustItems = [
     },
 ];
 
-const AUTO_SLIDE_MS = 7000;
+const DEFAULT_PRODUCT_SLIDE_MS = 7000;
 
 /**
  * Concept 3's product section, which is also where the order is placed: the
@@ -41,17 +41,23 @@ const AUTO_SLIDE_MS = 7000;
 export default function Concept3ProductSection({
     productName,
     images,
+    intervalMs,
     checkout,
     onOrderClick,
 }: {
     productName: string;
     images: { id: string | number; src: string; alt: string }[];
+    intervalMs?: number;
     checkout: CheckoutForm;
     onOrderClick: () => void;
 }) {
     const [index, setIndex] = useState(0);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const active = images[index];
+    const productSlideIntervalMs =
+        Number.isFinite(intervalMs) && intervalMs! > 0
+            ? intervalMs!
+            : DEFAULT_PRODUCT_SLIDE_MS;
 
     const {
         data,
@@ -72,12 +78,12 @@ export default function Concept3ProductSection({
 
         timerRef.current = setInterval(() => {
             setIndex((i) => (i + 1) % images.length);
-        }, AUTO_SLIDE_MS);
+        }, productSlideIntervalMs);
 
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, [images.length]);
+    }, [images.length, productSlideIntervalMs]);
 
     return (
         <section

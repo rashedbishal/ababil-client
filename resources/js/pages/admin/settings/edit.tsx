@@ -18,6 +18,8 @@ type Settings = {
     whatsapp_number: string | null;
     facebook_page_url: string | null;
     facebook_pixel_id: string | null;
+    hero_banner_interval_ms: string | null;
+    product_image_slider_interval_ms: string | null;
     facebook_conversions_api_configured: boolean;
     head_code: string | null;
     body_code: string | null;
@@ -43,6 +45,16 @@ const fields: {
     { name: 'whatsapp_number', label: 'WhatsApp number (with country code)' },
     { name: 'facebook_page_url', label: 'Facebook Page URL' },
     { name: 'facebook_pixel_id', label: 'Facebook Pixel ID' },
+    {
+        name: 'hero_banner_interval_ms',
+        label: 'Hero banner interval (ms)',
+        type: 'number',
+    },
+    {
+        name: 'product_image_slider_interval_ms',
+        label: 'Product image slider interval (ms)',
+        type: 'number',
+    },
 ];
 
 const codeFields: {

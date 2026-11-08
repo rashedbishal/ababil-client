@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\IncompleteOrderController;
 use App\Http\Controllers\Admin\LogoController;
 use App\Http\Controllers\Admin\MetaEventLogController;
@@ -73,6 +74,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::patch('gallery/items/{galleryItem}/visibility', [GalleryController::class, 'updateVisibility'])->name('gallery.items.visibility');
     Route::post('gallery/items/{galleryItem}/move', [GalleryController::class, 'move'])->name('gallery.items.move');
     Route::delete('gallery/items/{galleryItem}', [GalleryController::class, 'destroy'])->name('gallery.items.destroy');
+
+    Route::get('hero-banner', [HeroBannerController::class, 'index'])->name('hero-banner.index');
+    Route::post('hero-banner', [HeroBannerController::class, 'store'])->name('hero-banner.store');
+    Route::patch('hero-banner/{heroBannerSlide}', [HeroBannerController::class, 'update'])->name('hero-banner.update');
+    Route::patch('hero-banner/{heroBannerSlide}/visibility', [HeroBannerController::class, 'updateVisibility'])->name('hero-banner.visibility');
+    Route::post('hero-banner/{heroBannerSlide}/move', [HeroBannerController::class, 'move'])->name('hero-banner.move');
+    Route::delete('hero-banner/{heroBannerSlide}', [HeroBannerController::class, 'destroy'])->name('hero-banner.destroy');
 
     Route::get('logos', [LogoController::class, 'index'])->name('logos.index');
     Route::post('logos/{slot}', [LogoController::class, 'update'])->name('logos.update');

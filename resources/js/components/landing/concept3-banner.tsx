@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// Same photography as the live page's HeroSection (public/images/hero/) -
-// concept 3 duplicates the slide list rather than importing it, since its
-// banner is a different, click-to-order component (no text overlay), and
-// HeroSection itself must stay untouched.
-//
-// slides[0] is this page's LCP element, and its markup/URLs are duplicated
-// as a static placeholder in resources/views/app.blade.php (no SSR means
-// the browser can't discover this component's own markup up front) - keep
-// that in sync if slide 1 ever changes.
-const slides = [
+type BannerSlide = {
+    id: number;
+    desktop: string;
+    tab: string;
+    mobile: string;
+    alt: string;
+};
+
+const DEFAULT_BANNER_SLIDES: BannerSlide[] = [
     {
         id: 1,
         desktop: '/images/hero/IMG_3616_desktop.webp',
@@ -47,17 +46,6 @@ const slides = [
     },
 ];
 
-const SLIDE_COUNT = slides.length;
-
-// The track is [last clone, ...slides, first clone], so sliding past either
-// end lands on a clone that looks identical to the real slide on the other
-// side; once that slide-in finishes, the track silently jumps to the real one.
-const track = [
-    { ...slides[SLIDE_COUNT - 1], key: 'clone-last', isClone: true },
-    ...slides.map((slide) => ({ ...slide, key: slide.id, isClone: false })),
-    { ...slides[0], key: 'clone-first', isClone: true },
-];
-
 const AUTO_PLAY_MS = 7000;
 const SLIDE_MS = 500;
 
@@ -67,10 +55,35 @@ const SWIPE_THRESHOLD = 50;
 
 /** Full-bleed campaign banner - every slide is a single click-to-order button. */
 export default function Concept3Banner({
+    slides,
+    intervalMs,
     onOrderClick,
 }: {
+    slides?: BannerSlide[];
+    intervalMs?: number;
     onOrderClick: () => void;
 }) {
+    const activeSlides =
+        slides && slides.length > 0 ? slides : DEFAULT_BANNER_SLIDES;
+    const SLIDE_COUNT = activeSlides.length;
+    const bannerIntervalMs =
+        Number.isFinite(intervalMs) && intervalMs! > 0
+            ? intervalMs!
+            : AUTO_PLAY_MS;
+
+    // The track is [last clone, ...slides, first clone], so sliding past either
+    // end lands on a clone that looks identical to the real slide on the other
+    // side; once that slide-in finishes, the track silently jumps to the real one.
+    const track = [
+        { ...activeSlides[SLIDE_COUNT - 1], key: 'clone-last', isClone: true },
+        ...activeSlides.map((slide) => ({
+            ...slide,
+            key: slide.id,
+            isClone: false,
+        })),
+        { ...activeSlides[0], key: 'clone-first', isClone: true },
+    ];
+
     // Position in `track`: 1..SLIDE_COUNT are real slides, 0 and
     // SLIDE_COUNT + 1 are the clones.
     const [position, setPosition] = useState(1);
@@ -182,10 +195,10 @@ export default function Concept3Banner({
         const timer = setTimeout(() => {
             setIsAnimating(true);
             setPosition((p) => Math.min(p + 1, SLIDE_COUNT + 1));
-        }, AUTO_PLAY_MS);
+        }, bannerIntervalMs);
 
         return () => clearTimeout(timer);
-    }, [isDragging, activeIndex]);
+    }, [bannerIntervalMs, isDragging, activeIndex]);
 
     const jumpOffClone = () => {
         setIsAnimating(false);
@@ -381,7 +394,7 @@ export default function Concept3Banner({
                     data-banner-control
                     className="pointer-events-none absolute inset-x-0 bottom-4 z-30 flex items-center justify-center gap-2.5"
                 >
-                    {slides.map((slide, i) => (
+                    {activeSlides.map((slide, i) => (
                         <button
                             key={slide.id}
                             type="button"

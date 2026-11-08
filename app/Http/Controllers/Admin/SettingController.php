@@ -33,12 +33,19 @@ class SettingController extends Controller
         'whatsapp_number',
         'facebook_page_url',
         'facebook_pixel_id',
+        'hero_banner_interval_ms',
+        'product_image_slider_interval_ms',
     ];
 
     public function edit(): Response
     {
+        $defaultValues = [
+            'hero_banner_interval_ms' => '7000',
+            'product_image_slider_interval_ms' => '7000',
+        ];
+
         $settings = [
-            ...collect(self::KEYS)->mapWithKeys(fn (string $key) => [$key => Setting::get($key)])->all(),
+            ...collect(self::KEYS)->mapWithKeys(fn (string $key) => [$key => Setting::get($key, $defaultValues[$key] ?? null)])->all(),
             'facebook_conversions_api_configured' => Setting::getEncrypted(self::SECRET_KEY) !== null,
         ];
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\GallerySection;
 use App\Models\Certificate;
 use App\Models\GalleryItem;
+use App\Models\HeroBannerSlide;
 use App\Models\Order;
 use App\Models\PartnerLogo;
 use App\Models\Product;
@@ -37,6 +38,7 @@ class LandingController extends Controller
 
         return Inertia::render('concept-3', [
             ...$this->sharedProps($product),
+            'heroBannerSlides' => $this->heroBannerSlides(),
             'productImages' => $this->productImages($product),
             'gallery' => $this->gallery(),
             'partners' => $this->partners(),
@@ -107,6 +109,30 @@ class LandingController extends Controller
                 'id' => $image->id,
                 'src' => $image->imageUrl(),
                 'alt' => $product->name.' - ছবি '.($index + 1),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * The active hero-banner slides, with each breakpoint choosing the best
+     * available variant and falling back to the others if a file is missing.
+     *
+     * @return array<int, array{id: int, desktop: string, tab: string, mobile: string, alt: string}>
+     */
+    private function heroBannerSlides(): array
+    {
+        return HeroBannerSlide::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (HeroBannerSlide $slide) => [
+                'id' => $slide->id,
+                'desktop' => $slide->imageUrlForVariant('desktop'),
+                'tab' => $slide->imageUrlForVariant('tab'),
+                'mobile' => $slide->imageUrlForVariant('mobile'),
+                'alt' => $slide->alt,
             ])
             ->values()
             ->all();
@@ -229,6 +255,8 @@ class LandingController extends Controller
                 'whatsapp' => Setting::get('whatsapp_number'),
                 'facebookUrl' => Setting::get('facebook_page_url'),
             ],
+            'hero_banner_interval_ms' => max(1000, (int) (Setting::get('hero_banner_interval_ms', '7000') ?? '7000')),
+            'product_image_slider_interval_ms' => max(1000, (int) (Setting::get('product_image_slider_interval_ms', '7000') ?? '7000')),
             // Signed page-render timestamp. PlaceOrderRequest rejects a
             // checkout submitted implausibly soon after this, since a real
             // shopper needs time to read the page and fill the form - a
