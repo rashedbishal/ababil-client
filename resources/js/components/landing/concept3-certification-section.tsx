@@ -33,7 +33,7 @@ export default function Concept3CertificationSection({
                     {items.map((cert) => (
                         <figure
                             key={cert.id}
-                            className="flex w-[30%] max-w-[160px] min-w-[110px] flex-col items-center justify-center gap-2.5 sm:w-[18%] lg:w-[18%]"
+                            className="flex w-[30%] max-w-[120px] min-w-[90px] flex-col items-center justify-center gap-2.5 sm:w-[18%] lg:w-[18%]"
                         >
                             <div className="flex aspect-square w-full max-w-[120px] items-center justify-center rounded-2xl border-2 border-amber-400/80 bg-white p-3 shadow-lg shadow-black/40 sm:max-w-[140px] lg:max-w-[160px]">
                                 <img
