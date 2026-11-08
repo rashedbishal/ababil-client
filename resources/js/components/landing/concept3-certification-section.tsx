@@ -29,24 +29,28 @@ export default function Concept3CertificationSection({
             </div>
 
             <div className="mx-auto mt-6 max-w-[1240px] px-4 sm:mt-8 sm:px-8">
-                <div className="flex flex-wrap justify-center gap-x-4 gap-y-6">
+                {/* Flex-wrap (instead of grid) so an incomplete last row is centered. */}
+                <div className="flex flex-wrap justify-center gap-x-3 gap-y-6 sm:gap-x-4">
                     {items.map((cert) => (
-                        <figure
+                        <div
                             key={cert.id}
-                            className="flex w-[30%] max-w-[120px] min-w-[90px] flex-col items-center justify-center gap-2.5 sm:w-[18%] lg:w-[18%]"
+                            className="flex w-[calc((100%-1.5rem)/3)] justify-center sm:w-[calc((100%-2rem)/3)]"
                         >
-                            <div className="flex aspect-square w-full max-w-[120px] items-center justify-center rounded-2xl border-2 border-amber-400/80 bg-white p-3 shadow-lg shadow-black/40 sm:max-w-[140px] lg:max-w-[160px]">
-                                <img
-                                    src={cert.image}
-                                    alt={cert.label}
-                                    draggable={false}
-                                    className="size-full object-contain"
-                                />
-                            </div>
-                            <figcaption className="line-clamp-2 h-8 text-center text-[11px] leading-4 font-semibold text-stone-100 sm:h-10 sm:text-xs sm:leading-5 lg:text-sm">
-                                {cert.label}
-                            </figcaption>
-                        </figure>
+                            <figure className="flex w-full max-w-[92px] flex-col items-center gap-2.5 sm:max-w-[140px] lg:max-w-[160px]">
+                                {/* Image is absolutely positioned so tall logos can't stretch the square box. */}
+                                <div className="relative aspect-square w-full overflow-hidden rounded-2xl border-2 border-amber-400/80 bg-white shadow-lg shadow-black/40">
+                                    <img
+                                        src={cert.image}
+                                        alt={cert.label}
+                                        draggable={false}
+                                        className="absolute inset-2.5 h-[calc(100%-1.25rem)] w-[calc(100%-1.25rem)] object-contain sm:inset-3 sm:h-[calc(100%-1.5rem)] sm:w-[calc(100%-1.5rem)]"
+                                    />
+                                </div>
+                                <figcaption className="flex min-h-[2.25rem] w-full items-center justify-center text-center text-[11px] leading-4 font-semibold text-stone-100 sm:min-h-[2.75rem] sm:text-xs sm:leading-5 lg:text-sm">
+                                    {cert.label}
+                                </figcaption>
+                            </figure>
+                        </div>
                     ))}
                 </div>
             </div>
