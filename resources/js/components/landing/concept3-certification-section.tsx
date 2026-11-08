@@ -1,24 +1,18 @@
-import Marquee from './motion/marquee';
-
 export type Concept3Partner = {
     id: number;
     image: string;
     label: string;
 };
 
-// A set of tiles narrower than a wide desktop screen would leave an empty
-// gap at the end of each loop - so each Marquee set holds the logos
-// repeated enough times to be at least this many tiles long (3 rounds of the
-// original 5 logos).
-const MIN_TILES_PER_SET = 15;
-
-/** Continuously scrolling strip of the product's certification logos. */
+/** Even grid of partner certification logos, with centered final-row items. */
 export default function Concept3CertificationSection({
     items,
 }: {
     items: Concept3Partner[];
 }) {
-    const repeats = Math.max(1, Math.ceil(MIN_TILES_PER_SET / items.length));
+    if (items.length === 0) {
+        return null;
+    }
 
     return (
         <section
@@ -34,38 +28,28 @@ export default function Concept3CertificationSection({
                 </p>
             </div>
 
-            <Marquee
-                durationSeconds={45}
-                className="mt-6 [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] sm:mt-8"
-            >
-                {Array.from({ length: repeats }, (_, round) =>
-                    items.map((cert) => (
+            <div className="mx-auto mt-6 max-w-[1240px] px-4 sm:mt-8 sm:px-8">
+                <div className="flex flex-wrap justify-center gap-x-4 gap-y-6">
+                    {items.map((cert) => (
                         <figure
-                            key={`${cert.id}-${round}`}
-                            aria-hidden={round > 0 || undefined}
-                            className="flex w-28 flex-col items-center gap-2.5 sm:w-36"
+                            key={cert.id}
+                            className="flex w-[30%] max-w-[160px] min-w-[110px] flex-col items-center justify-center gap-2.5 sm:w-[18%] lg:w-[18%]"
                         >
-                            {/* Fixed square, never shrinks - every box is the
-                                same size whatever the logo's proportions. */}
-                            <div className="flex aspect-square size-24 shrink-0 items-center justify-center rounded-2xl border-2 border-amber-400/80 bg-white p-3 shadow-lg shadow-black/40 sm:size-28">
+                            <div className="flex aspect-square w-full max-w-[120px] items-center justify-center rounded-2xl border-2 border-amber-400/80 bg-white p-3 shadow-lg shadow-black/40 sm:max-w-[140px] lg:max-w-[160px]">
                                 <img
                                     src={cert.image}
-                                    alt={round > 0 ? '' : cert.label}
+                                    alt={cert.label}
                                     draggable={false}
                                     className="size-full object-contain"
                                 />
                             </div>
-                            {/* Every caption reserves the same two-line height,
-                                top-aligned, so a label that wraps (ISO) makes
-                                its tile no taller than the rest and all the
-                                boxes stay on one level. */}
-                            <figcaption className="line-clamp-2 h-8 text-center text-xs leading-4 font-semibold text-stone-100 sm:h-10 sm:text-sm sm:leading-5">
+                            <figcaption className="line-clamp-2 h-8 text-center text-[11px] leading-4 font-semibold text-stone-100 sm:h-10 sm:text-xs sm:leading-5 lg:text-sm">
                                 {cert.label}
                             </figcaption>
                         </figure>
-                    )),
-                ).flat()}
-            </Marquee>
+                    ))}
+                </div>
+            </div>
         </section>
     );
 }

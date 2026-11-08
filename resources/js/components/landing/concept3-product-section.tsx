@@ -166,7 +166,7 @@ export default function Concept3ProductSection({
                                     />
                                 </div>
 
-                                <div className="mt-5 grid max-w-[360px] grid-cols-[minmax(0,110px)_minmax(0,1fr)] gap-2.5 sm:max-w-[420px] sm:gap-3 lg:mt-3 lg:max-w-none lg:grid-cols-[auto_1fr] lg:items-start lg:gap-6">
+                                <div className="mt-5 grid w-full grid-cols-[96px_minmax(0,1fr)] gap-2.5 sm:gap-3 lg:mt-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start lg:gap-6">
                                     <div className="grid gap-2 lg:mt-0">
                                         <span className="font-bengali text-sm font-semibold text-stone-700 sm:text-base">
                                             বোতলের সংখ্যা
@@ -236,7 +236,7 @@ export default function Concept3ProductSection({
                                     </div>
                                 </div>
 
-                                <div className="mt-4 grid max-w-[360px] grid-cols-2 gap-2.5 sm:max-w-[420px] sm:gap-3 lg:mt-3 lg:max-w-none lg:grid-cols-2 lg:gap-4">
+                                <div className="mt-4 grid w-full grid-cols-2 gap-2.5 sm:gap-3 lg:mt-3 lg:gap-4">
                                     <div className="grid gap-1.5 lg:mt-0">
                                         <label
                                             htmlFor="checkout_name"
