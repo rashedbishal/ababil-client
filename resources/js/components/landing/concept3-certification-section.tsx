@@ -30,11 +30,11 @@ export default function Concept3CertificationSection({
 
             <div className="mx-auto mt-6 max-w-[1240px] px-4 sm:mt-8 sm:px-8">
                 {/* Flex-wrap (instead of grid) so an incomplete last row is centered. */}
-                <div className="flex flex-wrap justify-center gap-x-3 gap-y-6 sm:gap-x-4">
+                <div className="flex flex-wrap justify-center gap-x-3 gap-y-6 min-[560px]:gap-x-4">
                     {items.map((cert) => (
                         <div
                             key={cert.id}
-                            className="flex w-[calc((100%-1.5rem)/3)] justify-center sm:w-[calc((100%-4rem)/5)]"
+                            className="flex w-[calc((100%-1.5rem)/3)] justify-center min-[560px]:w-[calc((100%-3rem)/4)] md:w-[calc((100%-4rem)/5)] lg:w-[calc((100%-5rem)/6)]"
                         >
                             <figure className="flex w-full max-w-[92px] flex-col items-center gap-2.5 sm:max-w-[140px] lg:max-w-[160px]">
                                 {/* Image is absolutely positioned so tall logos can't stretch the square box. */}
