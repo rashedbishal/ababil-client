@@ -73,12 +73,7 @@ return new class extends Migration
             $values = ['alt' => $slide['alt'], 'sort_order' => $index, 'is_active' => true];
 
             foreach (['desktop', 'tab', 'mobile'] as $variant) {
-                $sourceName = $slide[$variant] ?? null;
-
-                if (! is_string($sourceName) || $sourceName === '') {
-                    continue;
-                }
-
+                $sourceName = $slide[$variant];
                 $sourcePath = $publicHeroDir.'/'.$sourceName;
 
                 if (! is_file($sourcePath)) {
