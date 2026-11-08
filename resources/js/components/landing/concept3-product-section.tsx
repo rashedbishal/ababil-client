@@ -28,7 +28,7 @@ const trustItems = [
     },
 ];
 
-const AUTO_SLIDE_MS = 2500;
+const AUTO_SLIDE_MS = 7000;
 
 /**
  * Concept 3's product section, which is also where the order is placed: the
@@ -166,9 +166,9 @@ export default function Concept3ProductSection({
                                     />
                                 </div>
 
-                                <div className="lg:mt-3 lg:grid lg:grid-cols-[auto_1fr] lg:items-start lg:gap-6">
-                                    <div className="mt-6 grid gap-2 lg:mt-0">
-                                        <span className="font-bengali font-semibold text-stone-700">
+                                <div className="mt-5 grid max-w-[360px] grid-cols-[minmax(0,110px)_minmax(0,1fr)] gap-2.5 sm:max-w-[420px] sm:gap-3 lg:mt-3 lg:max-w-none lg:grid-cols-[auto_1fr] lg:items-start lg:gap-6">
+                                    <div className="grid gap-2 lg:mt-0">
+                                        <span className="font-bengali text-sm font-semibold text-stone-700 sm:text-base">
                                             বোতলের সংখ্যা
                                         </span>
                                         <QuantityStepper
@@ -181,8 +181,8 @@ export default function Concept3ProductSection({
                                     </div>
 
                                     <div>
-                                        <fieldset className="mt-5 grid grid-cols-2 gap-2.5 lg:mt-0">
-                                            <legend className="mb-2.5 w-full font-bengali font-semibold text-stone-700">
+                                        <fieldset className="grid grid-cols-2 gap-1.5 sm:gap-2 lg:mt-0">
+                                            <legend className="col-span-2 mb-2 w-full font-bengali text-sm font-semibold text-stone-700 sm:text-base">
                                                 কোথায় ডেলিভারি নেবেন?
                                             </legend>
                                             {displayShippingAreas.map(
@@ -194,7 +194,7 @@ export default function Concept3ProductSection({
                                                     return (
                                                         <label
                                                             key={area.id}
-                                                            className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-3 font-bengali text-sm transition-colors lg:py-1.5 ${
+                                                            className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2 py-2.5 font-bengali text-[11px] leading-tight transition-colors sm:text-xs lg:py-1.5 ${
                                                                 checked
                                                                     ? 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-400/50'
                                                                     : 'border-amber-200 hover:border-amber-300'
@@ -212,9 +212,9 @@ export default function Concept3ProductSection({
                                                                         area.id,
                                                                     )
                                                                 }
-                                                                className="size-[18px] accent-amber-600"
+                                                                className="size-[15px] shrink-0 accent-amber-600"
                                                             />
-                                                            <span>
+                                                            <span className="min-w-0">
                                                                 {shippingAreaLabel(
                                                                     area.name,
                                                                 )}
@@ -236,12 +236,11 @@ export default function Concept3ProductSection({
                                     </div>
                                 </div>
 
-                                {/* name + phone share a row on desktop */}
-                                <div className="lg:mt-3 lg:grid lg:grid-cols-2 lg:gap-4">
-                                    <div className="mt-5 grid gap-2 lg:mt-0">
+                                <div className="mt-4 grid max-w-[360px] grid-cols-2 gap-2.5 sm:max-w-[420px] sm:gap-3 lg:mt-3 lg:max-w-none lg:grid-cols-2 lg:gap-4">
+                                    <div className="grid gap-1.5 lg:mt-0">
                                         <label
                                             htmlFor="checkout_name"
-                                            className="font-bengali font-semibold text-stone-700"
+                                            className="flex h-[20px] items-center font-bengali text-sm font-semibold text-stone-700 sm:text-base"
                                         >
                                             আপনার নাম কী?
                                         </label>
@@ -258,17 +257,17 @@ export default function Concept3ProductSection({
                                             maxLength={60}
                                             pattern="[\p{Script=Bengali}\p{Script=Latin} .\-]+"
                                             required
-                                            className={fieldClass}
+                                            className={`${fieldClass} h-[42px]`}
                                         />
                                         <InputError
                                             message={errors.customer_name}
                                         />
                                     </div>
 
-                                    <div className="mt-4 grid gap-2 lg:mt-0">
+                                    <div className="grid gap-1.5 lg:mt-0">
                                         <label
                                             htmlFor="checkout_phone"
-                                            className="font-bengali font-semibold text-stone-700"
+                                            className="flex h-[20px] items-center font-bengali text-sm font-semibold text-stone-700 sm:text-base"
                                         >
                                             যোগাযোগের মোবাইল নম্বর
                                         </label>
@@ -288,7 +287,7 @@ export default function Concept3ProductSection({
                                             }
                                             placeholder="01XXXXXXXXX"
                                             required
-                                            className={fieldClass}
+                                            className={`${fieldClass} h-[42px]`}
                                         />
                                         <InputError
                                             message={errors.customer_phone}

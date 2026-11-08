@@ -58,7 +58,7 @@ const track = [
     { ...slides[0], key: 'clone-first', isClone: true },
 ];
 
-const AUTO_PLAY_MS = 4000;
+const AUTO_PLAY_MS = 7000;
 const SLIDE_MS = 500;
 
 // Minimum horizontal travel (px) before a drag counts as a swipe rather
