@@ -34,7 +34,7 @@ export default function Concept3CertificationSection({
                     {items.map((cert) => (
                         <div
                             key={cert.id}
-                            className="flex w-[calc((100%-1.5rem)/3)] justify-center sm:w-[calc((100%-2rem)/3)]"
+                            className="flex w-[calc((100%-1.5rem)/3)] justify-center sm:w-[calc((100%-4rem)/5)]"
                         >
                             <figure className="flex w-full max-w-[92px] flex-col items-center gap-2.5 sm:max-w-[140px] lg:max-w-[160px]">
                                 {/* Image is absolutely positioned so tall logos can't stretch the square box. */}
