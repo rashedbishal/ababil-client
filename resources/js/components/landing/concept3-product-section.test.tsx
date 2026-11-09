@@ -16,8 +16,16 @@ function makeCheckout(overrides: Partial<CheckoutForm> = {}): CheckoutForm {
         setField: vi.fn(),
         setHoneypot: vi.fn(),
         displayShippingAreas: [
-            { id: 1, name: 'ঢাকার ভিতরে', charge: '80.00' },
-            { id: 2, name: 'ঢাকার বাইরে', charge: '130.00' },
+            {
+                id: 1,
+                name: 'Inside Dhaka City Corporation',
+                charge: '80.00',
+            },
+            {
+                id: 2,
+                name: 'Outside Dhaka City Corporation',
+                charge: '130.00',
+            },
         ],
         subtotal: 1000,
         shippingCharge: 80,
@@ -57,6 +65,36 @@ describe('Concept3ProductSection checkout', () => {
         expect(
             screen.getByRole('button', { name: 'অর্ডার কনফার্ম করুন →' }),
         ).toBeInTheDocument();
+    });
+
+    it('shows the selected delivery location beside the delivery charge', () => {
+        const { unmount } = renderSection(makeCheckout());
+
+        expect(
+            screen.getByText('ঢাকা সিটি কর্পোরেশনের ভিতরে', {
+                selector: 'span',
+            }),
+        ).toBeInTheDocument();
+        unmount();
+
+        const outsideCheckout = makeCheckout({
+            data: {
+                quantity: 2,
+                customer_name: '',
+                customer_phone: '',
+                delivery_address: '',
+                shipping_area_id: 2,
+                website: '',
+            },
+        });
+        const outsideRender = renderSection(outsideCheckout);
+
+        expect(
+            screen.getByText('ঢাকা সিটি কর্পোরেশনের বাইরে', {
+                selector: 'span',
+            }),
+        ).toBeInTheDocument();
+        outsideRender.unmount();
     });
 
     it('submits the order through the checkout hook', () => {

@@ -70,6 +70,9 @@ export default function Concept3ProductSection({
         processing,
         submit,
     } = checkout;
+    const selectedShippingArea = displayShippingAreas.find(
+        (area) => area.id === data.shipping_area_id,
+    );
 
     useEffect(() => {
         if (images.length < 2) {
@@ -334,7 +337,18 @@ export default function Concept3ProductSection({
                                         <span>৳{subtotal.toFixed(0)}</span>
                                     </div>
                                     <div className="flex items-center justify-between border-b border-stone-800 pb-2 text-sm text-neutral-300 lg:pb-1.5">
-                                        <span>ডেলিভারি</span>
+                                        <span>
+                                            ডেলিভারি
+                                            {selectedShippingArea && (
+                                                <span className="ml-1 text-xs text-neutral-400">
+                                                    (
+                                                    {shippingAreaLabel(
+                                                        selectedShippingArea.name,
+                                                    )}
+                                                    )
+                                                </span>
+                                            )}
+                                        </span>
                                         <span>
                                             ৳{shippingCharge.toFixed(0)}
                                         </span>
