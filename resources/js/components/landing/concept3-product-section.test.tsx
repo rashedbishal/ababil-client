@@ -3,16 +3,12 @@ import { describe, expect, it, vi } from 'vitest';
 import type { CheckoutForm } from '@/hooks/use-checkout-form';
 import Concept3ProductSection from './concept3-product-section';
 
-function makeCheckout(overrides: Partial<CheckoutForm> = {}): CheckoutForm {
+function makeCheckout(
+    overrides: Omit<Partial<CheckoutForm>, 'data'> & {
+        data?: Partial<CheckoutForm['data']>;
+    } = {},
+): CheckoutForm {
     return {
-        data: {
-            quantity: 2,
-            customer_name: '',
-            customer_phone: '',
-            delivery_address: '',
-            shipping_area_id: 1,
-            website: '',
-        },
         setField: vi.fn(),
         setHoneypot: vi.fn(),
         displayShippingAreas: [
@@ -36,6 +32,15 @@ function makeCheckout(overrides: Partial<CheckoutForm> = {}): CheckoutForm {
         orderResult: null,
         clearOrderResult: vi.fn(),
         ...overrides,
+        data: {
+            quantity: 2,
+            customer_name: '',
+            customer_phone: '',
+            delivery_address: '',
+            shipping_area_id: 1,
+            website: '',
+            ...overrides.data,
+        },
     } as unknown as CheckoutForm;
 }
 
