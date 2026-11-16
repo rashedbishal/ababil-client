@@ -13,6 +13,7 @@ use App\Models\Order;
 use App\Models\Setting;
 use App\Services\Courier\CourierServiceInterface;
 use App\Services\Courier\ParcelData;
+use App\Support\CourierHealth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -23,6 +24,15 @@ class OrderCourierController extends Controller
 {
     public function submit(Request $request, Order $order, CourierServiceInterface $courier): RedirectResponse
     {
+        // Server-side counterpart of the disabled "Submit to courier" button:
+        // a parcel request that times out leaves it unknown whether Pathao
+        // created the parcel, so don't attempt one while it's known to be down.
+        if (CourierHealth::isUnreachable()) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'The courier service is currently unreachable, so orders cannot be submitted right now. This will re-enable automatically once the connection is restored.']);
+
+            return back();
+        }
+
         // Serializes submission attempts for this order so two rapid
         // concurrent requests can't both observe "not yet submitted" and
         // both create a Pathao parcel. Deliberately an application-level

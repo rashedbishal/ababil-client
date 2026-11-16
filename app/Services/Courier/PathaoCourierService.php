@@ -4,9 +4,12 @@ namespace App\Services\Courier;
 
 use App\Enums\CourierStatus;
 use App\Exceptions\CourierException;
+use App\Exceptions\CourierUnreachableException;
 use App\Models\CourierProvider;
 use App\Models\CourierToken;
+use App\Support\CourierHealth;
 use Closure;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
@@ -42,19 +45,29 @@ class PathaoCourierService implements CourierServiceInterface
             throw new CourierException('No Pathao store is selected. Choose one on the Courier Integration page.');
         }
 
-        $response = $this->send(fn (PendingRequest $client) => $client->post('/aladdin/api/v1/orders', [
-            'store_id' => (int) $storeId,
-            'merchant_order_id' => $parcel->orderNumber,
-            'recipient_name' => $parcel->recipientName,
-            'recipient_phone' => $parcel->recipientPhone,
-            'recipient_address' => $parcel->deliveryAddress,
-            'delivery_type' => (int) ($this->config()['delivery_type'] ?? 48),
-            'item_type' => (int) ($this->config()['item_type'] ?? 2),
-            'item_quantity' => $parcel->itemQuantity,
-            'item_weight' => number_format($parcel->itemWeightKg, 1, '.', ''),
-            'item_description' => $parcel->itemDescription,
-            'amount_to_collect' => (int) round((float) $parcel->codAmount),
-        ]));
+        try {
+            $response = $this->send(fn (PendingRequest $client) => $client->post('/aladdin/api/v1/orders', [
+                'store_id' => (int) $storeId,
+                'merchant_order_id' => $parcel->orderNumber,
+                'recipient_name' => $parcel->recipientName,
+                'recipient_phone' => $parcel->recipientPhone,
+                'recipient_address' => $parcel->deliveryAddress,
+                'delivery_type' => (int) ($this->config()['delivery_type'] ?? 48),
+                'item_type' => (int) ($this->config()['item_type'] ?? 2),
+                'item_quantity' => $parcel->itemQuantity,
+                'item_weight' => number_format($parcel->itemWeightKg, 1, '.', ''),
+                'item_description' => $parcel->itemDescription,
+                'amount_to_collect' => (int) round((float) $parcel->codAmount),
+            ]));
+        } catch (CourierUnreachableException $exception) {
+            // A timeout doesn't mean Pathao didn't create the parcel - only
+            // that we never heard back. Blindly resubmitting could create a
+            // duplicate parcel, so tell the admin to check first.
+            throw new CourierUnreachableException(
+                'Pathao did not respond in time, so it is unknown whether the parcel was created. Check the Pathao merchant dashboard before submitting this order again.',
+                previous: $exception,
+            );
+        }
 
         $data = $this->data($response, 'Failed to create the Pathao parcel.');
 
@@ -108,6 +121,16 @@ class PathaoCourierService implements CourierServiceInterface
             trackingCode: null,
             rawStatus: $rawStatus,
         );
+    }
+
+    /**
+     * Lightweight reachability probe: an authenticated read of the store
+     * list. Any HTTP response counts as reachable (attempt() records it) -
+     * only a connection failure/timeout throws CourierUnreachableException.
+     */
+    public function checkConnection(): void
+    {
+        $this->send(fn (PendingRequest $client) => $client->get('/aladdin/api/v1/stores'));
     }
 
     public function cancelParcel(string $consignmentId): bool
@@ -166,12 +189,44 @@ class PathaoCourierService implements CourierServiceInterface
      */
     private function send(Closure $makeRequest): Response
     {
-        $response = $makeRequest($this->client());
+        $response = $this->attempt(fn () => $makeRequest($this->client()));
 
         if ($response->status() === 401) {
             $this->invalidateToken();
-            $response = $makeRequest($this->client());
+            $response = $this->attempt(fn () => $makeRequest($this->client()));
         }
+
+        return $response;
+    }
+
+    /**
+     * Runs one HTTP call, converting a connection failure/timeout into a
+     * CourierUnreachableException. Laravel's Http client throws
+     * ConnectionException for these (rather than returning a failed
+     * Response), which every caller's `catch (CourierException)` would
+     * otherwise miss - turning a slow Pathao into a 500 on the admin
+     * dashboard/orders pages and aborting the scheduled status sync.
+     *
+     * @param  Closure(): Response  $request
+     */
+    private function attempt(Closure $request): Response
+    {
+        try {
+            $response = $request();
+        } catch (ConnectionException $exception) {
+            CourierHealth::markUnreachable();
+
+            Log::warning('Pathao API unreachable', ['reason' => $exception->getMessage()]);
+
+            throw new CourierUnreachableException(
+                'Pathao did not respond in time. Please try again in a few minutes.',
+                previous: $exception,
+            );
+        }
+
+        // Any HTTP response at all - even an error one - proves Pathao is
+        // reachable again.
+        CourierHealth::markReachable();
 
         return $response;
     }
@@ -195,6 +250,11 @@ class PathaoCourierService implements CourierServiceInterface
         if ($token?->refresh_token) {
             try {
                 return $this->refreshToken($token->refresh_token);
+            } catch (CourierUnreachableException $exception) {
+                // Pathao is unreachable, not rejecting the refresh token - a
+                // password-grant issue would only wait out a second timeout
+                // against the same unreachable host.
+                throw $exception;
             } catch (CourierException) {
                 // Fall through to a fresh password-grant issue below.
             }
@@ -213,7 +273,7 @@ class PathaoCourierService implements CourierServiceInterface
             }
         }
 
-        $response = Http::baseUrl(rtrim((string) $config['base_url'], '/'))
+        $response = $this->attempt(fn () => Http::baseUrl(rtrim((string) $config['base_url'], '/'))
             ->acceptJson()
             ->asJson()
             ->timeout(8)
@@ -227,7 +287,7 @@ class PathaoCourierService implements CourierServiceInterface
                 'grant_type' => 'password',
                 'username' => $config['username'],
                 'password' => $config['password'],
-            ]);
+            ]));
 
         return $this->storeToken($this->tokenPayload($this->data($response, 'Failed to authenticate with Pathao.')));
     }
@@ -236,7 +296,7 @@ class PathaoCourierService implements CourierServiceInterface
     {
         $config = $this->config();
 
-        $response = Http::baseUrl(rtrim((string) $config['base_url'], '/'))
+        $response = $this->attempt(fn () => Http::baseUrl(rtrim((string) $config['base_url'], '/'))
             ->acceptJson()
             ->asJson()
             ->timeout(8)
@@ -246,7 +306,7 @@ class PathaoCourierService implements CourierServiceInterface
                 'client_secret' => $config['client_secret'],
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $refreshToken,
-            ]);
+            ]));
 
         if ($response->failed()) {
             throw new CourierException('Failed to refresh the Pathao access token.');

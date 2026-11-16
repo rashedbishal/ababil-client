@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\CheckCourierConnection;
 use App\Console\Commands\SyncCourierOrderStatuses;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -10,7 +11,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // withoutOverlapping()'s second argument (releaseOnTerminationSignals) is
-// false on both schedules below: Hostinger's PHP has pcntl_signal()
+// false on every schedule below: Hostinger's PHP has pcntl_signal()
 // blocked via disable_functions even though extension_loaded('pcntl')
 // still reports true (common on shared hosting), so Laravel's own guard
 // for that case (Event::ensureMutexIsReleasedOnSignal()) doesn't trip -
@@ -29,6 +30,13 @@ Schedule::command(SyncCourierOrderStatuses::class)
     // this sync for the better part of a day. 30 minutes comfortably covers
     // a real run (a handful of sequential HTTP calls) with room to spare.
     ->withoutOverlapping(30, releaseOnTerminationSignals: false);
+
+// Re-enables courier features (submit button, on-visit status refreshes)
+// within a minute of an unreachable courier coming back. A no-op - no HTTP
+// request at all - unless CourierHealth currently reports an outage.
+Schedule::command(CheckCourierConnection::class)
+    ->everyMinute()
+    ->withoutOverlapping(2, releaseOnTerminationSignals: false);
 
 // Hostinger shared hosting can't run a persistent `queue:work` daemon
 // (no Supervisor, no long-lived processes outside cron) - `queue:restart`

@@ -2,6 +2,7 @@
 
 use App\Enums\CourierStatus;
 use App\Exceptions\CourierException;
+use App\Exceptions\CourierUnreachableException;
 use App\Models\CourierProvider;
 use App\Models\CourierToken;
 use App\Services\Courier\ParcelData;
@@ -404,3 +405,66 @@ test('cancelParcel is not supported since Pathao does not document a cancel endp
 
     (new PathaoCourierService)->cancelParcel('CONSIGN-1');
 })->throws(CourierException::class);
+
+test('a timeout fetching a parcel status throws CourierUnreachableException instead of a raw ConnectionException', function () {
+    pathaoConfig();
+    CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'token',
+        'expires_at' => now()->addDay(),
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/orders/CONSIGN-1/info' => Http::failedConnection('cURL error 28: Operation timed out'),
+    ]);
+
+    (new PathaoCourierService)->getParcelStatus('CONSIGN-1');
+})->throws(CourierUnreachableException::class, 'Pathao did not respond in time.');
+
+test('a timeout issuing an access token throws CourierUnreachableException', function () {
+    pathaoConfig();
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::failedConnection('cURL error 28: Operation timed out'),
+    ]);
+
+    (new PathaoCourierService)->getParcelStatus('CONSIGN-1');
+})->throws(CourierUnreachableException::class);
+
+test('a timeout refreshing the token does not fall through to a second, password-grant attempt', function () {
+    pathaoConfig();
+    CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'expired-token',
+        'refresh_token' => 'refresh-token',
+        'expires_at' => now()->subMinute(),
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/issue-token' => Http::failedConnection('cURL error 28: Operation timed out'),
+    ]);
+
+    try {
+        (new PathaoCourierService)->getParcelStatus('CONSIGN-1');
+        $this->fail('Expected a CourierUnreachableException to be thrown.');
+    } catch (CourierUnreachableException) {
+        // Expected.
+    }
+
+    Http::assertSentCount(1);
+});
+
+test('a timeout creating a parcel warns the admin it may have been created before resubmitting', function () {
+    pathaoConfig();
+    CourierToken::query()->create([
+        'provider' => 'pathao',
+        'access_token' => 'token',
+        'expires_at' => now()->addDay(),
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/orders' => Http::failedConnection('cURL error 28: Operation timed out'),
+    ]);
+
+    (new PathaoCourierService)->createParcel(sampleParcel());
+})->throws(CourierUnreachableException::class, 'unknown whether the parcel was created');

@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import InputError from '@/components/input-error';
 import Heading from '@/components/heading';
@@ -94,6 +94,8 @@ export default function OrderShow({
     courierConfigured: boolean;
     automatedSyncPreview: AutomatedSyncPreview;
 }) {
+    const courierUnreachable =
+        usePage().props.courierHealth?.unreachable === true;
     const form = useForm({
         status: order.status,
         admin_note: order.admin_note ?? '',
@@ -597,9 +599,23 @@ export default function OrderShow({
                 )}
 
                 {courierConfigured && order.courier_consignment_id === null && (
-                    <Button type="button" size="sm" onClick={submitToCourier}>
-                        Submit to courier
-                    </Button>
+                    <>
+                        <Button
+                            type="button"
+                            size="sm"
+                            onClick={submitToCourier}
+                            disabled={courierUnreachable}
+                        >
+                            Submit to courier
+                        </Button>
+                        {courierUnreachable && (
+                            <p className="text-xs text-amber-600 dark:text-amber-500">
+                                The courier service is currently unreachable.
+                                Submitting re-enables automatically once the
+                                connection is restored.
+                            </p>
+                        )}
+                    </>
                 )}
 
                 {courierConfigured && order.courier_consignment_id !== null && (

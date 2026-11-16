@@ -1,3 +1,4 @@
+import { CourierUnreachableAlert } from '@/components/admin/courier-unreachable-alert';
 import AdminLayoutTemplate from '@/layouts/admin/admin-sidebar-layout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -11,6 +12,7 @@ export default function AdminLayout({
     return (
         <AdminLayoutTemplate breadcrumbs={breadcrumbs}>
             {children}
+            <CourierUnreachableAlert />
         </AdminLayoutTemplate>
     );
 }

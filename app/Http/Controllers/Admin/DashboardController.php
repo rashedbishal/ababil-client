@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Orders\RefreshCourierStatusAction;
 use App\Enums\OrderStatus;
 use App\Exceptions\CourierException;
+use App\Exceptions\CourierUnreachableException;
 use App\Http\Controllers\Controller;
 use App\Models\IncompleteOrder;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\SiteVisit;
+use App\Support\CourierHealth;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -148,10 +150,18 @@ class DashboardController extends Controller
             // any tracking code already on file for the order.
             ->get(['id', 'order_number', 'customer_name', 'status', 'status_sync_mode', 'courier_consignment_id', 'courier_status', 'courier_raw_status', 'courier_tracking_code', 'grand_total', 'created_at']);
 
-        foreach ($orders as $order) {
+        // While the courier is known to be down, skip the refresh entirely so
+        // the dashboard loads instantly with last known statuses.
+        foreach (CourierHealth::isUnreachable() ? [] : $orders as $order) {
             if ($order->needsCourierRefresh()) {
                 try {
                     $action->execute($order, $request->user());
+                } catch (CourierUnreachableException) {
+                    // The courier is down/slow - skip the remaining orders
+                    // rather than waiting out the same timeout once per order
+                    // (which could exceed PHP's max execution time). They
+                    // keep their last known status until the next refresh.
+                    break;
                 } catch (CourierException) {
                     // Best-effort; the order just keeps showing its last known status.
                 }

@@ -8,6 +8,7 @@ use App\Actions\Orders\UpdateOrderStatusAction;
 use App\Enums\OrderStatus;
 use App\Enums\OrderStatusSyncMode;
 use App\Exceptions\CourierException;
+use App\Exceptions\CourierUnreachableException;
 use App\Exceptions\InvalidOrderStatusTransitionException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OrderStatusSyncModeRequest;
@@ -16,6 +17,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
 use App\Models\Setting;
+use App\Support\CourierHealth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
@@ -58,10 +60,18 @@ class OrderController extends Controller
         // admin happens to be looking at, not just the single order page -
         // same best-effort, one-at-a-time refresh as RefreshCourierStatusAction
         // everywhere else, so a slow/unreachable courier never blocks the list.
-        foreach ($orders as $order) {
+        // Skipped entirely while the courier is known to be down, so the list
+        // loads instantly with last known statuses.
+        foreach (CourierHealth::isUnreachable() ? [] : $orders as $order) {
             if ($order->needsCourierRefresh()) {
                 try {
                     $action->execute($order, $request->user());
+                } catch (CourierUnreachableException) {
+                    // The courier is down/slow - skip the remaining orders
+                    // rather than waiting out the same timeout once per order
+                    // (which could exceed PHP's max execution time). They
+                    // keep their last known status until the next refresh.
+                    break;
                 } catch (CourierException) {
                     // Best-effort; the order just keeps showing its last known status.
                 }
@@ -92,7 +102,7 @@ class OrderController extends Controller
             $order->update(['viewed_at' => now()]);
         }
 
-        if ($order->courierConsignmentInFlight()) {
+        if ($order->courierConsignmentInFlight() && ! CourierHealth::isUnreachable()) {
             try {
                 $order = $action->execute($order, $request->user());
             } catch (CourierException) {

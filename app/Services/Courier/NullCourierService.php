@@ -25,6 +25,11 @@ class NullCourierService implements CourierServiceInterface
         throw new CourierException(self::NOT_CONFIGURED_MESSAGE);
     }
 
+    public function checkConnection(): void
+    {
+        // Nothing remote to reach.
+    }
+
     public function cancelParcel(string $consignmentId): bool
     {
         throw new CourierException(self::NOT_CONFIGURED_MESSAGE);

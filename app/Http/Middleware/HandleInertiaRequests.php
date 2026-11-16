@@ -3,8 +3,10 @@
 namespace App\Http\Middleware;
 
 use App\Enums\LogoSlot;
+use App\Http\Controllers\Admin\CourierAlertController;
 use App\Models\Logo;
 use App\Models\Order;
+use App\Support\CourierHealth;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -48,12 +50,35 @@ class HandleInertiaRequests extends Middleware
             'pendingOrdersCount' => $request->user()?->is_admin
                 ? Order::query()->whereNull('viewed_at')->count()
                 : null,
+            'courierHealth' => $request->user()?->is_admin
+                ? $this->courierHealth($request)
+                : null,
             'sizeManagementEnabled' => (bool) config('catalog.size_set'),
             // Uploaded logo URLs, null where the bundled default applies.
             'logos' => [
                 'site' => Logo::urlFor(LogoSlot::Site),
                 'admin' => Logo::urlFor(LogoSlot::Admin),
             ],
+        ];
+    }
+
+    /**
+     * `alert` drives the one-time "courier unreachable" modal: shown once
+     * per outage per login. Dismissing it records that outage's start time
+     * in the session (CourierAlertController), and logging out invalidates
+     * the session - so the next login while still down shows it again, as
+     * does a fresh outage later in the same session.
+     *
+     * @return array{unreachable: bool, since: string|null, alert: bool}
+     */
+    private function courierHealth(Request $request): array
+    {
+        $since = CourierHealth::since();
+
+        return [
+            'unreachable' => $since !== null,
+            'since' => $since,
+            'alert' => $since !== null && $request->session()->get(CourierAlertController::SESSION_KEY) !== $since,
         ];
     }
 }

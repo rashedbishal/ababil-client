@@ -4,6 +4,7 @@ use App\Enums\OrderStatus;
 use App\Models\CourierProvider;
 use App\Models\Order;
 use App\Models\Setting;
+use App\Support\CourierHealth;
 use Illuminate\Support\Facades\Http;
 
 function configurePathaoForScheduledSync(): void
@@ -132,4 +133,59 @@ test('a courier failure for one order does not stop the rest of the batch from s
 
     expect($failing->fresh()->status)->toBe(OrderStatus::CourierSubmitted)
         ->and($succeeding->fresh()->status)->toBe(OrderStatus::Delivered);
+});
+
+test('a courier timeout stops the scheduled sync cleanly and flags the courier as unreachable', function () {
+    configurePathaoForScheduledSync();
+
+    $timingOut = Order::factory()->create([
+        'status' => OrderStatus::CourierSubmitted,
+        'status_sync_mode' => 'automated',
+        'courier_consignment_id' => 'CONSIGN-TIMEOUT',
+        'courier_provider' => 'pathao',
+    ]);
+
+    $succeeding = Order::factory()->create([
+        'status' => OrderStatus::CourierSubmitted,
+        'status_sync_mode' => 'automated',
+        'courier_consignment_id' => 'CONSIGN-OK',
+        'courier_provider' => 'pathao',
+    ]);
+
+    Http::fake([
+        '*/aladdin/api/v1/orders/CONSIGN-TIMEOUT/info' => Http::failedConnection('cURL error 28: Operation timed out after 8002 milliseconds with 0 bytes received'),
+        '*/aladdin/api/v1/orders/CONSIGN-OK/info' => Http::response([
+            'data' => ['consignment_id' => 'CONSIGN-OK', 'order_status_slug' => 'Delivery'],
+        ]),
+        '*/aladdin/api/v1/issue-token' => Http::response([
+            'expires_in' => 432000, 'access_token' => 'token', 'refresh_token' => 'refresh',
+        ]),
+    ]);
+
+    $this->artisan('courier:sync-order-statuses')->assertExitCode(0);
+
+    // Stops at the first timeout instead of waiting out one per remaining
+    // order; the rest resume on the next run once the courier is back.
+    expect($timingOut->fresh()->status)->toBe(OrderStatus::CourierSubmitted)
+        ->and($succeeding->fresh()->status)->toBe(OrderStatus::CourierSubmitted)
+        ->and(CourierHealth::isUnreachable())->toBeTrue();
+
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'CONSIGN-OK'));
+});
+
+test('the scheduled sync makes no courier requests while the courier is flagged unreachable', function () {
+    configurePathaoForScheduledSync();
+    CourierHealth::markUnreachable();
+
+    $order = Order::factory()->create([
+        'status' => OrderStatus::CourierSubmitted,
+        'status_sync_mode' => 'automated',
+        'courier_consignment_id' => 'CONSIGN-1',
+        'courier_provider' => 'pathao',
+    ]);
+
+    $this->artisan('courier:sync-order-statuses')->assertExitCode(0);
+
+    Http::assertNothingSent();
+    expect($order->fresh()->status)->toBe(OrderStatus::CourierSubmitted);
 });

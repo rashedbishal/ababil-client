@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\Actions\Orders\RefreshCourierStatusAction;
 use App\Exceptions\CourierException;
+use App\Exceptions\CourierUnreachableException;
 use App\Models\Order;
+use App\Support\CourierHealth;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -29,17 +31,33 @@ class SyncCourierOrderStatuses extends Command
 {
     public function handle(RefreshCourierStatusAction $action): int
     {
+        // While the courier is known to be down, every order would just wait
+        // out the same timeout. courier:check-connection clears this flag as
+        // soon as the courier answers again; the next run catches up.
+        if (CourierHealth::isUnreachable()) {
+            $this->warn('Courier is unreachable; skipping this sync run.');
+
+            return self::SUCCESS;
+        }
+
         $synced = 0;
         $failed = 0;
+        $unreachable = false;
 
         Order::query()
             ->needsCourierRefresh()
             ->orderBy('id')
-            ->chunkById(50, function ($orders) use ($action, &$synced, &$failed): void {
+            ->chunkById(50, function ($orders) use ($action, &$synced, &$failed, &$unreachable): bool {
                 foreach ($orders as $order) {
                     try {
                         $action->execute($order, null);
                         $synced++;
+                    } catch (CourierUnreachableException) {
+                        // Stop the whole run rather than timing out once per
+                        // remaining order; it resumes once the courier is back.
+                        $unreachable = true;
+
+                        return false;
                     } catch (CourierException $exception) {
                         $failed++;
 
@@ -49,7 +67,15 @@ class SyncCourierOrderStatuses extends Command
                         ]);
                     }
                 }
+
+                return true;
             });
+
+        if ($unreachable) {
+            $this->warn("Courier became unreachable; stopped after {$synced} synced, {$failed} failed.");
+
+            return self::SUCCESS;
+        }
 
         $this->info("Courier status sync complete: {$synced} synced, {$failed} failed.");
 

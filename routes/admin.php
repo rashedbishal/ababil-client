@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\BlockedIpController;
 use App\Http\Controllers\Admin\CertificateController;
+use App\Http\Controllers\Admin\CourierAlertController;
 use App\Http\Controllers\Admin\CourierController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -104,6 +105,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('courier/default', [CourierController::class, 'setDefault'])->name('courier.default');
     Route::put('courier/pathao/store', [CourierController::class, 'selectPathaoStore'])->name('courier.pathao.store');
     Route::post('courier/pathao/stores', [CourierController::class, 'fetchPathaoStores'])->name('courier.pathao.stores');
+    Route::post('courier/alert/dismiss', [CourierAlertController::class, 'dismiss'])->name('courier.alert.dismiss');
     Route::put('courier/{provider}', [CourierController::class, 'update'])
         ->whereIn('provider', ['pathao', 'steadfast', 'redx'])
         ->name('courier.update');

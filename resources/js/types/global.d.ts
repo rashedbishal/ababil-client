@@ -21,6 +21,12 @@ declare module '@inertiajs/core' {
             auth: Auth;
             sidebarOpen: boolean;
             pendingOrdersCount: number | null;
+            // Admin-only; null for guests and non-admins.
+            courierHealth: {
+                unreachable: boolean;
+                since: string | null;
+                alert: boolean;
+            } | null;
             sizeManagementEnabled: boolean;
             logos: { site: string | null; admin: string | null };
             [key: string]: unknown;

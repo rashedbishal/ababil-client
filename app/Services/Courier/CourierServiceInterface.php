@@ -23,6 +23,13 @@ interface CourierServiceInterface
     public function getParcelStatus(string $consignmentId): ParcelStatus;
 
     /**
+     * Cheaply verify the courier API is reachable. Throws
+     * CourierUnreachableException on a connection failure/timeout; any
+     * other CourierException still means the courier answered.
+     */
+    public function checkConnection(): void;
+
+    /**
      * Cancel a previously created parcel, if the provider supports it.
      */
     public function cancelParcel(string $consignmentId): bool;
